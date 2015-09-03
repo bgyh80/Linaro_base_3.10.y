@@ -192,6 +192,7 @@ DECLARE_DVFS_DELAYED_WORK_FUNC(CHG, TOUCH)
 	switch (dvfs->level) {
 	case BOOSTER_LEVEL0:
 	case BOOSTER_LEVEL1:
+	case BOOSTER_LEVEL3:
 		remove_qos(&dvfs->cpu_qos);
 		remove_qos(&dvfs->kfc_qos);
 		remove_qos(&dvfs->mif_qos);
@@ -219,6 +220,38 @@ DECLARE_DVFS_DELAYED_WORK_FUNC(CHG, TOUCH)
 			remove_qos(&dvfs->mif_qos);}
 		else{
 			set_qos(&dvfs->mif_qos, PM_QOS_BUS_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL2_CHG].mif_freq);}
+
+		DVFS_DEV_DBG(DBG_DVFS, data->dev, "%s : DVFS CHANGED [level %d]\n", __func__, dvfs->level);
+	break;
+	case BOOSTER_LEVEL4:
+		DVFS_DEV_DBG(DBG_DVFS, data->dev, "%s : DVFS CHANGED [level %d]\n", __func__, dvfs->level);
+	break;
+	case BOOSTER_LEVEL5:
+		if (dvfs->phase_excuted) {
+			remove_qos(&dvfs->cpu_qos);
+			remove_qos(&dvfs->kfc_qos);
+			remove_qos(&dvfs->mif_qos);
+			remove_qos(&dvfs->int_qos);
+			SET_HMP(data, BOOSTER_DEVICE_TOUCH, false);
+			dvfs->lock_status = false;
+			dvfs->phase_excuted = false;
+
+			DVFS_DEV_DBG(DBG_DVFS, data->dev, "%s : DVFS OFF\n", __func__);
+		} else {
+			set_qos(&dvfs->cpu_qos, PM_QOS_CPU_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL5].cpu_freq);
+			schedule_delayed_work(&dvfs->dvfs_chg_work,
+				msecs_to_jiffies(dvfs->times[BOOSTER_LEVEL5].head_time - dvfs->times[BOOSTER_LEVEL5].phase_time));
+			dvfs->phase_excuted = true;
+			DVFS_DEV_DBG(DBG_DVFS, data->dev, "%s : DVFS CHANGED [level %d, start time[%d]]\n",
+				__func__, dvfs->level, dvfs->times[BOOSTER_LEVEL5].head_time - dvfs->times[BOOSTER_LEVEL5].phase_time);
+		}
+	break;
+	case BOOSTER_LEVEL9:
+		SET_HMP(data, BOOSTER_DEVICE_TOUCH, dvfs->freqs[BOOSTER_LEVEL9_CHG].hmp_boost);
+		set_qos(&dvfs->kfc_qos, PM_QOS_KFC_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL9_CHG].kfc_freq);
+		set_qos(&dvfs->int_qos, PM_QOS_DEVICE_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL9_CHG].int_freq);
+		set_qos(&dvfs->cpu_qos, PM_QOS_CPU_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL9_CHG].cpu_freq);
+		set_qos(&dvfs->mif_qos, PM_QOS_BUS_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL9_CHG].mif_freq);
 
 		DVFS_DEV_DBG(DBG_DVFS, data->dev, "%s : DVFS CHANGED [level %d]\n", __func__, dvfs->level);
 	break;
@@ -307,6 +340,31 @@ DECLARE_DVFS_WORK_FUNC(SET, TOUCH)
 			else{
 				set_qos(&dvfs->mif_qos, PM_QOS_BUS_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL2].mif_freq);}
 		break;
+		case BOOSTER_LEVEL3:
+			set_qos(&dvfs->kfc_qos, PM_QOS_KFC_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL3].kfc_freq);
+			set_qos(&dvfs->int_qos, PM_QOS_DEVICE_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL3].int_freq);
+			set_qos(&dvfs->mif_qos, PM_QOS_BUS_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL3].mif_freq);
+			remove_qos(&dvfs->cpu_qos);
+			SET_HMP(data, BOOSTER_DEVICE_TOUCH, dvfs->freqs[BOOSTER_LEVEL3].hmp_boost);
+		break;
+		case BOOSTER_LEVEL4:
+			set_qos(&dvfs->kfc_qos, PM_QOS_KFC_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL4].kfc_freq);
+			set_qos(&dvfs->int_qos, PM_QOS_DEVICE_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL4].int_freq);
+			set_qos(&dvfs->mif_qos, PM_QOS_BUS_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL4].mif_freq);
+			remove_qos(&dvfs->cpu_qos);
+			SET_HMP(data, BOOSTER_DEVICE_TOUCH, dvfs->freqs[BOOSTER_LEVEL4].hmp_boost);
+		case BOOSTER_LEVEL5:
+			SET_HMP(data, BOOSTER_DEVICE_TOUCH, dvfs->freqs[BOOSTER_LEVEL5].hmp_boost);
+			set_qos(&dvfs->kfc_qos, PM_QOS_KFC_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL5].kfc_freq);
+			set_qos(&dvfs->int_qos, PM_QOS_DEVICE_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL5].int_freq);
+			set_qos(&dvfs->mif_qos, PM_QOS_BUS_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL5].mif_freq);
+		break;
+		case BOOSTER_LEVEL9:
+			SET_HMP(data, BOOSTER_DEVICE_TOUCH, dvfs->freqs[BOOSTER_LEVEL9].hmp_boost);
+			set_qos(&dvfs->kfc_qos, PM_QOS_KFC_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL9].kfc_freq);
+			set_qos(&dvfs->int_qos, PM_QOS_DEVICE_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL9].int_freq);
+			set_qos(&dvfs->cpu_qos, PM_QOS_CPU_FREQ_MIN, dvfs->freqs[BOOSTER_LEVEL9].cpu_freq);
+			set_qos(&dvfs->mif_qos, PM_QOS_BUS_THROUGHPUT, dvfs->freqs[BOOSTER_LEVEL9].mif_freq);
 		default:
 			dev_err(data->dev, "%s : Undefined type passed[%d]\n", __func__, dvfs->level);
 		break;
