@@ -78,6 +78,10 @@ static int prev_overlap_cnt = 0;
 static int prev_gsc_local_cnt = 0;
 #endif
 
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
+#endif
+
 /* This driver will export a number of framebuffer interfaces depending
  * on the configuration passed in via the platform data. Each fb instance
  * maps to a hardware window. Currently there is no support for runtime
@@ -1034,6 +1038,9 @@ static int s3c_fb_blank(int blank_mode, struct fb_info *info)
 			}
 		}
 #endif
+#ifdef CONFIG_POWERSUSPEND
+		set_power_suspend_state_panel_hook(POWER_SUSPEND_ACTIVE);
+#endif	
 		break;
 
 	case FB_BLANK_UNBLANK:
@@ -1070,6 +1077,9 @@ static int s3c_fb_blank(int blank_mode, struct fb_info *info)
 			/* Check TUI State and decrease count */
 			trustedui_blank_dec();
 		}
+#endif
+#ifdef CONFIG_POWERSUSPEND
+		set_power_suspend_state_panel_hook(POWER_SUSPEND_INACTIVE);
 #endif
 		break;
 
