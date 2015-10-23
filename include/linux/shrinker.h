@@ -1,3 +1,4 @@
+#include <linux/nodemask.h>
 #ifndef _LINUX_SHRINKER_H
 #define _LINUX_SHRINKER_H
 
