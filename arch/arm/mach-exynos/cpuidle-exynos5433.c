@@ -123,9 +123,9 @@ static spinlock_t c2_state_lock;
 #define L2_OFF		(1 << 0)
 #define L2_CCI_OFF	(1 << 1)
 #define CMU_OFF		(1 << 2)
+#endif
 #if defined(CONFIG_ARM_EXYNOS5433_BUS_DEVFREQ)
 #define MIF_LIMIT	(0)
-#endif
 #endif
 
 static int exynos_enter_idle(struct cpuidle_device *dev,
@@ -274,12 +274,15 @@ static int is_jig_attached(void)
 }
 #else
 static bool muic_is_attached = false;
+#if defined (CONFIG_EXYNOS_CLUSTER_POWER_DOWN)
 static int is_jig_attached(void)
 {
 	return muic_is_attached;
 }
 #endif
+#endif
 
+#if defined (CONFIG_EXYNOS_CLUSTER_POWER_DOWN)
 static int exynos_check_lpc(void)
 {
 	if (is_jig_attached())
@@ -342,7 +345,7 @@ static int exynos_check_lpc(void)
 
 	return 0;
 }
-
+#endif
 
 static int exynos_check_enter_mode(void)
 {
