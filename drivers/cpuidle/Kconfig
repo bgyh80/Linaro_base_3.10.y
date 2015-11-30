@@ -49,13 +49,6 @@ config CPUIDLE_TEST_SYSFS
 	help
 	  Enable sysfs interface to check C2 status
 
-config EXYNOS_IDLE_CLOCK_DOWN
-	bool "EXYNOS core idle clock down"
-	depends on CPU_IDLE
-	default y
-	help
-	  Enable core idle clock down
-
 menu "ARM CPU Idle Drivers"
 depends on ARM
 source "drivers/cpuidle/Kconfig.arm"
