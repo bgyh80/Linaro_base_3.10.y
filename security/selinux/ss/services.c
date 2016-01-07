@@ -105,6 +105,7 @@ struct selinux_mapping {
 static struct selinux_mapping *current_mapping;
 static u16 current_mapping_size;
 
+#ifndef CONFIG_SECURITY_SELINUX_DISABLE
 static int selinux_set_mapping(struct policydb *pol,
 			       struct security_class_mapping *map,
 			       struct selinux_mapping **out_map_p,
@@ -186,6 +187,7 @@ err:
 	kfree(out_map);
 	return -EINVAL;
 }
+#endif
 
 /*
  * Get real, policy values from mapped values
@@ -1630,6 +1632,7 @@ int security_change_sid(u32 ssid,
 				    out_sid, false);
 }
 
+#ifndef CONFIG_SECURITY_SELINUX_DISABLE
 /* Clone the SID into the new SID table. */
 static int clone_sid(u32 sid,
 		     struct context *context,
@@ -1642,6 +1645,7 @@ static int clone_sid(u32 sid,
 	else
 		return 0;
 }
+#endif
 
 static inline int convert_context_handle_invalid_context(struct context *context)
 {
@@ -1663,6 +1667,7 @@ struct convert_context_args {
 	struct policydb *newp;
 };
 
+#ifndef CONFIG_SECURITY_SELINUX_DISABLE
 /*
  * Convert the values in the security context
  * structure `c' from the values specified
@@ -1819,7 +1824,7 @@ static void security_load_policycaps(void)
 }
 
 static int security_preserve_bools(struct policydb *p);
-
+#endif
 /**
  * security_load_policy - Load a security policy configuration.
  * @data: binary policy data
@@ -2495,6 +2500,7 @@ out:
 	return rc;
 }
 
+#ifndef CONFIG_SECURITY_SELINUX_DISABLE
 static int security_preserve_bools(struct policydb *p)
 {
 	int rc, nbools = 0, *bvalues = NULL, i;
@@ -2525,6 +2531,7 @@ out:
 	kfree(bvalues);
 	return rc;
 }
+#endif
 
 /*
  * security_sid_mls_copy() - computes a new sid based on the given

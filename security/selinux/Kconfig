@@ -40,6 +40,7 @@ config SECURITY_SELINUX_BOOTPARAM_VALUE
 config SECURITY_SELINUX_DISABLE
 	bool "NSA SELinux runtime disable"
 	depends on SECURITY_SELINUX
+	select SECURITY_SELINUX_DISABLE_LOAD
 	default n
 	help
 	  This option enables writing to a selinuxfs node 'disable', which
