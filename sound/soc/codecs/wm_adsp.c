@@ -2745,7 +2745,6 @@ err_capt_buf:
 
 	return ret;
 }
-<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(wm_adsp_stream_alloc);
 
 int wm_adsp_stream_free(struct wm_adsp *adsp)
@@ -2957,8 +2956,6 @@ int wm_adsp_stream_avail(const struct wm_adsp *adsp)
 			adsp->capt_buf_size);
 }
 EXPORT_SYMBOL_GPL(wm_adsp_stream_avail);
-=======
 EXPORT_SYMBOL_GPL(wm_adsp2_init);
->>>>>>> v3.10.94
 
 MODULE_LICENSE("GPL v2");

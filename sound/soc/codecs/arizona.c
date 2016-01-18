@@ -2649,11 +2649,8 @@ static void arizona_disable_fll(struct arizona_fll *fll)
 	int i;
 	unsigned int val = 0;
 
-<<<<<<< HEAD
 	arizona_fll_dbg(fll, "Disabling FLL\n");
 
-=======
->>>>>>> v3.10.94
 	regmap_update_bits(arizona->regmap, fll->base + 1,
 			   ARIZONA_FLL1_FREERUN, ARIZONA_FLL1_FREERUN);
 	regmap_update_bits_check(arizona->regmap, fll->base + 1,

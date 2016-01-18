@@ -4052,13 +4052,9 @@ no_journal:
 			 "available");
 	}
 
-<<<<<<< HEAD
 	atomic64_set(&sbi->s_r_blocks_count, ext4_r_blocks_count(es));
 
-	err = ext4_reserve_clusters(sbi, ext4_calculate_resv_clusters(sbi));
-=======
 	err = ext4_reserve_clusters(sbi, ext4_calculate_resv_clusters(sb));
->>>>>>> v3.10.94
 	if (err) {
 		ext4_msg(sb, KERN_ERR, "failed to reserve %llu clusters for "
 			 "reserved pool", ext4_calculate_resv_clusters(sb));
