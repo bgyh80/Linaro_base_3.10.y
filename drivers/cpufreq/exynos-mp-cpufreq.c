@@ -1359,7 +1359,7 @@ static size_t get_freq_table_size(struct cpufreq_frequency_table *freq_table)
 	return tbl_sz;
 }
 
-#ifdef CONFIG_SOC_EXYNOS5433
+#ifdef CONFIG_SOC_EXYNOS5430
 #define KFC_MAX_VOLT 1200000
 #define EGL_MAX_VOLT 1300000
 #else
