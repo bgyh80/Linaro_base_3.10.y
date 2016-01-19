@@ -34,22 +34,19 @@ echo cafactive > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
 echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/timer_rate
 echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/timer_slack
 echo 40000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/min_sample_time
-echo 800000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/hispeed_freq
-echo 85 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/go_hispeed_load
+echo 900000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/hispeed_freq
+echo 140 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/go_hispeed_load
 echo 75 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/target_loads
 echo 19000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/above_hispeed_delay
 echo 40000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/boostpulse_duration
-echo 100000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/max_freq_hysteresis
 echo 20000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/timer_rate
-echo 20000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/timer_slack
-echo 40000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/min_sample_time
-echo 1100000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/hispeed_freq
-echo 89 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/go_hispeed_load
-echo "65 1500000:75" > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/target_loads
-echo "59000 1200000:39000 1600000:19000" > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/above_hispeed_delay
-echo 40000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/boostpulse_duration
-echo 100000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/max_freq_hysteresis
-echo 100000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/max_freq_hysteresis
+echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/timer_slack
+echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/min_sample_time
+echo 1800000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/hispeed_freq
+echo 99 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/go_hispeed_load
+echo "90" > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/target_loads
+echo "20000" > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/above_hispeed_delay
+echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/boostpulse_duration
 
 # io_is_busy
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/io_is_busy
