@@ -77,14 +77,14 @@ static u64 zswap_duplicate_entry;
 /*********************************
 * tunables
 **********************************/
-/* Enable/disable zswap (enabled by default, fixed at boot for now) */
+/* Enable/disable zswap (disabled by default) */
 static bool zswap_enabled = 1;
-module_param_named(enabled, zswap_enabled, bool, 0);
+module_param_named(enabled, zswap_enabled, bool, 0644);
 
 /* Compressor to be used by zswap (fixed at boot for now) */
 #define ZSWAP_COMPRESSOR_DEFAULT "lzo"
 static char *zswap_compressor = ZSWAP_COMPRESSOR_DEFAULT;
-module_param_named(compressor, zswap_compressor, charp, 0);
+module_param_named(compressor, zswap_compressor, charp, 0644);
 
 /* The maximum percentage of memory that the compressed pool can occupy */
 static unsigned int zswap_max_pool_percent = 20;
@@ -409,34 +409,6 @@ static inline void zswap_page_pool_destroy(void)
 {
 	mempool_destroy(zswap_page_pool);
 }
-
-static struct page *zswap_alloc_page(gfp_t flags)
-{
-	struct page *page;
-
-	if (atomic_read(&zswap_pool_pages) >= zswap_max_pool_pages()) {
-		zswap_pool_limit_hit++;
-		return NULL;
-	}
-	page = mempool_alloc(zswap_page_pool, flags);
-	if (page)
-		atomic_inc(&zswap_pool_pages);
-	return page;
-}
-
-static void zswap_free_page(struct page *page)
-{
-	if (!page)
-		return;
-	mempool_free(page, zswap_page_pool);
-	atomic_dec(&zswap_pool_pages);
-}
-
-static struct zs_ops zswap_zs_ops = {
-	.alloc = zswap_alloc_page,
-	.free = zswap_free_page
-};
-
 
 /*********************************
 * helpers
@@ -781,7 +753,7 @@ static int zswap_frontswap_store(unsigned type, pgoff_t offset,
 	u8 *tmpdst;
 #endif
 
-	if (!tree) {
+	if (!zswap_enabled || !tree) {
 		ret = -ENODEV;
 		goto reject;
 	}
@@ -810,9 +782,7 @@ static int zswap_frontswap_store(unsigned type, pgoff_t offset,
 	}
 
 	/* store */
-	handle = zs_malloc(tree->pool, dlen,
-		__GFP_NORETRY | __GFP_HIGHMEM | __GFP_NOMEMALLOC |
-			__GFP_NOWARN);
+	handle = zs_malloc(tree->pool, dlen);
 	if (!handle) {
 #ifdef CONFIG_ZSWAP_ENABLE_WRITEBACK
 		zswap_writeback_attempted++;
@@ -836,9 +806,7 @@ static int zswap_frontswap_store(unsigned type, pgoff_t offset,
 		/* TODO: replace with more targeted policy */
 		zswap_writeback_entries(tree, 16);
 		/* try again, allowing wait */
-		handle = zs_malloc(tree->pool, dlen,
-			__GFP_NORETRY | __GFP_HIGHMEM | __GFP_NOMEMALLOC |
-				__GFP_NOWARN);
+		handle = zs_malloc(tree->pool, dlen);
 		if (!handle) {
 			/* still no space, fail */
 			zswap_reject_zsmalloc_fail++;
@@ -1043,7 +1011,7 @@ static void zswap_frontswap_init(unsigned type)
 	tree = kzalloc(sizeof(struct zswap_tree), GFP_ATOMIC);
 	if (!tree)
 		goto err;
-	tree->pool = zs_create_pool(GFP_NOWAIT, &zswap_zs_ops);
+	tree->pool = zs_create_pool(GFP_NOWAIT | __GFP_HIGHMEM);
 	if (!tree->pool)
 		goto freetree;
 	tree->rbroot = RB_ROOT;
@@ -1131,9 +1099,6 @@ static inline void __exit zswap_debugfs_exit(void) { }
 **********************************/
 static int __init init_zswap(void)
 {
-	if (!zswap_enabled)
-		return 0;
-
 	pr_info("loading zswap\n");
 	if (zswap_entry_cache_create()) {
 		pr_err("entry cache creation failed\n");
