@@ -1,0 +1,15 @@
+on early-fs
+    mkdir /system
+    mkdir /data
+    mkdir /cache
+    wait /dev/block/mmcblk0p18
+    wait /dev/block/mmcblk0p19
+    wait /dev/block/mmcblk0p21
+    wait /proc/mounts
+    mount ext4 /dev/block/mmcblk0p18 /system ro wait noatime nodiratime nodiscard,errors=panic
+    mount f2fs /dev/block/mmcblk0p18 /system ro wait noatime nodiratime nodiscard,background_gc=off
+    mount ext4 /dev/block/mmcblk0p21 /data wait noatime nodiratime nosuid nodev discard,journal_async_commit,errors=panic
+    mount f2fs /dev/block/mmcblk0p21 /data wait noatime nodiratime nosuid nodev discard,background_gc=on
+    mount ext4 /dev/block/mmcblk0p19 /cache wait noatime nodiratime nosuid nodev discard,journal_async_commit,errors=panic
+    mount f2fs /dev/block/mmcblk0p19 /cache wait noatime nodiratime nosuid nodev discard,background_gc=on
+

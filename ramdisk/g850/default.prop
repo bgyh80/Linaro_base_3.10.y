@@ -1,0 +1,41 @@
+#
+# ADDITIONAL_DEFAULT_PROPERTIES
+#
+persist.security.ams.enforcing=0
+ro.secure=0
+ro.allow.mock.location=0
+ro.debuggable=1
+ro.adb.secure=0
+persist.sys.usb.config=mtp
+ro.zygote=zygote32
+dalvik.vm.dex2oat-Xms=64m
+dalvik.vm.dex2oat-Xmx=512m
+dalvik.vm.image-dex2oat-Xms=64m
+dalvik.vm.image-dex2oat-Xmx=64m
+ro.dalvik.vm.native.bridge=0
+
+persist.service.adb.enable=1
+androidboot.selinux=0
+ro.security.mdpp.ux=Disabled
+security.mdpp=None
+security.mdpp.result=None
+persist.security.mdm.policy=0
+ro.build.selinux=0
+selinux.reload_policy=0
+ro.config.knox=0
+security.knox_kap_mode=false
+
+ro.securestorage.knox=false
+ro.securestorage.support=false
+ro.config.tima=0
+ro.config.timaversion=0
+
+wlan.wfd.hdcp=disable
+persist.cne.feature=0
+
+# enabled a simpler memory management system
+ro.config.fha_enable=true
+
+# removed cached apps
+ro.sys.fw.use_trim_settings=false
+

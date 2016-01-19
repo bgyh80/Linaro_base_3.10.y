@@ -1,0 +1,7 @@
+#!/res/bin/busybox sh
+
+SR_COMMAND=/data/StockRider/bin/sr
+if [ -f $SR_COMMAND ]; then
+	source $SR_COMMAND
+fi
+
