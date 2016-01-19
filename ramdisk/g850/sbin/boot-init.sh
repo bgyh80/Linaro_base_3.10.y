@@ -82,18 +82,18 @@ echo "2 130 500 0" > /sys/class/input_booster/touch/time
 echo "3 0 500 0" > /sys/class/input_booster/touch/time
 
 if [ ! -f /system/.knox_removed ]; then
-#    bb rm -rf /system/app/Bridge
-#    bb rm -rf /system/app/KnoxAttestationAgent
-#    bb rm -rf /system/app/KnoxFolderContainer
-#    bb rm -rf /system/app/KnoxSetupWizardClient
-#    bb rm -rf /system/app/SwitchKnoxI
-#    bb rm -rf /system/app/SwitchKnoxII
-#    bb rm -rf /system/app/SPDClient
-#    bb rm -rf /system/app/AASAservice
-#    bb rm -rf /system/app/bbCAgent
-#    bb rm -rf /system/priv-app/SPDClient
-#    bb rm -rf /system/priv-app/KLMSAgent
-#    bb rm -rf /system/container
+    bb rm -rf /system/app/Bridge
+    bb rm -rf /system/app/KnoxAttestationAgent
+    bb rm -rf /system/app/KnoxFolderContainer
+    bb rm -rf /system/app/KnoxSetupWizardClient
+    bb rm -rf /system/app/SwitchKnoxI
+    bb rm -rf /system/app/SwitchKnoxII
+    bb rm -rf /system/app/SPDClient
+    bb rm -rf /system/app/AASAservice
+    bb rm -rf /system/app/bbCAgent
+    bb rm -rf /system/priv-app/SPDClient
+    bb rm -rf /system/priv-app/KLMSAgent
+    bb rm -rf /system/container
     
     touch /system/.knox_removed
 fi
