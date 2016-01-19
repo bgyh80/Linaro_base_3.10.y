@@ -19,13 +19,6 @@
 #include "exynos_drm_fbdev.h"
 
 static LIST_HEAD(exynos_drm_subdrv_list);
-DEFINE_MUTEX(list_lock);
-
-struct exynos_drm_non_kms_dev {
-	struct list_head list;
-	struct exynos_drm_subdrv *subdrv;
-	unsigned int device_type;
-};
 
 static int exynos_drm_create_enc_conn(struct drm_device *dev,
 					struct exynos_drm_subdrv *subdrv)
@@ -207,39 +200,26 @@ int exynos_drm_subdrv_unregister(struct exynos_drm_subdrv *subdrv)
 }
 EXPORT_SYMBOL_GPL(exynos_drm_subdrv_unregister);
 
-int exynos_drm_subdrv_open(struct drm_device *drm_dev, struct drm_file *file)
+int exynos_drm_subdrv_open(struct drm_device *dev, struct drm_file *file)
 {
-	struct exynos_drm_non_kms_dev *dev;
+	struct exynos_drm_subdrv *subdrv;
 	int ret;
 
-	mutex_lock(&list_lock);
-	list_for_each_entry(dev, &exynos_drm_subdrv_list, list) {
-		struct exynos_drm_subdrv *subdrv = dev->subdrv;
-
-		mutex_unlock(&list_lock);
+	list_for_each_entry(subdrv, &exynos_drm_subdrv_list, list) {
 		if (subdrv->open) {
-			ret = subdrv->open(drm_dev, subdrv->dev, file);
+			ret = subdrv->open(dev, subdrv->dev, file);
 			if (ret)
 				goto err;
 		}
-		mutex_lock(&list_lock);
 	}
-	mutex_unlock(&list_lock);
 
 	return 0;
 
 err:
-	mutex_lock(&list_lock);
-	list_for_each_entry_reverse(dev, &exynos_drm_subdrv_list, list) {
-		struct exynos_drm_subdrv *subdrv = dev->subdrv;
-
-		mutex_unlock(&list_lock);
+	list_for_each_entry_reverse(subdrv, &subdrv->list, list) {
 		if (subdrv->close)
-			subdrv->close(drm_dev, subdrv->dev, file);
-		mutex_lock(&list_lock);
+			subdrv->close(dev, subdrv->dev, file);
 	}
-	mutex_lock(&list_lock);
-
 	return ret;
 }
 EXPORT_SYMBOL_GPL(exynos_drm_subdrv_open);
