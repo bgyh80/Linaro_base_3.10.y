@@ -58,6 +58,7 @@ echo 1 > /sys/devices/virtual/sec/sec_slow/io_is_busy
 
 # fix some kernel value
 
+for i in /sys/block/*/queue/scheduler; do echo fiops > $i; done
 for i in /sys/block/*/queue/add_random; do echo 0 > $i; done
 for i in /sys/block/*/queue/rq_affinity; do echo 2 > $i; done
 
