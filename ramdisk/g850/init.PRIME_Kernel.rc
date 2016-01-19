@@ -7,9 +7,9 @@ on early-fs
     wait /dev/block/mmcblk0p21
     wait /proc/mounts
     mount ext4 /dev/block/mmcblk0p18 /system ro wait noatime nodiratime nodiscard,errors=panic
-    mount f2fs /dev/block/mmcblk0p18 /system ro wait noatime nodiratime nodiscard,background_gc=off
+    mount f2fs /dev/block/mmcblk0p18 /system ro wait seclabel noatime nodiratime background_gc=off,user_xattr
     mount ext4 /dev/block/mmcblk0p21 /data wait noatime nodiratime nosuid nodev discard,journal_async_commit,errors=panic
-    mount f2fs /dev/block/mmcblk0p21 /data wait noatime nodiratime nosuid nodev discard,background_gc=on
+    mount f2fs /dev/block/mmcblk0p21 /data wait noatime nodiratime nosuid nodev discard,background_gc=sync
     mount ext4 /dev/block/mmcblk0p19 /cache wait noatime nodiratime nosuid nodev discard,journal_async_commit,errors=panic
-    mount f2fs /dev/block/mmcblk0p19 /cache wait noatime nodiratime nosuid nodev discard,background_gc=on
+    mount f2fs /dev/block/mmcblk0p19 /cache wait noatime nodiratime nosuid nodev discard,background_gc=sync
 
