@@ -94,7 +94,7 @@ on post-fs-data
 #Private Mode
     mkdir /data/privatemode 0770 system system
     chown system system /data/privatemode
-    restorecon /data/privatemode
+    #restorecon /data/privatemode
 
 # Audio
     mkdir /data/firmware 0770 media system
@@ -1020,7 +1020,7 @@ service fuse_UsbDriveF /system/bin/sdcard -u 1023 -g 1023 -d -f /mnt/media_rw/Us
 # Set watchdog timer to 30 seconds and pet it every 10 seconds to get a 20 second margin
 service watchdogd /sbin/watchdogd 10 20
     class core
-    seclabel u:r:watchdogd:s0
+    #seclabel u:r:watchdogd:s0
     disabled
 
 # Kick watchdogd if debug_level is low
@@ -1070,13 +1070,6 @@ service vcsFPService /system/bin/vcsFPService
     user system
     group system
 
-on property:ro.securestorage.support=true
-    mkdir /dev/.secure_storage
-    chmod 0711 /dev/.secure_storage
-    chown system system /dev/.secure_storage
-    restorecon -R /dev/.secure_storage
-    start secure_storage
-
 # CS service
 service cs_service /system/bin/cs
     class main
@@ -1116,5 +1109,5 @@ service swapon /sbin/sswap -s
     class core
     user root
     group root
-    seclabel u:r:sswap:s0
+    #seclabel u:r:sswap:s0
     oneshot
