@@ -82,6 +82,16 @@ static int touchkey_autocalibration(struct touchkey_i2c *tkey_i2c);
 static int touchkey_i2c_check(struct touchkey_i2c *tkey_i2c);
 static void cypress_touchkey_interrupt_set_dual(struct i2c_client *client);
 
+extern void mdnie_toggle_negative(void);
+static bool suspended = false;
+
+static inline int64_t get_time_inms(void) {
+	int64_t tinms;
+	struct timespec cur_time = current_kernel_time();
+	tinms =  cur_time.tv_sec * MSEC_PER_SEC;
+	tinms += cur_time.tv_nsec / NSEC_PER_MSEC;
+	return tinms;
+}
 
 #if defined(TK_USE_4KEY)
 static u8 home_sensitivity;
@@ -708,6 +718,8 @@ static int touchkey_enable_status_update(struct touchkey_i2c *tkey_i2c)
 
 	msleep(20);
 
+	suspended = true;
+
 	return 0;
 }
 
@@ -1310,6 +1322,8 @@ static irqreturn_t touchkey_interrupt(int irq, void *dev_id)
 	int keycode_data[tkey_cnt];
 	int keycode_type = 0;
 	int pressed;
+	static int64_t mtkey_lasttime = 0;
+	static int mtkey_count = 0;
 
 	if (unlikely(!touchkey_probe)) {
 		dev_err(&tkey_i2c->client->dev, "%s: Touchkey is not probed\n", __func__);
@@ -1340,6 +1354,23 @@ static irqreturn_t touchkey_interrupt(int irq, void *dev_id)
 				dev_info(&tkey_i2c->client->dev, " %s %d\n",
 								(keycode_data[i] % 2) ? "PRESS" : "RELEASE", glove_mode_status);
 #endif
+				//mdnie negative effect toggle by gm
+				if (tkey_code[i] == 254) {
+					if (keycode_data[i] % 2) {
+						if (get_time_inms() - mtkey_lasttime < 300) {
+							mtkey_count++;
+							printk(KERN_INFO "repeated mtkey action %d.\n", mtkey_count);
+						} else {
+							mtkey_count = 0;
+						}
+					} else {
+						if (mtkey_count == 2) {
+							mdnie_toggle_negative();
+							mtkey_count = 0;
+						}
+						mtkey_lasttime = get_time_inms();
+					}
+				}
 			}
 		}
 
@@ -1572,6 +1603,8 @@ static int sec_touchkey_late_resume(struct early_suspend *h)
 	dev_dbg(&tkey_i2c->client->dev, "%s\n", __func__);
 
 	touchkey_start(tkey_i2c);
+
+	suspended = false;
 
 	return 0;
 }
