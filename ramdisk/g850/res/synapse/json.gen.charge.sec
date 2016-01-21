@@ -1,8 +1,5 @@
 #!/res/bin/busybox sh
-P=/sys/devices/battery.30
-if [ ! -e $P ]; then
-    P=/sys/devices/battery.29
-fi
+P=/sys/devices/battery.26
 
 cat << CTAG
 {
@@ -36,7 +33,7 @@ cat << CTAG
 
 	{ SPane:{ 
        title:{en:"Input/Charge", ko:"입력전류/충전전류"},
-		description:{en: "Input is the live current limit coming through the USB port into the device at 5V. Charge is the desired target current to charge the battery. Now is the actual current limit applied to the battery.", ko: "입력전류는 기기에 흘러 들어오는 총 전류량을 의미하고 충전전류는 배터리에 흘러 들어가는 전류량을 의미합니다. 그러므로 입력전류는 충전전류 보다 항상 크거나 같아야 합니다. 단, 예외적으로 HV충전모드(노트4 고유의 스마트 고속충전)는 5V 보다 높은 전압을 인가시켜 고속충전을 구현하기 때문에 입력전류 보다 충전전류가 더 큽니다."}
+		description:{en: "Input is the live current limit coming through the USB port into the device at 5V. Charge is the desired target current to charge the battery. Now is the actual current limit applied to the battery.", ko: "입력전류는 기기에 흘러 들어오는 총 전류량을 의미하고 충전전류는 배터리에 흘러 들어가는 전류량을 의미합니다. 그러므로 입력전류는 충전전류 보다 항상 크거나 같아야 합니다."}
 	}},
 	{ SDescription:{description:" "}},
 
@@ -46,14 +43,14 @@ cat << CTAG
 	}},
 	{ SSeekBar:{
 		title:"AC/Mains Input Current",
-		min:100, max:3000, unit:"mA", step:50,
+		min:100, max:2100, unit:"mA", step:50,
 		default:`cat $P/ac_input`,
                 action:"generic $P/ac_input"
 	}},
 	{ SSeekBar:{
 		title:"AC/Mains Charge Current",
 		description:"AC or mains charge current supplied to battery during charging.",
-		min:100, max:3000, unit:"mA", step:50,
+		min:100, max:2100, unit:"mA", step:50,
 		default:`cat $P/ac_charge`,
                 action:"generic $P/ac_charge"
 	}},
@@ -73,45 +70,7 @@ cat << CTAG
 		default:`cat $P/siop_charge_limit`,
                 action:"generic $P/siop_charge_limit"
 	}},
-		{ SSeekBar:{
-		title:"HV/Mains Input charging limit",
-		min:400, max:4000, unit:"mA", step:50,
-		default:`cat $P/hv_input`,
-        action:"generic $P/hv_input"
-	}},
-	{ SSeekBar:{
-		title:"HV/Mains charging limit",
-		min:400, max:4000, unit:"mA", step:50,
-		default:`cat $P/hv_charge`,
-        action:"generic $P/hv_charge"
-	}},
-	
-	{ SSeekBar:{
-		title:"HV_PREPARE/Mains input charging limit",
-		min:400, max:4000, unit:"mA", step:50,
-		default:`cat $P/hv_prep_input`,
-        action:"generic $P/hv_prep_input"
-	}},
-		{ SSeekBar:{
-		title:"HV_PREPARE/Mains charging limit",
-		min:400, max:4000, unit:"mA", step:50,
-		default:`cat $P/hv_prep_charge`,
-        action:"generic $P/hv_prep_charge"
-	}},
 
-	{ SSeekBar:{
-		title:"Other Input Current",
-		min:400, max:2000, unit:"mA", step:1,
-		default:`cat $P/so_limit_input`,
-        action:"generic $P/so_limit_input"
-	}},
-	{ SSeekBar:{
-		title:"Other Charge Current",
-		min:400, max:2000, unit:"mA", step:1,
-		default:`cat $P/so_limit_charge`,
-        action:"generic $P/so_limit_charge"
-	}},
-	
 	{ STitleBar:{ 
 		title:"Standard Downstream Port",
 		description:"Standard Downstream Port current limits applied on plain and compliant USB data connectivity ports."
@@ -217,18 +176,6 @@ cat << CTAG
 		title:"MHL power",
 		description:"Mobile High-Definition Link power sources."
 	}},
-	{ SSeekBar:{
-		title:"100mA MHL Class Input limit",
-		min:0, max:1000, unit:"mA", step:50,
-		default:`cat $P/mhl_usb100_input`,
-        action:"generic $P/mhl_usb100_input"
-	}},
-		{ SSeekBar:{
-		title:"100mA MHL Class charge limit",
-		min:0, max:1000, unit:"mA", step:50,
-		default:`cat $P/mhl_usb100_charge`,
-        action:"generic $P/mhl_usb100_charge"
-	}},
 
 	{ SSeekBar:{
 		title:"500mA MHL Class Input limit",
@@ -266,18 +213,6 @@ cat << CTAG
 		min:300, max:2000, unit:"mA", step:50,
 		default:`cat $P/mhl_1500_charge`,
         action:"generic $P/mhl_1500_charge"
-	}},
-	{ SSeekBar:{
-		title:"2000mA MHL Class Input limit",
-		min:300, max:2500, unit:"mA", step:50,
-		default:`cat $P/mhl_2000_input`,
-        action:"generic $P/mhl_2000_input"
-	}},
-		{ SSeekBar:{
-		title:"2000mA MHL Class Charge limit",
-		min:300, max:2500, unit:"mA", step:50,
-		default:`cat $P/mhl_2000_charge`,
-        action:"generic $P/mhl_2000_charge"
 	}},
 	{ SSeekBar:{
 		title:"USB powered MHL adapter Input limit",

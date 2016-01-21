@@ -1,12 +1,8 @@
 #!/res/bin/busybox sh
 
 BB=/res/bin/busybox
-SEC_BP=/sys/devices/battery.30/unstable_power_detection
+SEC_BP=/sys/devices/battery.26/unstable_power_detection
 ARIZONA_CTL=/sys/class/misc/arizona_control/hp_left_dvol
-
-if [ ! -e /sys/devices/battery.30 ]; then
-    SEC_BP=/sys/devices/battery.29/unstable_power_detection
-fi;
 
 cat << CTAG
 

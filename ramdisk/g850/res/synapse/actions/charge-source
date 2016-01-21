@@ -1,5 +1,4 @@
-PSRC=/sys/devices/battery.30
-[[ ! -e $PSRC ]] && PSRC=/sys/devices/battery.29;
+PSRC=/sys/devices/battery.26
 
 case $((`cat $PSRC/power_supply/battery/batt_charging_source`)) in
 

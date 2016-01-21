@@ -1,5 +1,4 @@
-PSRC=/sys/devices/battery.30
-[[ ! -e $PSRC ]] && PSRC=/sys/devices/battery.29;
+PSRC=/sys/devices/battery.26
 
 echo 충전 유형: `cat $PSRC/power_supply/battery/charge_type` @n
 echo 평균 입력 전류: $(($(cat $PSRC/power_supply/battery/current_avg) )) mA @n

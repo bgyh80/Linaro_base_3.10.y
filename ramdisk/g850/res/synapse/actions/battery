@@ -1,8 +1,7 @@
 # By UpInTheAir for SkyHigh kernels
 
 BB=/res/bin/busybox;
-PSRC=/sys/devices/battery.30
-[[ ! -e $PSRC ]] && PSRC=/sys/devices/battery.29;
+PSRC=/sys/devices/battery.26
 
 case $1 in
 fuel-gauge)
