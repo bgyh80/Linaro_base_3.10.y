@@ -1,0 +1,87 @@
+source /sbin/uci
+BB=/res/bin/busybox;
+
+ZRAM=/dev/block/zram0;
+VSWAP=/dev/block/vnswap0;
+VSWAP_SYS=/sys/block/vnswap0;
+#VSIZE=1342177280,1610612736
+VSIZE=1744830464
+ZSWAP=/sys/module/zswap/parameters
+
+RESET=/sys/devices/virtual/block/zram0/reset;
+PROF_FILE=/data/PRIME-Kernel/synapse/settings/zram_prof;
+SIZE_OLD=/data/PRIME-Kernel/synapse/settings/zram_old_size;
+SIZE_FILE=/sys/devices/virtual/block/zram0/disksize;
+
+vnOn() {
+    [ ! -e $VSWAP ] && return
+    echo Y > $ZSWAP/enabled
+	#$BB swapoff $VSWAP > /dev/null 2>&1;
+    #echo $VSIZE > $VSWAP_SYS/disksize;
+	#$BB swapon -p 10 $VSWAP > /dev/null 2>&1;
+}
+vnOff() {
+    [ ! -e $VSWAP ] && return
+    echo N > $ZSWAP/enabled
+    #$BB swapoff $VSWAP > /dev/null 2>&1;
+    #echo 0 > $VSWAP_SYS/disksize;
+}
+reset_zRam(){
+  $BB swapoff $ZRAM > /dev/null 2>&1;
+  echo "1" > $RESET;
+}
+set_zRam(){
+  SIZE=$1;
+  #PRIORITY=32767
+  PRIORITY=16384
+  if [ ! -z $SIZE ]; then
+    if [ $SIZE -gt 0 ]; then
+      [[ $SIZE -lt 800 ]] && SIZE=1600;
+      echo $((SIZE * 1024 * 1024)) > $SIZE_FILE;
+      $BB mkswap $ZRAM > /dev/null 2>&1;
+      $BB swapon -p $PRIORITY $ZRAM > /dev/null 2>&1;
+      echo $SIZE > $SIZE_OLD;
+    fi;
+  fi;
+  vnOff;
+}
+
+if [ ! -f $SIZE_OLD ]; then
+    CSIZE=`cat $SIZE_FILE`
+    if [[ ! $CSIZE ]]; then
+        echo 1600 > $SIZE_OLD;
+    else
+        echo $CSIZE > $SIZE_OLD;
+    fi
+fi;
+
+if [ $1 == $PROF_FILE ]; then
+  if [ ! -z $2 ]; then
+    echo $2 > $PROF_FILE;
+    if [[ $2 == 1 ]]; then
+        SIZE=`cat $SIZE_FILE`;
+    fi;
+  fi;
+  echo $((`cat $PROF_FILE`));
+fi
+
+PROF=`cat /data/PRIME-Kernel/synapse/settings/zram_prof`;
+if [ $PROF == 1 ]; then
+  SIZE=$2
+  if [ ! -z $2 ]; then
+    reset_zRam;
+    set_zRam $SIZE;
+  fi;
+  echo 180 > /proc/sys/vm/swappiness
+  SIZE=`cat $SIZE_FILE`;
+  if [ $1 != $PROF_FILE ]; then
+     echo $((SIZE / 1024 / 1024));
+  fi;
+else
+  reset_zRam;
+  vnOn
+  if [ $1 != $PROF_FILE ]; then
+    echo $((`cat $SIZE_OLD`));
+  fi
+  echo 130 > /proc/sys/vm/swappiness
+fi;

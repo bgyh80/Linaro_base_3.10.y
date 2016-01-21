@@ -1,0 +1,29 @@
+source /sbin/uci
+BB=/res/bin/busybox;
+
+function getasv() {
+	STR=`cat /sys/kernel/debug/asv_group|grep "VDD_$1 ASV group is"`
+	CUT="VDD_$1 ASV group is "
+	OUT=${STR##$CUT}
+	echo "$1: $OUT@n"
+}
+
+case $1 in
+susp)
+  echo `cat /sys/kernel/power_suspend/power_suspend_version`
+  ;;
+fsync)
+  echo `cat /sys/kernel/dyn_fsync/Dyn_fsync_version`
+  ;;
+fast)
+  echo `cat /sys/kernel/fast_charge/info`
+  ;;
+asv)
+  getasv ARM
+  getasv KFC
+  getasv G3D
+  getasv MIF
+  getasv INT
+  getasv ISP
+  ;;
+esac

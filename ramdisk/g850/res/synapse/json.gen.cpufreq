@@ -1,0 +1,100 @@
+#!/res/bin/busybox sh
+
+CPUFREQ_MAX="scaling_max_freq"
+if [ ! -e /sys/devices/system/cpu/cpu0/cpufreq/$CPUFREQ_MAX ]; then
+	CPUFREQ_MAX="ren_max_freq"
+fi
+
+cat << CTAG
+{
+    name:{en:"CPU Freq", ko: "CPU 클럭"},
+    elements:[
+	{ SDescription:{description:""}},
+	{SDescription:{
+		description:"경고! 오버클럭은 시스템 불안정과 기기 손상의 위험이있습니다."
+	}},
+   { SDescription:{description:""}},
+   { STitleBar:{
+                title:"A57 빅코어"
+   }},
+   { SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+       		title:"A57 빅 코어 최대 클럭",
+		description:"순정 클럭은 1900 MHz 입니다.",
+		default:`cat /sys/devices/system/cpu/cpu4/cpufreq/$CPUFREQ_MAX`,
+		action:"cpufreq /sys/devices/system/cpu/cpu4/cpufreq/$CPUFREQ_MAX",
+		values:{
+`
+			for FREQ in $(cat /sys/devices/system/cpu/cpufreq/mp-cpufreq/cpu_freq_table); do
+                                        LABEL=$(/res/bin/busybox expr $FREQ / 1000)
+                                echo "$FREQ:\"${LABEL} MHz\", "
+			done
+`
+		}
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+       		title:"A57 빅 코어 최저 클럭",
+		description:"순정 클럭은 700 MHz 입니다.",
+		default:`cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq`,
+		action:"cpufreq /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq",
+		values:{
+`
+			for FREQ in $(cat /sys/devices/system/cpu/cpufreq/mp-cpufreq/cpu_freq_table); do
+                                        LABEL=$(/res/bin/busybox expr $FREQ / 1000)
+                                echo "$FREQ:\"${LABEL} MHz\", "
+			done
+`
+		}
+	}},
+    { SDescription:{description:" "}},
+
+   { STitleBar:{
+                title:"A53 리틀 코어"
+   }},
+	{ SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+       		title:"A53 리틀 코어 최대 클럭",
+		description:"순정 클럭은 1300 MHz 입니다.",
+		default:`cat /sys/devices/system/cpu/cpu0/cpufreq/$CPUFREQ_MAX`,
+		action:"cpufreq /sys/devices/system/cpu/cpu0/cpufreq/$CPUFREQ_MAX",
+		values:{
+`
+			for FREQ in $(cat /sys/devices/system/cpu/cpufreq/mp-cpufreq/kfc_freq_table); do
+                                        LABEL=$(/res/bin/busybox expr $FREQ / 1000)
+                                echo "$FREQ:\"${LABEL} MHz\", "
+			done
+`
+		}
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+       		title:"A53 리틀 코어 최저 클럭",
+		description:"순정 클럭은 400 MHz 입니다.",
+		default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`,
+		action:"cpufreq /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
+		values:{
+`
+			for FREQ in $(cat /sys/devices/system/cpu/cpufreq/mp-cpufreq/kfc_freq_table); do
+                                        LABEL=$(/res/bin/busybox expr $FREQ / 1000)
+                                echo "$FREQ:\"${LABEL} MHz\", "
+			done
+`
+		}
+	}},
+
+	{ SDescription:{
+		description:""
+	}},
+    ]
+}
+CTAG
+

@@ -1,0 +1,193 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"CPU Governor",ko:"CPU 가버너"},
+    elements:[
+	{ SPane:{
+		title:"CPU Governor",
+        description:"가버너는 요구되는 작업량에 따라 CPU클럭을 변경합니다.\ninteractive는 성능이 뛰어나고 배터리 효율은 보통입니다. 
+        cafactive는 퀄컴의 오픈소스 버전 interactive 이며 다방면으로 뛰어난 성능을 보입니다.\nperfomance는 항상 최대 클럭으로 고정하기 때문에 특정한 목적이 아니라면 사용하지 않는 게 좋습니다.",
+    }},
+	{ SDescription:{description:""}},
+    { SOptionList:{
+		title:"Current A57 big core governor",
+                default:`cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor`,
+                action:"governor /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
+                values:[
+`
+                        for GOVERNOR in \`cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_available_governors\` ; do
+                                echo "\"$GOVERNOR\","
+                        done
+`
+                ],
+		notify:[
+			{
+				on:APPLY,
+				do:[ REFRESH, CANCEL ],
+				to:"/sys/devices/system/cpu/cpu4/cpufreq"
+			},
+			{
+				on:REFRESH,
+				do:REFRESH,
+				to:"/sys/devices/system/cpu/cpu4/cpufreq"
+			}
+		]
+        }},
+	{ SDescription:{description:""}},
+
+    { SOptionList:{
+		title:"Current A53 little core governor",
+                default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`,
+                action:"governor /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                values:[
+`
+                        for GOVERNOR in \`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors\` ; do
+                                echo "\"$GOVERNOR\","
+                        done
+`
+                ],
+		notify:[
+			{
+				on:APPLY,
+				do:[ REFRESH, CANCEL ],
+				to:"/sys/devices/system/cpu/cpu0/cpufreq"
+			},
+			{
+				on:REFRESH,
+				do:REFRESH,
+				to:"/sys/devices/system/cpu/cpu0/cpufreq"
+			}
+		]
+    }},
+	{ SDescription:{description:""}},
+
+	{ SPane:{
+		title:"Governor tunables for A57 core",
+    }},
+	{ SDescription:{
+		description:""
+    }},
+
+	{ STreeDescriptor:{
+		path:"/sys/devices/system/cpu/cpu4/cpufreq",
+		generic: {
+			directory: {
+				STreeDescriptor:{
+					generic: {
+						directory: {},
+						element: {
+							SGeneric: { title:"@NAME" }
+						}
+					},
+					matched: {
+						elements: [
+							{ "sampling_rate" : {
+								SSeekBar: {
+									title:"Sampling rate",
+									description:" The sampling rate controls the rate in which the governor polls for frequency changes.",
+									min:0, max:150000, step:10000, unit:" ms"
+								}
+							}}
+						]
+					},
+					exclude: [
+						"boostpulse",
+						"cpu_util",
+`
+ADAPT_INTERACTIVE=0;
+if [ $ADAPT_INTERACTIVE -eq 1 ]; then
+				echo '
+						"target_loads",
+						"above_hispeed_delay",
+				'
+fi;
+`
+						"mode",
+					]
+				}
+			}
+		},
+		exclude: [
+			"affected_cpus",
+			"cpuinfo_cur_freq",
+			"cpuinfo_max_freq",
+			"cpuinfo_min_freq",
+			"cpuinfo_transition_latency",
+			"related_cpus",
+			"scaling_available_governors",
+			"scaling_cur_freq",
+			"scaling_driver",
+			"scaling_governor",
+			"scaling_max_freq",
+			"scaling_min_freq",
+			"scaling_setspeed",
+                        "stats"
+		]
+	}},
+    { SDescription:{
+        description:" "
+    }}    
+
+	{ SPane:{
+		title:"Governor tunables for A53 core",
+    }},
+	{ SDescription:{
+		description:""
+    }},
+
+	{ STreeDescriptor:{
+		path:"/sys/devices/system/cpu/cpu0/cpufreq",
+		generic: {
+			directory: {
+				STreeDescriptor:{
+					generic: {
+						directory: {},
+						element: {
+							SGeneric: { title:"@NAME" }
+						}
+					},
+					matched: {
+						elements: [
+							{ "sampling_rate" : {
+								SSeekBar: {
+									title:"Sampling rate",
+									description:" The sampling rate controls the rate in which the governor polls for frequency changes.",
+									min:0, max:150000, step:10000, unit:" ms"
+								}
+							}}
+						]
+					},
+					exclude: [
+						"boostpulse",
+						"cpu_util",
+						"mode",
+					]
+				}
+			}
+		},
+		exclude: [
+			"affected_cpus",
+			"cpuinfo_cur_freq",
+			"cpuinfo_max_freq",
+			"cpuinfo_min_freq",
+			"cpuinfo_transition_latency",
+			"related_cpus",
+			"scaling_available_governors",
+			"scaling_cur_freq",
+			"scaling_driver",
+			"scaling_governor",
+			"scaling_max_freq",
+			"scaling_min_freq",
+			"scaling_setspeed",
+                        "stats"
+		]
+	}},
+	{ SDescription:{
+		description:""
+    }},
+
+    ]
+}
+CTAG
+

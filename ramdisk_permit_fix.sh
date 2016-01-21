@@ -39,6 +39,8 @@ chmod 750 $RAMDISK/sbin
 chmod 750 $RAMDISK/sbin/*
 chmod 755 $RAMDISK/res
 chmod 755 $RAMDISK/res/*
+chmod 755 $RAMDISK/res/bin
+chmod 755 $RAMDISK/res/bin/*
 chmod 755 $RAMDISK/sys
 chmod 755 $RAMDISK/system
 

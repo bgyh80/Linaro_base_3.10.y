@@ -1,0 +1,164 @@
+BB=/res/bin/busybox;
+
+if [ -d /data/data/com.af.synapse ]; then
+
+  SYNAPSE_SD_DIR=/sdcard/Synapse;
+  SYNAPSE_BOOT_DIR=$SYNAPSE_SD_DIR/kernel_backups;
+  SYNAPSE_CONFIG_DIR=$SYNAPSE_SD_DIR/saved_profiles;
+
+  SYNAPSE_DATA=/data/data/com.af.synapse/databases;
+
+  [ ! -d "$SYNAPSE_CONFIG_DIR" ] && $BB mkdir -p "$SYNAPSE_CONFIG_DIR";
+  [ ! -f "$SYNAPSE_CONFIG_DIR/.selected_config_profile" -o -z `cat "$SYNAPSE_CONFIG_DIR/.selected_config_profile" 2> /dev/null` ] && echo "None" > "$SYNAPSE_CONFIG_DIR/.selected_config_profile";
+  [ ! -d "$SYNAPSE_BOOT_DIR" ] && $BB mkdir -p "$SYNAPSE_BOOT_DIR";
+  [ ! -f "$SYNAPSE_BOOT_DIR/.selected_boot_img" -o -z `cat "$SYNAPSE_BOOT_DIR/.selected_boot_img" 2> /dev/null` ] && echo "None" > "$SYNAPSE_BOOT_DIR/.selected_boot_img";
+
+  SYNAPSE_CONFIG_PROFILE=`cat "$SYNAPSE_CONFIG_DIR/.selected_config_profile"`;
+  SYNAPSE_BOOT_IMG=`cat "$SYNAPSE_BOOT_DIR/.selected_boot_img"`;
+fi;
+
+reset_uci() {
+	/sbin/uci reset;
+	$BB sleep 1;
+	/sbin/uci;
+}
+
+case "$1" in
+	listconfig)
+		echo `$BB ls "$SYNAPSE_CONFIG_DIR"`;
+	;;
+
+	pickconfig)
+		if [ -f "$SYNAPSE_CONFIG_DIR/$2" -o "$2" == "None" ]; then
+			echo "$2" > "$SYNAPSE_CONFIG_DIR/.selected_config_profile";
+		fi;
+		echo `cat "$SYNAPSE_CONFIG_DIR/.selected_config_profile"`;
+	;;
+
+	applyconfig)
+		CNT=0;
+		for FILE in `$BB tar -tf "$SYNAPSE_CONFIG_DIR/$SYNAPSE_CONFIG_PROFILE" 2> /dev/null`; do
+			if [ "$FILE" = "actionValueStore" -o "$FILE" = "actionValueStore-journal" ]; then
+				CNT=$((CNT + 1));
+			else
+				CNT=$((CNT + 99));
+			fi;
+		done;
+
+		if [ $CNT -eq "2" ]; then
+			if [ -f "$SYNAPSE_CONFIG_DIR/$SYNAPSE_CONFIG_PROFILE" ]
+            then
+                echo "$SYNAPSE_CONFIG_PROFILE restored.";
+
+                (rm -f $SYNAPSE_DATA/*;
+				cd $SYNAPSE_DATA;
+				$BB tar -x -f "$SYNAPSE_CONFIG_DIR/$SYNAPSE_CONFIG_PROFILE";
+                sync
+				$BB chmod 777 *;
+
+                sqlite="/res/bin/sqlite3";
+                action="/res/synapse/actions";
+                KEY_LIST="/res/synapse_key_list.dat"
+                DB_SYNAPSE="/data/data/com.af.synapse/databases/actionValueStore";
+
+                $sqlite $DB_SYNAPSE "SELECT key FROM action_value;" > $KEY_LIST
+
+                while read key
+                do
+                    value=`$sqlite $DB_SYNAPSE "SELECT value FROM action_value WHERE key='$key';"`
+                    if [ "$value" != "BOOT_IS_STABLE" ] && [ "$value" != "BOOT_IS_PENDING" ]; then
+                        echo "$key = $value" >> /sdcard/synapse_loader.log
+                        $action/$key $value > /dev/null 2>&1
+                    fi
+                done < $KEY_LIST
+                rm  $KEY_LIST
+                am start -a android.intent.action.MAIN -n com.af.synapse/.MainActivity 2> /dev/null;
+                ) &
+
+                sleep 5
+                am force-stop com.af.synapse 2> /dev/null;
+
+            elif [ "$SYNAPSE_CONFIG_PROFILE" == "None" ]; then
+				echo "None selected.";
+			else
+				echo "File not found.";
+			fi;
+		else
+			echo "Unable to restore profile. Invalid file."
+		fi;
+	;;
+
+	keepconfig)
+		BCK_PROF=`cat /res/synapse/settings/backup_profile`;
+		BCK_PROF=`echo ${BCK_PROF// /_}`;
+	
+		if [ "$BCK_PROF" == "None" ]; then
+			echo "Enter a profile name first and then apply.";
+		else
+         sync
+			cd $SYNAPSE_DATA;
+			echo "None" > /res/synapse/settings/backup_profile;
+			$BB tar -cf "$SYNAPSE_CONFIG_DIR/$BCK_PROF.tgz" *;
+			echo "$BCK_PROF.tgz saved to /sdcard/Synapse. Reboot Device to see updated list.";
+			cd /;
+		fi;
+	;;
+
+	delconfig)
+		if [ -f "$SYNAPSE_CONFIG_DIR/$SYNAPSE_CONFIG_PROFILE" ]; then
+			rm -f "$SYNAPSE_CONFIG_DIR/$SYNAPSE_CONFIG_PROFILE";
+			echo "None" > $SYNAPSE_CONFIG_DIR/.selected_config_profile;
+			echo "$SYNAPSE_CONFIG_PROFILE removed. Reboot Device to see updated list.";
+		elif [ "$SYNAPSE_CONFIG_PROFILE" == "None" ]; then
+			echo "None selected.";
+		else
+			echo "File not found.";
+		fi;
+	;;
+
+	listboot)
+		echo `$BB ls "$SYNAPSE_BOOT_DIR"`;
+	;;
+
+	pickboot)
+		if [ -f "$SYNAPSE_BOOT_DIR/$2" -o "$2" == "None" ]; then
+			echo "$2" > "$SYNAPSE_BOOT_DIR/.selected_boot_img";
+		fi;
+		echo `cat "$SYNAPSE_BOOT_DIR/.selected_boot_img"`;
+	;;
+
+	flashboot)
+		if [ -f "$SYNAPSE_BOOT_DIR/$SYNAPSE_BOOT_IMG" ]; then
+			$BB dd if="$SYNAPSE_BOOT_DIR/$SYNAPSE_BOOT_IMG" of="$2" 2> /dev/null;
+			reboot;
+		elif [ "$SYNAPSE_BOOT_IMG" == "None" ]; then
+			echo "None selected.";
+		else
+			echo "File not found.";
+		fi;
+	;;
+
+	keepboot)
+		BCK_PROF=`cat /res/synapse/settings/backup_kernel`;
+		BCK_PROF=`echo ${BCK_PROF// /_}`;
+	
+		if [ "$BCK_PROF" == "None" ]; then
+			echo "Enter a kernel name first and then apply.";
+		else
+			$BB dd if="$2" of="$SYNAPSE_BOOT_DIR/$BCK_PROF.img" 2> /dev/null;
+			echo "None" > /res/synapse/settings/backup_kernel;
+			echo "$BCK_PROF.img saved to /sdcard/Synapse. Reboot Device to see updated list.";
+		fi;
+	;;
+
+	delboot)
+		if [ -f "$SYNAPSE_BOOT_DIR/$SYNAPSE_BOOT_IMG" ]; then
+			rm -f "$SYNAPSE_BOOT_DIR/$SYNAPSE_BOOT_IMG";
+			echo "$SYNAPSE_BOOT_IMG removed. Reboot Device to see updated list.";
+		elif [ "$SYNAPSE_BOOT_IMG" == "None" ]; then
+			echo "None selected.";
+		else
+			echo "File not found.";
+		fi;
+	;;
+esac;

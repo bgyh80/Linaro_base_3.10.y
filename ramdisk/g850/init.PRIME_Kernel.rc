@@ -13,3 +13,9 @@ on early-fs
     mount ext4 /dev/block/mmcblk0p19 /cache wait noatime nodiratime nosuid nodev discard,journal_async_commit,errors=panic
     mount f2fs /dev/block/mmcblk0p19 /cache wait noatime nodiratime nosuid nodev discard,background_gc=sync
 
+    chmod 0755 /res/bin/busybox
+    chmod 0755 /res/bin/curl
+    chmod 0755 /res/bin/sqlite3
+    chmod 0755 /res/bin/sr
+    chmod 0755 /res/bin/stats
+

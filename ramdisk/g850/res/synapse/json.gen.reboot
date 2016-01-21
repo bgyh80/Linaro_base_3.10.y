@@ -1,0 +1,66 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Restart", ko:"재시작"},
+    elements:[
+	{ SPane:{
+		title:"디바이스"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SButton:{
+		label:"디바이스 재시작",
+		action:"devtools reboot"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SButton:{
+		label:"복구(리커버리) 모드로 재시작",
+		action:"devtools reboot recovery"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SButton:{
+		label:"다운로드(오딘) 모드로 재시작",
+		action:"devtools reboot download"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SButton:{
+		label:"전원 끄기",
+		action:"devtools reboot -p"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SPane:{
+		title:"시냅스 & 커널",
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SButton:{
+		label:"시냅스 데이터 초기화",
+		action:"devtools cleardata"
+	}},
+   { SDescription:{description:""} },
+	{ SButton:{
+		label:"커널 설정 초기화 & 재부팅",
+		action:"devtools clearkernel"
+	}},
+   { SDescription:{description:""} },
+
+	{ SButton:{
+		label:"시냅스 재시작",
+		action:"devtools restart"
+	}},
+   { SDescription:{description:""} },
+
+    ]
+}
+CTAG

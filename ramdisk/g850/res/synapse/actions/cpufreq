@@ -1,0 +1,19 @@
+#!/system/bin/sh
+
+BB=/res/bin/busybox;
+SQLITE="/res/bin/sqlite3";
+DB_SYNAPSE="/data/data/com.af.synapse/databases/actionValueStore";
+
+if [ -f $1 ]; then
+	if [[ ! -z "$2" ]] && [[ -e $1 ]]; then
+		echo "$2" > $1 2> /dev/null;
+	fi;
+
+	echo "`cat $1`";
+else
+
+	GET_VALUE=`$SQLITE $DB_SYNAPSE "SELECT value FROM action_value WHERE key = 'cpufreq $1';"`;
+	echo $GET_VALUE;
+
+fi;
+

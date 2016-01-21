@@ -1,0 +1,50 @@
+#!/sbin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Network", ko:"네트워크"},
+    elements:[
+    	{ SPane:{
+		title:"TCP Congestion Control",
+		description:" Select your preferred Wi-Fi TCP algorithm. Regulates upload and download affecting throughput in various ways. Default is Westwood+."
+    	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SOptionList:{
+		default:`cat proc/sys/net/ipv4/tcp_congestion_control`,
+		action:"generic proc/sys/net/ipv4/tcp_congestion_control",
+		values:[`while read values; do /res/bin/busybox printf "%s, \n" $values; done < proc/sys/net/ipv4/tcp_available_congestion_control`]
+	}},
+    { SPane:{
+            title:"Wi-Fi wakelock control",
+            description:"Enter 1 to 8 (1 = stock, higher = lower wake time) for wlan_rx and wlan_ctrl wakelock control"
+    }},
+    { SSeekBar:{
+            title:"Wireless wakelock timeout control",
+            description:"",
+            unit:"",
+            min:0,
+            max:10,
+            step:1,
+            default:`cat /sys/module/dhd/parameters/wl_divide`,
+            action:"generic /sys/module/dhd/parameters/wl_divide"
+    }},
+	{ SSpacer:{ height:1 }},
+
+	{ STitleBar:{
+		title:"Clean Wi-Fi Lease"
+	}},
+	{ SDescription:{
+		description:" Clean Wi-Fi DHCP IP Lease. Push the button to activate!"
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SButton:{
+		label:"Clean Wi-Fi Lease",
+		action:"devtools fix_Wi-Fi"
+	}},
+	{ SSpacer:{ height:2 }},
+
+    ]
+}
+CTAG

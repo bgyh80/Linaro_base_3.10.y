@@ -1,0 +1,11 @@
+PSRC=/sys/devices/battery.30
+[[ ! -e $PSRC ]] && PSRC=/sys/devices/battery.29;
+
+echo 충전 유형: `cat $PSRC/power_supply/battery/charge_type` @n
+echo 평균 입력 전류: $(($(cat $PSRC/power_supply/battery/current_avg) )) mA @n
+echo 현재 입력 전류: $(($(cat $PSRC/power_supply/battery/current_now) )) mA @n
+echo 배터리 전압: $(($(cat $PSRC/power_supply/battery/voltage_now) /1000)) mV @n
+echo 배터리 온도: $(($(cat $PSRC/power_supply/battery/batt_temp) / 10)) °C @n
+echo 충전량: $(($(cat $PSRC/power_supply/battery/capacity) )) % @n
+echo 충전 상태: `cat $PSRC/power_supply/battery/status` @n
+echo 배터리 상태: `cat $PSRC/power_supply/battery/health` @n

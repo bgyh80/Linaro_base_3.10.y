@@ -1,0 +1,9 @@
+BB=/res/bin/busybox;
+INC=/data/PRIME-Kernel/bin/tweak.inc
+
+if [ -e $INC ]; then
+    source $INC
+else
+    P=`cat /data/PRIME-Kernel/synapse/settings/tweak_$1`;
+    echo $P;
+fi

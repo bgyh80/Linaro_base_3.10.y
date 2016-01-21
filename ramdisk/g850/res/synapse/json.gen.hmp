@@ -1,0 +1,89 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:HMP,
+    elements:[
+		{ SDescription:{
+			description:"big.LITTLE의 가장 강력한 이용 모델은 동시에 모든 물리적 코어의 사용을 가능하게 하는 '이종 멀티 프로세싱(HMP)'입니다. HMP는 연산이 많은 스레드에는 big코어를 할당하고 연산이 적은 스레드에는 LITTLE코어를 할당합니다."
+		}},
+        { SDescription:{description:""}},
+    
+        { SPane:{
+                title:"HMP Little packing control",
+                description:{en:" Allows the HMP Scheduler to pack small tasks into CPUs in the smallest HMP (Little Cores) domain. Enabled value will force enabling little domains", ko:"HMP 스케줄러는 가벼운 작업을 리틀코어(A53)에 우선 할당합니다. 활성화(Enable) 하면 리틀코어가 항상 사용되어 배터리 효율이 좋아집니다."}
+        }},
+        { SOptionList:{
+                default:`cat /sys/kernel/hmp/packing_enable`,
+                action:"hmp /sys/kernel/hmp/packing_enable",
+                values:{
+                    "0":"Disabled",
+                    "1":"Enabled"
+                },
+        }},
+		{ SDescription:{description:""}},
+
+        { SSeekBar:{
+            title:{en:"HMP packing limit", ko:"HMP packing 제한"},
+            description:" Little packing의 최대 값을 제한합니다. 값이 높을수록 배터리 효율이 좋아지지만 너무 높은 값은 터치인식 문제를 유발합니다. 디스플레이 해상도가 낮을수록 더 높게 설정 가능합니다. WQHD 디스플레이 해상도에서는 가급적 사용하지마세요!. WQHD 해상도에서 적정값은 42 입니다.",
+            max:1280,
+            min:14, step:1,
+            default:`cat /sys/kernel/hmp/packing_limit`,
+            action:"hmp /sys/kernel/hmp/packing_limit"
+        }},
+
+
+        { SDescription:{description:" "}},
+
+        { SPane:{
+            title:"HMP 스케줄링 제어",
+            description:" HMP 스케줄링의 제한점을 조절하면 big코어의 사용률에 영향을 주어 배터리와 성능 사이에서 사용자가 직접 조율 가능합니다.",
+        }},
+        { SDescription:{description:" "}},
+
+        { SSeekBar:{
+            title:{en:"Down threshold", ko:"하향 제한점"},
+            description:{en:"Less value, more use of 'big core' which makes better FPS(frame per second) in game and more value, less use of 'big core' which makes battery efficiency better. Default value is 256.", ko:"값이 낮을수록 big 코어를 더 오래 사용하여 게임 성능(screen fps)이 좋아지고 높을수록 big 코어 사용 시간이 짧아져 배터리 효율이 좋아집니다. 기본값은 256입니다."},
+            max:1000, min:64, step:1,
+            default:`cat /sys/kernel/hmp/down_threshold`,
+            action:"hmp /sys/kernel/hmp/down_threshold",
+        }},
+        { SSeekBar:{
+            title:{en:"Up threshold", ko:"상향 제한점"},
+            description:{en:"Less value use 'big core' more frequently, more value use 'big core' less frequently. So the latter makes battery efficiency better. If you set this value very high, some specific apps will not use any of 'big core'(0%). So the UI performance could be bad. If you want very smooth internet browser scroll, set value under 600. Default value is 650.", ko:"값이 낮을수록 big코어를 더 자주 사용하고 높을수록 더 적은 횟수로 사용하여 배터리 효율이 좋아집니다. 매우 높게 설정하면 특정 앱의 경우 big 코어를 전혀 사용하지 않아(0%) UI 성능이 나빠집니다. 부드러운 인터넷 스크롤을 원하면 600 이하로 설정하세요. 기본값은 650입니다."},
+            max:1000, min:64, step:1,
+            default:`cat /sys/kernel/hmp/up_threshold`,
+            action:"hmp /sys/kernel/hmp/up_threshold",
+        }},
+        { SDescription:{description:" "}},
+
+        { SPane:{
+            title:"HMP Power Migration (experimental)",
+            description:{en:"Refactoring HMP Scheduling by power efficiency. Not recommend in WQHD resolution.﻿", ko:" 전력 효율에 따라 HMP 스케줄링을 리팩토링합니다. WQHD 디스플레이 해상도에서의 사용은 권하지 않습니다."},
+        }},
+		{ SCheckBox:{
+			label:"Enable power migration",
+       	 	default:`cat /sys/kernel/hmp/power_migration`,
+			action:"hmp /sys/kernel/hmp/power_migration"
+		}},
+        { SDescription:{description:" "}},
+
+        { SSeekBar:{
+            title:"up_perf_threshold",
+            max:1000, min:1, step:1,
+            default:`cat /sys/kernel/hmp/up_perf_threshold`,
+            action:"hmp /sys/kernel/hmp/up_perf_threshold"
+        }},
+        { SSeekBar:{
+            title:"up_power_threshold",
+            max:1000, min:1, step:1,
+            default:`cat /sys/kernel/hmp/up_power_threshold`,
+            action:"hmp /sys/kernel/hmp/up_power_threshold"
+        }},
+
+        { SDescription:{description:" "}},
+        { SDescription:{description:" "}},
+    ]
+}
+CTAG
+

@@ -1,0 +1,40 @@
+#!/res/bin/busybox sh
+
+BB=/res/bin/busybox
+SEC_BP=/sys/devices/battery.30/unstable_power_detection
+ARIZONA_CTL=/sys/class/misc/arizona_control/hp_left_dvol
+
+if [ ! -e /sys/devices/battery.30 ]; then
+    SEC_BP=/sys/devices/battery.29/unstable_power_detection
+fi;
+
+cat << CTAG
+
+{
+    sections: [
+     `. $STR/json.gen.about`,
+     `. $STR/json.gen.cpustats`,
+      `. $STR/json.gen.cpufreq`,
+      `. $STR/json.gen.cpuvolt`,
+      `. $STR/json.gen.cpugov`,
+      `. $STR/json.gen.hmp`
+      `. $STR/json.gen.gpu2`,
+      `. $STR/json.gen.bus`,
+      `. $STR/json.gen.io`,
+      `. $STR/json.gen.tmu2`,
+      `. $STR/json.gen.memory`,
+      `. $STR/json.gen.led2`,
+      `[ ! -e $SEC_BP ] && . $STR/json.gen.charge
+       [ -e $SEC_BP ] && . $STR/json.gen.charge.sec`,
+      `[ -e $ARIZONA_CTL ] && . $STR/json.gen.audio`,
+      `. $STR/json.gen.wakelock`,
+      `. $STR/json.gen.advanced`,
+      `. $STR/json.gen.utility`
+      `. $STR/json.gen.log`,
+      `. $STR/json.gen.profile`,
+      `. $STR/json.gen.reboot`,
+    ]
+
+}
+CTAG
+

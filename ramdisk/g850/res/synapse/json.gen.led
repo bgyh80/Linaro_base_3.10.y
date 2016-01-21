@@ -1,0 +1,94 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Notification LED", ko:"알림 LED"},
+    elements:[
+	{ SPane:{
+		title:"알림 점등 지연"
+	}},
+	{ SSeekBar:{
+		title:"알림 LED가 켜진 상태의 유지시간",
+		description:"기본값은 0.5초 입니다.",
+		unit:" 초",
+		weight:0.001,
+		min:0,
+		max:10000,
+		step:500,
+		default:`cat /sys/class/sec/led/led_notification_delay_on`,
+		action:"generic /sys/class/sec/led/led_notification_delay_on"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SSeekBar:{
+		title:"알림 LED가 꺼진 상태의 유지시간",
+		description:"기본값은 3초 입니다.",
+		unit:" 초",
+		weight:0.001,
+		min:0,
+		max:10000,
+		step:500,
+		default:`cat /sys/class/sec/led/led_notification_delay_off`,
+		action:"generic /sys/class/sec/led/led_notification_delay_off"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SPane:{
+		title:"페이드인/아웃"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+   { SCheckBox:{
+        label:"램프 페이드인/아웃 제어 활성화",
+		action:"generic /sys/class/sec/led/led_notification_ramp_control"
+	}},
+   { SDescription:{description:""} },
+	{ SSeekBar:{
+		title:"페이드인",
+		description:"최고 밝기 지연시간. 기본값은 800ms.",
+		unit:" ms",
+		min:0,
+		max:2000,
+		step:100,
+		default:`cat /sys/class/sec/led/led_notification_ramp_up`,
+		action:"generic /sys/class/sec/led/led_notification_ramp_up"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SSeekBar:{
+		title:"페이드아웃",
+		description:"최저 밝기 지연시간. 기본값은 1000ms.",
+		unit:" ms",
+		min:0,
+		max:2000,
+		step:100,
+		default:`cat /sys/class/sec/led/led_notification_ramp_down`,
+		action:"generic /sys/class/sec/led/led_notification_ramp_down"
+	}},
+	{ SDescription:{
+		  description:" "
+	}},
+	{ SDescription:{
+		  description:" "
+	}},
+	{ SButton:{
+		label:"테스트 시작",
+		action:"led 3"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SButton:{
+		label:"테스트 중지",
+		action:"led 0"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+    ]
+}
+CTAG

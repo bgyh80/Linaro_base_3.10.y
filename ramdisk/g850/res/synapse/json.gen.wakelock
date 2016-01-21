@@ -1,0 +1,79 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Wakelock", ko:"웨이크락"},
+    elements:[
+
+	{ SPane:{
+        title:{en:"Wireless(Wi-Fi) wakelock timeout control", ko:"무선랜(Wi-Fi) 웨이크락 지연시간 제어"},
+        description:{en:"Enter 1 to 8 (1 = stock, higher = lower wake time) for wlan_rx and wlan_ctrl wakelock control", ko:"wlan_rx와 wlan_ctrl 웨이크락을 제어합니다.\n순정 값은 1이며, 높을수록 딥슬립에 유리합니다."},
+    }},
+	    { SSeekBar:{
+            unit:"",
+            min:0,
+            max:8,
+            step:1,
+            default:`cat /sys/module/dhd/parameters/wl_divide`,
+            action:"generic /sys/module/dhd/parameters/wl_divide"
+	    }},
+	{ SSpacer:{ height:1 }},
+
+	{ SPane:{
+		title:{en:"Wakelock control", ko:"웨이크락 제어"},
+		description:{en:"Manage wakelock for drivers.\nIt is way more powerful than apps.\nDisable for better deep sleep and less awake time. Enable for stock behavior.", ko:"드라이버 레벨에서 웨이크락을 허용 또는 거부합니다.\nAmplify 등의 앱 제어 방식 보다 더 강력합니다.\n체크하면 순정 상태로, 해제하면 깨어남 시간을 줄이고 딥슬립을 개선합니다."},
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SCheckBox:{
+		label:"SensorHub",
+		default:1,
+		action:"generic /sys/module/wakeup/parameters/enable_sensorhub_ws",
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SCheckBox:{
+		label:"SSP",
+		default:1,
+		action:"generic /sys/module/wakeup/parameters/enable_ssp_ws",
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SCheckBox:{
+		label:"bcm4773",
+		default:1,
+		action:"generic /sys/module/wakeup/parameters/enable_bcm4773_ws",
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SCheckBox:{
+		label:"lli_pm",
+		default:1,
+		action:"generic /sys/module/wakeup/parameters/enable_lli_pm_ws",
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SCheckBox:{
+		label:"radio-interface",
+		default:1,
+		action:"generic /sys/module/wakeup/parameters/enable_radio_interface_ws",
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SCheckBox:{
+		label:"umts_ipc0",
+		default:1,
+		action:"generic /sys/module/wakeup/parameters/enable_umts_ipc0_ws",
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SCheckBox:{
+		label:"PowerManagerService.WakeLocks",
+		default:1,
+		action:"generic /sys/module/wakeup/parameters/enable_power_manager_service_ws",
+	}},
+
+	{ SSpacer:{ height:2 }},
+    ]
+}
+CTAG

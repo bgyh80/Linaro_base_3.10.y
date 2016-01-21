@@ -1,0 +1,53 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"LOGS", ko:"로그"},
+    elements:[
+	{ SPane:{
+		title:"로그 활성화"
+	}},
+	{ SCheckBox:{
+		description:" 로그캣을 저장하려면 먼저 활성화 해야됩니다.",
+		label:"안드로이드 로그(로그캣) 출력을 활성화 합니다.",
+		default:`cat /sys/kernel/logger_mode/logger_mode`,
+		action:"generic /sys/kernel/logger_mode/logger_mode"
+	}},
+	{ SCheckBox:{
+		description:"dmesg와 last_kmsg를 저장하려면 먼저 활성화 해야됩니다.",
+		label:"커널 로그 출력을 활성화합니다.",
+		default:`cat /sys/kernel/printk_mode/printk_mode | $BB sed s/[^0-9]//g`,
+		action:"digit /sys/kernel/printk_mode/printk_mode"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+
+	{ SPane:{
+		title:"로그 저장"
+	}},
+
+	{ SButton:{
+		label:"로그캣(안드로이드 로그) 저장",
+		action:"log logcat"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SButton:{
+		label:"dmesg(드라이버 로그) 저장",
+		action:"log dmesg"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SButton:{
+		label:"last_kmsg(커널 로그) 저장",
+		action:"log kmsg"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+    ]
+}
+CTAG

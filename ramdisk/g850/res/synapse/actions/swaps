@@ -1,0 +1,35 @@
+# Original by halaskk88
+# Modified by UpInTheAir for SkyHigh kernels
+
+BB=/res/bin/busybox;
+SWAP=/dev/block/vnswap0;
+
+#$BB mount -t rootfs -o remount,rw rootfs;
+
+case $1 in
+vnswap0)
+  P=/data/PRIME-Kernel/synapse/settings/vnswap0
+  if [ ! -z $2 ]; then
+	  if [ $2 == Disabled ]; then
+		swapoff $SWAP > /dev/null 2>&1
+		$BB sync;
+#		$BB echo "0" > /proc/sys/vm/swappiness;
+		echo 0 > $P
+	  elif [ $2 == Enabled ]; then
+		mkswap $SWAP > /dev/null 2>&1
+		swapon -p 10 $SWAP > /dev/null 2>&1
+		$BB sync;
+#		$BB echo "130" > /proc/sys/vm/swappiness;
+		echo 1 > $P
+  fi; fi
+  copy=`cat $P`
+  if [ $copy == 1 ]; then
+		echo Enabled
+  else
+		echo Disabled
+  fi
+  ;;
+esac
+
+#$BB mount -t rootfs -o remount,ro rootfs;
+
