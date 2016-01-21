@@ -122,6 +122,7 @@ struct mdnie_info {
 	unsigned int		accessibility;
 	unsigned int		color_correction;
 	unsigned int		auto_brightness;
+	unsigned int		toggle_negative;
 
 	char			path[50];
 

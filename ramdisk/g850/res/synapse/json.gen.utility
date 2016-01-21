@@ -66,6 +66,17 @@ cat << CTAG
 	}},
 	{ SSpacer:{ height:1 }},
 
+    { SPane:{
+        title:{en:"Display color switcher",ko:"디스플레이 색상 반전"},
+    }},
+	{ SCheckBox:{
+		label:{en:"Enabled display color switcher", ko:"디스플레이 색상 반전 토글 사용"},
+        description:{en:"Toggle by trople ply tapping the multitasking button.\nThis may not work on edge variants.", ko:"멀티태스킹 버튼을 세 번 연타하면 화면 색상이 반전됩니다.\n배경이 흰색인 화면에서 사용하면 AMOLED 특성 상 전력 사용을 대폭 줄일 수 있습니다.\nEdge 모델에서는 작동되지 않을 수 있습니다."},
+        default:`cat /sys/module/mdnie_lite/parameters/elable_toggle_negative`,
+        action:"hmp /sys/module/mdnie_lite/parameters/elable_toggle_negative",
+    }},
+	{ SSpacer:{ height:1 }},
+
  	{ SPane:{
 		title:"시스템 트윅",
         description:"시냅스 설정 변경 없이 커널 내부 값과 펌웨어의 숨겨진 설정을 조절하여 기기를 최적화 합니다.",

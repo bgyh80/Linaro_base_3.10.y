@@ -25,7 +25,7 @@ cat << CTAG
 
         { SSeekBar:{
             title:{en:"HMP packing limit", ko:"HMP packing 제한"},
-            description:" Little packing의 최대 값을 제한합니다. 값이 높을수록 배터리 효율이 좋아지지만 너무 높은 값은 터치인식 문제를 유발합니다. 디스플레이 해상도가 낮을수록 더 높게 설정 가능합니다. WQHD 디스플레이 해상도에서는 가급적 사용하지마세요!. WQHD 해상도에서 적정값은 42 입니다.",
+            description:" Little packing의 최대 값을 제한합니다. 값이 높을수록 배터리 효율이 좋아지지만 너무 높은 값은 터치인식 문제를 유발합니다.",
             max:1280,
             min:14, step:1,
             default:`cat /sys/kernel/hmp/packing_limit`,

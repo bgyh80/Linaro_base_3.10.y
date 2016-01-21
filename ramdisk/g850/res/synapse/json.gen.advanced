@@ -38,17 +38,6 @@ cat << CTAG
 	}},
 	{ SSpacer:{ height:1 }},
 
-    { SPane:{
-        title:{en:"Display color switcher",ko:"디스플레이 색상 반전"},
-    }},
-	{ SCheckBox:{
-		label:{en:"Enabled display color switcher", ko:"디스플레이 색상 반전 토글 사용"},
-        description:{en:"Toggle by trople ply tapping the multitasking button.\nThis may not work on edge variants.", ko:"멀티태스킹 버튼을 세 번 연타하면 화면 색상이 반전됩니다.\n배경이 흰색인 화면에서 사용하면 AMOLED 특성 상 전력 사용을 대폭 줄일 수 있습니다.\nEdge 모델에서는 작동되지 않을 수 있습니다."},
-        default:`cat /sys/module/mdnie_lite/parameters/elable_toggle_negative`,
-        action:"generic /sys/module/mdnie_lite/parameters/elable_toggle_negative",
-    }},
-	{ SSpacer:{ height:1 }},
-
     	{ SPane:{
 		title:"TCP Congestion Control",
 		description:" Select your preferred Wi-Fi TCP algorithm. Regulates upload and download affecting throughput in various ways. Default is Westwood+."
