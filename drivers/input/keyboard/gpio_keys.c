@@ -52,6 +52,9 @@ struct gpio_button_data {
 	bool disabled;
 	bool key_pressed;
 	bool key_state;
+#ifdef CONFIG_KEYBOARD_FORCE_REPORT_PRESS_EVENT
+	bool flag_pressed;
+#endif
 };
 
 struct gpio_keys_drvdata {
@@ -429,7 +432,10 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 	struct input_dev *input = bdata->input;
 	unsigned int type = button->type ?: EV_KEY;
 	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+#if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP) || defined(CONFIG_KEYBOARD_FORCE_REPORT_PRESS_EVENT)
 	struct irq_desc *desc = irq_to_desc(gpio_to_irq(button->gpio));
+#endif
+ 
 
 	if ((button->code == KEY_POWER) && !!state) {
 		printk(KERN_INFO "PWR key is %s\n", state ? "pressed" : "released");
@@ -440,8 +446,26 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 			input_event(input, type, button->code, button->value);
 	} else {
 		bdata->key_state = !!state;
+
+#ifdef CONFIG_KEYBOARD_FORCE_REPORT_PRESS_EVENT
+		if((!bdata->flag_pressed) && (irqd_is_wakeup_set(&desc->irq_data))) {
+			if(state)
+				bdata->flag_pressed = true;
+			else {
+				printk(KERN_INFO"GPIO-KEY : key_pressed is false. but state of %d keycode is 'release'. Enforce input_event with press.\n", button->code);
+				input_event(input, type, button->code, 1);
+				bdata->flag_pressed = false;
+			}
+		}
+#endif
+
+#ifdef CONFIG_KEYBOARD_FORCE_REPORT_PRESS_EVENT
+
+		input_event(input, type, button->code, !!state);
+#else
 		input_event(input, type, button->code,
 				irqd_is_wakeup_set(&desc->irq_data) ? 1 : !!state);
+#endif
 	}
 	input_sync(input);
 #ifdef CONFIG_INPUT_BOOSTER
@@ -978,6 +1002,9 @@ static int gpio_keys_suspend(struct device *dev)
 			struct gpio_button_data *bdata = &ddata->data[i];
 			if (bdata->button->wakeup)
 				enable_irq_wake(bdata->irq);
+#ifdef CONFIG_KEYBOARD_FORCE_REPORT_PRESS_EVENT
+			bdata->flag_pressed = false;
+#endif
 		}
 	} else {
 		mutex_lock(&input->mutex);
