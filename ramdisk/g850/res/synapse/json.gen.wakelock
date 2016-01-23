@@ -40,13 +40,6 @@ cat << CTAG
 	{ SSpacer:{ height:1 }},
 
 	{ SCheckBox:{
-		label:"bcmdhd",
-		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_bcmdhd_ws",
-	}},
-	{ SSpacer:{ height:1 }},
-
-	{ SCheckBox:{
 		label:"lli_pm",
 		default:1,
 		action:"generic /sys/module/wakeup/parameters/enable_lli_pm_ws",
