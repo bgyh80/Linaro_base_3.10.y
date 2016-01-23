@@ -22,14 +22,12 @@
 
 static int enable_sensorhub_ws = 1;
 static int enable_ssp_ws = 1;
-static int enable_bcm4773_ws = 1;
 static int enable_lli_pm_ws = 1;
 static int enable_radio_interface_ws = 1;
 static int enable_umts_ipc0_ws = 1;
 static int enable_power_manager_service_ws = 1;
 module_param(enable_sensorhub_ws, int, 0644);
 module_param(enable_ssp_ws, int, 0644);
-module_param(enable_bcm4773_ws, int, 0644);
 module_param(enable_lli_pm_ws, int, 0644);
 module_param(enable_radio_interface_ws, int, 0644);
 module_param(enable_umts_ipc0_ws, int, 0644);
@@ -412,11 +410,6 @@ static void wakeup_source_activate(struct wakeup_source *ws)
 
 	if (!enable_ssp_ws && !strcmp(ws->name, "ssp_wake_lock")) {
 		pr_info("wakeup source ssp activation skipped\n");
-		return;
-	}
-
-	if (!enable_bcm4773_ws && !strcmp(ws->name, "bcm4773_wake_lock")) {
-		pr_info("wakeup source bcm4773 activation skipped\n");
 		return;
 	}
 
