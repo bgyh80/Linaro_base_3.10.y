@@ -1306,95 +1306,10 @@ int sysctl_stat_interval __read_mostly = HZ;
 
 static void vmstat_update(struct work_struct *w)
 {
-<<<<<<< HEAD
-	if (refresh_cpu_vm_stats())
-		/*
-		 * Counters were updated so we expect more updates
-		 * to occur in the future. Keep on running the
-		 * update worker thread.
-		 */
-		schedule_delayed_work(this_cpu_ptr(&vmstat_work),
-			round_jiffies_relative(sysctl_stat_interval));
-	else {
-		/*
-		 * We did not update any counters so the app may be in
-		 * a mode where it does not cause counter updates.
-		 * We may be uselessly running vmstat_update.
-		 * Defer the checking for differentials to the
-		 * shepherd thread on a different processor.
-		 */
-		int r;
-		/*
-		 * Shepherd work thread does not race since it never
-		 * changes the bit if its zero but the cpu
-		 * online / off line code may race if
-		 * worker threads are still allowed during
-		 * shutdown / startup.
-		 */
-		r = cpumask_test_and_set_cpu(smp_processor_id(),
-			cpu_stat_off);
-		VM_BUG_ON(r);
-	}
-}
-
-/*
- * Check if the diffs for a certain cpu indicate that
- * an update is needed.
- */
-static bool need_update(int cpu)
-{
-	struct zone *zone;
-
-	for_each_populated_zone(zone) {
-		struct per_cpu_pageset *p = per_cpu_ptr(zone->pageset, cpu);
-
-		BUILD_BUG_ON(sizeof(p->vm_stat_diff[0]) != 1);
-		/*
-		 * The fast way of checking if there are any vmstat diffs.
-		 * This works because the diffs are byte sized items.
-		 */
-		if (memchr_inv(p->vm_stat_diff, 0, NR_VM_ZONE_STAT_ITEMS))
-			return true;
-
-	}
-	return false;
-}
-
-
-/*
- * Shepherd worker thread that checks the
- * differentials of processors that have their worker
- * threads for vm statistics updates disabled because of
- * inactivity.
- */
-static void vmstat_shepherd(struct work_struct *w);
-
-static DECLARE_DELAYED_WORK(shepherd, vmstat_shepherd);
-
-static void vmstat_shepherd(struct work_struct *w)
-{
-	int cpu;
-
-	get_online_cpus();
-	/* Check processors whose vmstat worker threads have been disabled */
-	for_each_cpu(cpu, cpu_stat_off)
-		if (need_update(cpu) &&
-			cpumask_test_and_clear_cpu(cpu, cpu_stat_off))
-
-			schedule_delayed_work_on(cpu, &per_cpu(vmstat_work, cpu),
-				__round_jiffies_relative(sysctl_stat_interval, cpu));
-
-	put_online_cpus();
-
-	schedule_delayed_work(&shepherd,
-		round_jiffies_relative(sysctl_stat_interval));
-
-=======
 	refresh_cpu_vm_stats();
 	schedule_delayed_work_on(smp_processor_id(),
 		&__get_cpu_var(vmstat_work),
 		round_jiffies_relative(sysctl_stat_interval));
->>>>>>> parent of 64fbde1... vmstat: on-demand vmstat workers V8
 }
 
 static void start_cpu_timer(int cpu)
