@@ -13,7 +13,7 @@ cat << CTAG
 
    { SLiveLabel:{
 		title:{en:"Sensor tempteratures",ko:"온도 센서"},
-                description:{en:" Temperature sensor data as read from the A57 (4-7) cores. The A53 (0-3) cores do not have dedicated sensors.",ko:" 온도 센서의 데이터는 A57(4-7) 코어에서만 읽어옵니다. A53(0-3) 코어에는 전용의 센서가 없습니다."},
+                description:{en:" Temperature sensor data as read from the A15 (4-7) cores. The A7 (0-3) cores do not have dedicated sensors.",ko:" 온도 센서의 데이터는 A15(4-7) 코어에서만 읽어옵니다. A7(0-3) 코어에는 전용의 센서가 없습니다."},
                 refresh:500,
                 action:"echo \$(echo \$(cat /sys/devices/10060000.tmu/curr_temp | /res/bin/busybox tr , \"\\n\") | { read S0 S1 S2 S3 S4; echo \"S0: \${S0%?}°C@nS1: \${S1%?}°C@nS2: \${S2%?}°C@nS3: \${S3%?}°C@nS4: \${S4%?}°C\"; })"
     }},
@@ -23,7 +23,7 @@ SHOW_CPU_LIVE_FREQ=0
 if [ $SHOW_CPU_LIVE_FREQ -eq 1 ]; then
 echo '
 	{ SLiveLabel:{
-                title:"A57 big Cores live frequency",
+                title:"A15 big Cores live frequency",
 		refresh:500,
 		action:"live LivebigFrequency"
 	}},
@@ -31,7 +31,7 @@ echo '
 		description:""
 	}},
 	{ SLiveLabel:{
-                title:"A53 LITTLE Cores live frequency",
+                title:"A7 LITTLE Cores live frequency",
 		refresh:500,
 		action:"live LiveLITTLEFrequency"
 	}},
@@ -42,7 +42,7 @@ echo '
 fi
 `
 	{ SLiveLabel:{
-                title:"A57 big Cores time in state",
+                title:"A15 big Cores time in state",
 		refresh:2500,
 		action:"live LiveCPU_big_Time 0 9"
 	}},
@@ -51,12 +51,12 @@ fi
 		action:"live LiveCPU_big_Time 10 15"
 	}},
 	{ SLiveLabel:{
-                title:"A57 big Cores unused frequencies",
+                title:"A15 big Cores unused frequencies",
 		refresh:2500,
 		action:"live LiveUnUsed_big"
 	}},
 	{ SLiveLabel:{
-                title:"A53 LITTLE Cores time in state",
+                title:"A7 LITTLE Cores time in state",
 		refresh:2500,
 		action:"live LiveCPU_LITTLE_Time 0 9"
 	}},
@@ -65,7 +65,7 @@ fi
 		action:"live LiveCPU_LITTLE_Time 10 17"
 	}},
 	{ SLiveLabel:{
-                title:"A53 LITTLE Cores unused frequencies",
+                title:"A7 LITTLE Cores unused frequencies",
 		refresh:2500,
 		action:"live LiveUnUsed_LITTLE"
 	}},

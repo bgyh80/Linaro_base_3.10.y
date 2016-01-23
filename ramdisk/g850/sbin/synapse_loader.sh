@@ -9,22 +9,6 @@ LOADER_VER_PATH=/data/PRIME-Kernel/synapse_loader_ver
 rm $SYNAPSE_LOADER_LOG
 rm $LOADER_VER_PATH
 
-# Addon install
-ADDON_LIST=$( ls /data/media/0/Synapse/PRIME-Kernel-DonateAddon_*|/res/bin/busybox sort )
-if [ ! -e $SYNAPSE_LOADER_SRC ] && [ ! -z $ADDON_LIST ]; then
-	ADDON_COUNT=`/res/bin/busybox expr ${#ADDON_LIST[@]} - 1`
-	[[ -z $ADDON_COUNT ]] && ADDON_COUNT=0
-	ADDON_FILE=${ADDON_LIST[$ADDON_COUNT]}
-	TMP_DIR=/data/local/tmp/PRIME-Kernel
-	
-	mkdir $TMP_DIR
-	
-	$BB unzip -o $ADDON_FILE -d $TMP_DIR
-	cp -rf $TMP_DIR/data/. /data/PRIME-Kernel/
-	$BB chmod -R 0755 /data/PRIME-Kernel/.
-	rm -rf $TMP_DIR
-fi
-
 echo synapseloader start >> /data/PRIME-Kernel/kernel.log
 echo - excecuted on $(date +"%Y-%d-%m %r") >> /data/PRIME-Kernel/kernel.log
 

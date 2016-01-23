@@ -5,7 +5,7 @@ function getasv() {
 	STR=`cat /sys/kernel/debug/asv_group|grep "VDD_$1 ASV group is"`
 	CUT="VDD_$1 ASV group is "
 	OUT=${STR##$CUT}
-	echo "$1: $OUT@n"
+	echo "$2: $OUT@n"
 }
 
 case $1 in
@@ -19,11 +19,11 @@ fast)
   echo `cat /sys/kernel/fast_charge/info`
   ;;
 asv)
-  getasv ARM
-  getasv KFC
-  getasv G3D
-  getasv MIF
-  getasv INT
-  getasv ISP
+  getasv ARM "A15"
+  getasv KFC "A7"
+  getasv G3D "GPU"
+  getasv MIF "Memory"
+  getasv INT "Int Bus"
+  getasv ISP "Camera"
   ;;
 esac

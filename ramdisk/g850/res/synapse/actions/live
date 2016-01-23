@@ -255,9 +255,9 @@ donate)
     if [ -e /data/PRIME-Kernel/bin/synapse_loader212 ]; then
     	synapse_version=`cat /data/PRIME-Kernel/synapse_loader_ver`
         echo "애드온 버전: $synapse_version"
-		if [[ $synapse_version < "2" ]]; then
-	    	echo "@n애드온의 업데이트가 필요합니다."
-    	fi
+#		if [[ $synapse_version < "2" ]]; then
+#	    	echo "@n애드온의 업데이트가 필요합니다."
+#    	fi
     else
         echo "기부 애드온이 설치되지 않았습니다.@n"
         echo "유틸리티 탭의 모든 기능은 기부 애드온을 필요로 합니다."

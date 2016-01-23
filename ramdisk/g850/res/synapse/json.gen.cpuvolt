@@ -17,7 +17,7 @@ cat << CTAG
 	{ SDescription:{
 		description:""
 	}},
-        { STitleBar:{ title:"A57 빅 코어" }},
+        { STitleBar:{ title:"A15 빅 코어" }},
 `
 while read FREQ VOLT; do
 LABEL=$(/res/bin/busybox expr $FREQ / 1000)
@@ -29,13 +29,13 @@ done < /sys/devices/system/cpu/cpufreq/mp-cpufreq/cpu_volt_table
 	{ SDescription:{
 		description:""
 	}},
-        { STitleBar:{ title:"A53 리틀 코어" }},
+        { STitleBar:{ title:"A7 리틀 코어" }},
 `
 while read FREQ VOLT; do
 LABEL=$(/res/bin/busybox expr $FREQ / 1000)
         echo '{ SSeekBar:{'
                 echo 'title:"'$LABEL' MHz", default:'$VOLT', '
-                echo 'action:"kfcvolt '${FREQ}'", unit:" mV", weight:0.001, min:700000, max:1200000, step:6250 }}, '
+                echo 'action:"kfcvolt '${FREQ}'", unit:" mV", weight:0.001, min:700000, max:1275000, step:6250 }}, '
 done < /sys/devices/system/cpu/cpufreq/mp-cpufreq/kfc_volt_table
 `
 	{ SDescription:{

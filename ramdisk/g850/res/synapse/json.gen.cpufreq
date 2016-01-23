@@ -15,14 +15,14 @@ cat << CTAG
 	}},
    { SDescription:{description:""}},
    { STitleBar:{
-                title:"A57 빅코어"
+                title:"A15 빅코어"
    }},
    { SDescription:{
 		description:""
 	}},
 	{ SSeekBar:{
-       		title:"A57 빅 코어 최대 클럭",
-		description:"순정 클럭은 1900 MHz 입니다.",
+       		title:"A15 빅 코어 최대 클럭",
+		description:"순정 클럭은 1800 MHz 입니다.",
 		default:`cat /sys/devices/system/cpu/cpu4/cpufreq/$CPUFREQ_MAX`,
 		action:"cpufreq /sys/devices/system/cpu/cpu4/cpufreq/$CPUFREQ_MAX",
 		values:{
@@ -38,8 +38,8 @@ cat << CTAG
 		description:""
 	}},
 	{ SSeekBar:{
-       		title:"A57 빅 코어 최저 클럭",
-		description:"순정 클럭은 700 MHz 입니다.",
+       		title:"A15 빅 코어 최저 클럭",
+		description:"순정 클럭은 800 MHz 입니다.",
 		default:`cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq`,
 		action:"cpufreq /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq",
 		values:{
@@ -54,13 +54,13 @@ cat << CTAG
     { SDescription:{description:" "}},
 
    { STitleBar:{
-                title:"A53 리틀 코어"
+                title:"A7 리틀 코어"
    }},
 	{ SDescription:{
 		description:""
 	}},
 	{ SSeekBar:{
-       		title:"A53 리틀 코어 최대 클럭",
+       		title:"A7 리틀 코어 최대 클럭",
 		description:"순정 클럭은 1300 MHz 입니다.",
 		default:`cat /sys/devices/system/cpu/cpu0/cpufreq/$CPUFREQ_MAX`,
 		action:"cpufreq /sys/devices/system/cpu/cpu0/cpufreq/$CPUFREQ_MAX",
@@ -77,8 +77,8 @@ cat << CTAG
 		description:""
 	}},
 	{ SSeekBar:{
-       		title:"A53 리틀 코어 최저 클럭",
-		description:"순정 클럭은 400 MHz 입니다.",
+       		title:"A7 리틀 코어 최저 클럭",
+		description:"순정 클럭은 500 MHz 입니다.",
 		default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`,
 		action:"cpufreq /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
 		values:{

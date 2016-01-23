@@ -40,9 +40,9 @@ cat << CTAG
 	{ SSpacer:{ height:1 }},
 
 	{ SCheckBox:{
-		label:"bcm4773",
+		label:"bcmdhd",
 		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_bcm4773_ws",
+		action:"generic /sys/module/wakeup/parameters/enable_bcmdhd_ws",
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -69,6 +69,7 @@ cat << CTAG
 
 	{ SCheckBox:{
 		label:"PowerManagerService.WakeLocks",
+		description:"주의. 실험적인 항목입니다.",
 		default:1,
 		action:"generic /sys/module/wakeup/parameters/enable_power_manager_service_ws",
 	}},

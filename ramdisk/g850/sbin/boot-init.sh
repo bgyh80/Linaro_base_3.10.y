@@ -53,7 +53,6 @@ echo 100000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/max_freq_hysteresis
 # io_is_busy
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/io_is_busy
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/io_is_busy
-echo 1 > /sys/devices/virtual/sec/sec_slow/io_is_busy
 
 #echo interactive > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 #echo interactive > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
@@ -105,6 +104,8 @@ bb chmod -R 0755 /res/bin
 
 /sbin/uci reset
 /sbin/uci
+
+/sbin/synapse_loader.sh
 
 echo init.d script start >> /data/PRIME-Kernel/kernel.log
 echo - excecuted on $(date +"%Y-%d-%m %r") >> /data/PRIME-Kernel/kernel.log
