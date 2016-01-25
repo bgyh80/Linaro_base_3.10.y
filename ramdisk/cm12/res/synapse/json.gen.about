@@ -1,0 +1,56 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:"About",
+    elements:[
+		{ SLiveLabel:{
+			refresh:10000000,
+			style:"bold",
+			action:"about title"
+		}},
+		{ SLiveLabel:{
+			refresh:10000000,
+			style:"normal",
+			action:"about current_version"
+		}},
+		{ SLiveLabel:{
+			refresh:10000000,
+			style:"normal",
+			action:"about new_version"
+		}},
+		{ SDescription:{ description:" " }},
+
+		{ SButton:{
+		   label:{en:"change log", ko:"변경 내역"},
+		   action:"about changelog"
+		}},
+		{ SButton:{
+		   label:"최신버전 다운로드",
+		   action:"about download"
+		}},
+`
+if [ -e /sdcard/Synapse/betatester ]; then
+GET_TESTVER="\`curl http://enfree.com/stockrider/?page=allow_tester_download\`"
+  if [ $GET_TESTVER == "true" ]; then
+	echo '{ SButton:{
+		   label:"테스트 버전 다운로드",
+		   action:"am start -a android.intent.action.VIEW -d http://enfree.com/stockrider/?page=tester_download > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+		}},'
+  fi
+fi
+`
+		{ SDescription:{ description:" " }},
+		{ SDescription:{ description:" " }},
+		{ SButton:{
+		   label:"이 커널을 유용하게 사용하신다면...",
+		   action:"am start -a android.intent.action.VIEW -d http://enfree.com/stockrider/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+		}},
+		{ SButton:{
+		   label:"이메일로 피드백 하기",
+		   action:"am start -a android.intent.action.VIEW -d mailto:dqstyle@gmail.com > /dev/null 2>&1& echo '     이메일 앱을 실행합니다.     '"
+		}},
+    ]
+}
+
+CTAG

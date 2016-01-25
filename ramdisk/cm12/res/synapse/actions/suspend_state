@@ -1,0 +1,15 @@
+BB=/res/bin/busybox;
+
+if [ -f $1 ]; then
+	if [[ ! -z "$2" ]]; then
+		PSM=`cat /sys/kernel/power_suspend/power_suspend_mode`;
+		
+		if [ "$PSM" == "1" ]; then
+			echo "$2" > $1
+		fi;
+	fi;
+
+	echo "`cat $1`";
+else
+	echo "0";
+fi;

@@ -1,0 +1,158 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Memory", ko:"메모리"},
+    elements:[
+	{ SPane:{
+		title:"Memory state"
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"live LiveMemory"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+
+	{ SPane:{
+		title:"Low Memory Killer(LMK)",
+       description:"LMK는 메모리가 부족할 때 백그라운드에서 실행중인 앱을 종료하여 가용 메모리를 확보합니다."
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"live lmkcount"
+	}},
+	{ SDescription:{description:" "}},
+`if [ -f /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk ]; then
+    echo '
+	{ SCheckBox:{
+		description:"vmpressure 이벤트에 반응하여 동적으로 더 공격적인 LMK를 수행합니다.",
+		label: { en:"Enable Adaptive LMK", ko:"Adaptive LMK 활성화"},
+   	 	default:'\`cat /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk\`',
+		action:"generic /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk",
+    }},
+	{ SDescription:{description:" "}},
+    { SSeekBar:{
+        title:"vmpressure_file_min",
+        description:"값이 작을수록 'Adaptive LMK'가 더 자주 실행됩니다. 기본값은 160 MB 입니다.",
+        unit:" MB",
+        min:0,
+		 max:76800,
+		 step:256,
+		 weight:0.00390625,
+        default:'\`cat /sys/module/lowmemorykiller/parameters/vmpressure_file_min\`',
+        action:"generic /sys/module/lowmemorykiller/parameters/vmpressure_file_min"
+    }},
+    { SSeekBar:{
+        title:"vmpressure_scale_max",
+        unit:" %",
+        min:1,
+		max:100,
+		step:1,
+        default:'\`cat /sys/module/vmpressure/parameters/vmpressure_scale_max\`',
+        action:"generic /sys/module/vmpressure/parameters/vmpressure_scale_max"
+    }},
+	{ SDescription:{description:" "}},'
+fi;`
+
+
+ `if [ -f "/sys/devices/virtual/block/zram0/disksize" ]; then
+    MemTotal=\`cat /proc/meminfo|grep MemTotal:|/res/bin/busybox sed s/[^0-9]//g\`;
+    MemTotal=$((MemTotal / 1024))
+    ZRAM=\`cat /sys/devices/virtual/block/zram0/disksize\`;
+    if [ $ZRAM != 0 ]; then
+        ZRAM=$((ZRAM / 1024 / 1024));
+    else
+        ZRAM=\`cat /data/PRIME-Kernel/synapse/settings/zram_old_size\`
+    fi
+    echo '
+    { SPane:{
+        title:"Z-RAM",
+        description:{en:"Attempts to increase performance by avoiding paging on physical storage, instead using a compressed virtual device in RAM. Paging takes place in RAM until it is necessary to use the swap space on physical storage.", ko:" 압축된 스왑 메모리를 물리적 RAM에 생성하고 VNSWAP을 대체하여 스왑 발생 시 기기가 느려지는 현상을 방지합니다."}
+    }},
+    { SDescription:{
+		description:" 주의! 타 커널관리 앱 또는 트윅을 사용하여 Z-RAM과 vm.swappiness 을 변경하지마세요."
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+
+	{ SCheckBox:{
+		label: { en:"Enable Z-RAM", ko:"Z-RAM 활성화"},
+		description:" Z-RAM을 활성화 하면 호환성을 위해 VNSWAP에 사용되는 ZSWAP을 해제합니다(ZSWAP은 스왑메모리를 실시간 압축하는 기술입니다).",
+  	 	default:'\`cat /data/PRIME-Kernel/synapse/settings/zram_prof\`',
+		action:"zram /data/PRIME-Kernel/synapse/settings/zram_prof",
+		notify:[
+			{
+				on:APPLY,
+				do:[ REFRESH, CANCEL ],
+				to:"zram /sys/devices/virtual/block/zram0/disksize",
+			},
+			{
+				on:REFRESH,
+				do:REFRESH,
+				to:"zram /sys/devices/virtual/block/zram0/disksize"
+			}
+		]
+    }},
+	{ SDescription:{
+		description:" "
+	}},
+
+    { SSeekBar:{
+        title:{en:"Z-RAM size max", ko:"Z-RAM 최대 크기"},
+        description:"ZSWAP이 해제됨으로 인해 발생하는 약 65%(800MB)의 VNSWAP 공간 손실을 감안하여 설정하세요. 권장 크기는 1200 MB입니다.",
+        unit:" MB",
+        step:10,
+        min:800,
+        max:2000,
+        default:'$ZRAM',
+        action:"zram /sys/devices/virtual/block/zram0/disksize"
+    }},
+    { SDescription:{ description:" " }},
+	{ SLiveLabel:{
+            title:{en:"Z-RAM stats",ko:"Z-RAM 상태"},
+	  		  refresh:3000,
+		     action:"live zRamStats"
+	}},
+	{ SSpacer:{ height:1 }},'
+  fi`
+  
+    { SPane:{
+        title:{en:"Virtual Memory Controls", ko:"가상메모리 설정"},
+        description:" "
+    }},
+    
+	{ SOptionList:{
+		title:"Virtual NAND Swap",
+		description:{en:" VNSwap attempts to increase performance by avoiding paging on physical storage, instead using a compressed virtual device(ZSWAP) in RAM. Paging takes place in RAM until it is necessary to use the swap space on physical storage. Depending on the amount of swap currently in use, this process can take ~1 minute with Synapse being UNRESPONSIVE during this time. PLEASE WAIT for the process to finish.\nDefault is Enabled.", ko:"VNSwap은 물리적 스토리지에 스왑 공간을 생성하며 압축 된 가상 장치(ZSWAP)를 사용하여 페이징을 방지하여 성능을 향상시킵니다.\n설정 변경 시 사용중인 스왑의 양에 따라 최대 1분 까지 응답하지 않을 수 있으므로 프로세스가 완료 될 때까지 기다려주세요.\n<주의!> 잘 모른다면 변경하지 않는 것이 안전합니다.\n기본값은 Enabled 입니다."},
+		default:Enabled,
+		action:"swaps vnswap0",
+		values:[Disabled, Enabled,],
+	}},
+	{ SSpacer:{ height:1 }},
+	
+	{ SSeekBar:{
+		title:"ZSwap memory pool",
+		description:" ZSwap memory pool percentage of main memory that may be used as compressed page cache. Default is 30.",
+		min:0, max:50, unit:" %", step:1,
+		default:`cat /sys/module/zswap/parameters/max_pool_percent`,
+		action:"generic /sys/module/zswap/parameters/max_pool_percent"
+	}},
+	{ SSpacer:{ height:1 }},
+	
+	{ SSeekBar:{
+		title:"swappiness",
+		description:" A low value means the kernel will try to avoid swapping as much as possible where a higher value instead will make the kernel aggressively try to use swap space. Default is 130.",
+		max:200,
+		min:0,
+		step:10,
+		default:`cat /proc/sys/vm/swappiness`,
+		action:"generic /proc/sys/vm/swappiness",
+	}},
+	{ SSpacer:{ height:2 }},
+
+    ]
+}
+CTAG

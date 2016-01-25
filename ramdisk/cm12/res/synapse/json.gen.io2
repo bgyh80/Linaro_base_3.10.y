@@ -1,0 +1,23 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+	{ SOptionList:{
+		title:{en:"ExternalSD scheduler", ko:"외장 SD카드 스케줄러"},
+		default:`cat /sys/block/mmcblk1/queue/scheduler | /res/bin/busybox awk 'NR>1{print $1}' RS=[ FS=]`,
+		action:"scheduler /sys/block/mmcblk1/queue/scheduler",
+		values:[`while read values; do /res/bin/busybox printf "%s, \n" $values | /res/bin/busybox tr -d '[]'; done < /sys/block/mmcblk1/queue/scheduler`]
+	}},
+	{ SSeekBar:{
+		title:{en:"ExternalSD read-ahead", ko:"외장 SD카드 미리읽기 크기"},
+		max:4096,
+		min:128,
+		unit:" kB",
+		step:128,
+		default:`cat /sys/block/mmcblk1/queue/read_ahead_kb`,
+		action:"generic /sys/block/mmcblk1/queue/read_ahead_kb"
+	}},
+
+	{ SDescription:{
+		description:" "
+	}},
+CTAG

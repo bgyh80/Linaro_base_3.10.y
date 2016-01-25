@@ -1,0 +1,50 @@
+BB=/res/bin/busybox;
+CURL=/res/bin/curl
+PSRC=/sys/devices/battery.30
+U=$($BB uname -r|$BB awk '{print tolower($0)}')
+U=${U##*-v}
+U=${U##*_v}
+U=${U##*-}
+U=${U##*_}
+URL="http://enfree.com/prime"
+
+GET_LATEST=$($CURL -L $URL/?page=get_latest 2> /dev/null|$BB awk '{print tolower($0)}')
+GET_NEWBUILD=$($CURL -L $URL/?page=get_newbuild 2> /dev/null|$BB awk '{print tolower($0)}')
+
+case $1 in
+title)
+  echo "@nWelcome to PRIME kernel!"
+  ;;
+current_version)
+  echo "ver $U"
+  ;;
+new_version)
+  [ -z "$GET_LATEST" ] && echo "서버 접속 문제로 버전확인 불가"
+  if [ ! -z "$GET_LATEST" ]; then
+    if [[ "$GET_NEWBUILD" != $GET_LATEST ]]; then 
+    	echo "$GET_NEWBUILD 버전이 대기 상태입니다.@n"
+    	echo "다운로드 가능한 최신 버전은 $GET_LATEST 입니다."
+    elif [[ "$GET_LATEST" != $U ]]; then echo "$GET_LATEST 버전을 다운로드 가능합니다."
+    else echo "최신버전입니다."; fi
+  fi
+  ;;
+download)
+  DEVICE=`getprop ro.bootloader`
+  MODEL=${DEVICE:0:4}
+  echo "     웹브라우저를 실행합니다.     ";
+  am start -a android.intent.action.VIEW -d $URL/?page=download &
+  ;;
+changelog)
+  DEVICE=`getprop ro.bootloader`
+  MODEL=${DEVICE:0:4}
+  echo "     웹브라우저를 실행합니다.     ";
+  am start -a android.intent.action.VIEW -d "$URL/?page=changelog&ver=$GETVER" &
+  ;;
+esac
+
+SEC_PID=$($BB pidof com.samsung.android.securitylogagent)
+if [ ! -z $SEC_PID ]; then
+    pm disable com.samsung.android.securitylogagent > /dev/null >2&1
+    $BB kill $SEC_PID
+fi
+

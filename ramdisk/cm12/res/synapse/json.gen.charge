@@ -1,0 +1,131 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Power", ko:"전원"},
+    elements:[
+   { SLiveLabel:{
+        action:"charge-source"
+   }},
+  { SLiveLabel:{
+        refresh:1000,
+        action:"charge-info"
+   }},
+
+	{ SPane:{
+		title:{en:"Enable/Disable FastCharge", ko:"고속충전"},
+	}},
+	{ SOptionList:{
+		default:`echo $($STR/actions/battery fastcharge)`,
+		action:"battery fastcharge",
+		values:[Disabled, Enabled]
+	}},
+	{ SDescription:{
+		description:""
+	}},
+        { SCheckBox:{
+                description:{en:" Use MTP during fast charge. Default is Enabled.", ko:" 고속충전 중에 MTP를 활성화 합니다."},
+                label:{en:"Use MTP", ko:"MTP(미디어 전송 프로토콜) 사용"},
+		default:`cat /sys/kernel/fast_charge/use_mtp_during_fast_charge`,
+                action:"generic /sys/kernel/fast_charge/use_mtp_during_fast_charge"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+        { SCheckBox:{
+                description:{en:" Use Samsung screen ON charging limit whilst charging. Default is Enabled.", ko:"화면이 켜졌을 때 충전 전류를 제한합니다. 기본값은 Enabled입니다."},
+                label:{en:"Screen ON current limit", ko:"화면 켜짐 시 충전 제한"},
+		default:`cat /sys/kernel/fast_charge/screen_on_current_limit`,
+                action:"generic /sys/kernel/fast_charge/screen_on_current_limit"
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SPane:{
+		title:{en:"Custom_Levels settings", ko:"입력 전류"},
+		description:{ko:"높은 전류는 더 빠른 충전이 가능하지만 충전기가 지원해야합니다. 충전기의 규격을 먼저 확인하세요."}
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+		title:{en:"Set AC Custom Charge Level", ko:"AC 충전"},
+		description:{en:" Default is 2100.", ko:"기본값은 2000입니다. 노트4 번들 충전기의 고속충전 모드 시 입력 전류는 1.67A(1670mA), 일반모드는 2.0A(2000mA)입니다."},
+		unit:" mA",
+		default:`cat /sys/kernel/fast_charge/ac_charge_level`,
+		action:"generic /sys/kernel/fast_charge/ac_charge_level",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/kernel/fast_charge/ac_levels`]
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+		title:{en:"Set USB Custom Charge Level", ko:"USB 충전"},
+		description:{en:" Default is 460.", ko:" USB2.0 포트의 기본값은 460, USB3.0포트의 기본값은 900입니다."},
+		unit:" mA",
+		default:`cat /sys/kernel/fast_charge/usb_charge_level`,
+		action:"generic /sys/kernel/fast_charge/usb_charge_level",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/kernel/fast_charge/usb_levels`]
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+		title:{en:"Set WIRELESS Custom Charge Level", ko:"무선 충전"},
+		description:" Default is 650.",
+		unit:" mA",
+		default:`cat /sys/kernel/fast_charge/wireless_charge_level`,
+		action:"generic /sys/kernel/fast_charge/wireless_charge_level",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/kernel/fast_charge/wireless_levels`]
+	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SCheckBox:{
+		description:{en:" If disabled you allow anything up to 2.1A/h to be used as AC / USB / Wireless custom current.", ko:" 해제 시 2.1A/h 이상의 전류로 충전할 수 있습니다."},
+		label:{en:"Use safe charge", ko:"안전 범위 사용"},
+		default:`cat /sys/kernel/fast_charge/failsafe`,
+		action:"generic /sys/kernel/fast_charge/failsafe"
+	}},
+	{ SDescription:{
+		description:{en:"    Attention! - ON YOUR OWN RISK.", ko:"    주의!! 과전류로 인한 기기 손상은 사용자 본인의 책임입니다."}
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+
+	{ SPane:{
+		title:"Battery Scaling Calibration",
+		description:" If you are having incorrect battery SCALING issues, this will reset your device battery % to scale correctly to the approximate available mV. Give it a few hours after you reset the gauge. It may still show you funny values for that period, then the battery percentage should be fine after a full charge cycle."
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SDescription:{
+		description:" 1- Push button < Reset Fuel-Gauge Chip Now >"
+	}},
+	{ SDescription:{
+		description:" 2- Reboot device"
+	}},
+	{ SDescription:{
+		description:" 3- Deplete battery to 5-10 % (NOT ZERO)"
+	}},
+	{ SDescription:{
+		description:" 4- Charge UNINTERUPTED until FULL (don't touch)"
+	}},
+	{ SDescription:{
+		description:" 5- Unplug then use normally. Device should re-calibrate itself"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SButton:{
+		label:"Reset Fuel-Gauge Chip Now",
+		action:"battery fuel-gauge"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+    ]
+}
+CTAG

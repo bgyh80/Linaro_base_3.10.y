@@ -1,0 +1,12 @@
+BB=/res/bin/busybox;
+CUR=`cat $1`
+
+if [ ! -z $2 ]; then
+    if [ $2 != "$CUR" ]; then
+        echo $2 > $1;
+        setenforce $2
+    fi
+    echo $2
+else
+    echo $CUR;
+fi

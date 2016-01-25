@@ -1,0 +1,143 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Advanced",ko:"고급 설정"},
+    elements:[
+    { SPane:{
+    title:{en:"Kernel Entropy", ko:"커널 엔트로피"}
+    }},
+	{ SDescription:{
+		description:" 엔트로피는 난수 생성에 필요합니다. 엔트로피 풀(pool)에  엔트로피가 없으면 난수 생성기는 블럭되어 시스템이 느려지므로 공급 가능한  충분한 엔트로피를 유지해야 합니다."
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SLiveLabel:{
+		title:{en:"Entropy Available", ko:"사용 가능한 엔트로피"},
+		refresh:1000,
+		action:"live entropy"
+	}},
+	{ SLiveLabel:{
+		title:{en:"Entropy pool size", ko:"엔트로피 풀(pool) 크기"},
+		refresh:100000,
+		action:"live entropy_size"
+	}},
+	{ SSeekBar:{
+		title:{en:"Read Wakeup Threshold", ko:"읽기 시 제한점"},
+		max:1024,
+        min:16, step:16,
+		default:`cat /proc/sys/kernel/random/read_wakeup_threshold`,
+		action:"generic /proc/sys/kernel/random/read_wakeup_threshold"
+	}},
+	{ SSeekBar:{
+		title:{en:"Write Wakeup Threshold", ko:"쓰기 시 제한점"},
+		max:2048,
+		min:128, step:16,
+		default:`cat /proc/sys/kernel/random/write_wakeup_threshold`,
+		action:"generic /proc/sys/kernel/random/write_wakeup_threshold"
+	}},
+	{ SSpacer:{ height:1 }},
+
+    	{ SPane:{
+		title:"TCP Congestion Control",
+		description:" Select your preferred Wi-Fi TCP algorithm. Regulates upload and download affecting throughput in various ways. Default is Westwood+."
+    	}},
+		{ SSpacer:{ height:1 }},
+
+		{ SOptionList:{
+			default:`cat proc/sys/net/ipv4/tcp_congestion_control`,
+			action:"generic proc/sys/net/ipv4/tcp_congestion_control",
+			values:[`while read values; do /res/bin/busybox printf "%s, \n" $values; done < proc/sys/net/ipv4/tcp_available_congestion_control`]
+		}},
+		{ SSpacer:{ height:1 }},
+
+    { SPane:{
+		title:{en:"Input Booster Level", ko:"인풋 부스터 레벨"},
+    }}
+    { SOptionList:{
+		description:" 인풋 부스터는 터치, 키보드, 펜 등의 사용자 입력이 있을 때 CPU 클럭을 올려 UI 반응을 향상시킵니다. 레벨0(OFF) 선택 시 UI 성능을 댓가로 약간의 배터리 향상이 있습니다. 기본값(2)을 권장합니다.",
+        default:`cat /sys/class/input_booster/level`,
+		action:"generic /sys/class/input_booster/level",
+        values:{
+            0:"0. OFF",
+            1:"1. SIP (default SIP)",
+            2:"2. Default",
+            3:"3. Hangout SIP",
+            4:"4. Browsable Apps",
+            5:"5. Light SIP or MMS ..",
+            9:"9. Max for benchmark tool"
+        }
+	}},
+	{ SSpacer:{ height:1 }},
+
+    { SPane:{
+        title:{en:"CPU core online", ko:"CPU 코어 온라인"},
+    }},
+	{ SSeekBar:{
+        description:"화면이 켜진 상태에서 활성화 될 CPU 코어 최대 갯수. 5 미만으로 설정 시 시냅스 앱의 CPU 관련 일부 항목이 표시되지 않거나 오류메세지를 출력할 수 있지만 사용에는 문제가 없습니다.",
+        unit:" Core",
+        default:`cat /sys/power/cpucore_max_num_limit`,
+        action:"generic /sys/power/cpucore_max_num_limit",
+        min:1,
+        max:8,
+        step:1,
+    }},
+	{ SSpacer:{ height:1 }},
+
+`if [ -e /proc/sys/vm/dynamic_dirty_writeback ]; then
+   echo '
+    { SPane:{
+        title:"Dynamic Dirty Page Writeback",
+	    description:" A higher interval we have better performance and less battery consumption, with a very low risk of data loss. Disabling will set the value of Dirty Writeback Suspend for both screen on & off."
+    }},
+	{ SCheckBox:{
+		label:"Enable Dynamic Dirty Page Writeback",
+       	 	default:'\`cat /proc/sys/vm/dynamic_dirty_writeback\`',
+		action:"generic /proc/sys/vm/dynamic_dirty_writeback"
+	}},
+	{ SSpacer:{ height:1 }},
+
+	{ SSeekBar:{
+		title:"Dirty Writeback Active",
+		description:" Time interval between wakeups of the pdflush writeback daemons which write old data out to disk whilst SCREEN is ON. Default is 1500.",
+		max:5000,
+		min:500,
+		step:500,
+		default:'\`cat /proc/sys/vm/dirty_writeback_active_centisecs\`',
+		action:"generic /proc/sys/vm/dirty_writeback_active_centisecs",
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SSeekBar:{
+		title:"Dirty Writeback Suspend",
+		description:" Time interval between wakeups of the pdflush writeback daemons which write old data out to disk whilst SCREEN is OFF. Default is 500.",
+		max:1000,
+		min:100,
+		step:100,
+		default:'\`cat /proc/sys/vm/dirty_writeback_suspend_centisecs\`',
+		action:"generic /proc/sys/vm/dirty_writeback_suspend_centisecs",
+	}},
+    { SDescription:{ description:"" }},'
+ fi;`
+
+      	{ SPane:{
+		title:"Randomisation"
+      	}},
+	{ SDescription:{
+		description:""
+	}},
+	{ SSeekBar:{
+		title:"randomize_va_space",
+		description:" Disabling (0) virtual address randomisation may improve GUI responsiveness.",
+		max:2,
+		min:0,
+		step:1,
+		default:`cat /proc/sys/kernel/randomize_va_space`,
+		action:"generic /proc/sys/kernel/randomize_va_space"
+	}},
+
+	{ SSpacer:{ height:2 }},
+    ]
+}
+CTAG

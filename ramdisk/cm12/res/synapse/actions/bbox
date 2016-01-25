@@ -1,0 +1,11 @@
+#!/res/bin/busybox sh
+
+BB=/res/bin/busybox;
+INC=/data/PRIME-Kernel/bin/bbox.inc
+
+if [ -e $INC ]; then
+    source $INC
+else
+	echo "기부하신 후 사용 가능한 기능입니다.";
+fi
+

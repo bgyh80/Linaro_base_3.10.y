@@ -1,0 +1,72 @@
+BB=/res/bin/busybox
+if [ -d /data/data/com.af.synapse ]; then
+  SYNAPSE_SD_DIR=/sdcard/Synapse;
+  SYNAPSE_LMK_DIR=$SYNAPSE_SD_DIR/lmk_whitelists;
+  SYS_PROC=$SYNAPSE_LMK_DIR/sys_processes.txt
+  USER_PROC=$SYNAPSE_LMK_DIR/user_processes.txt
+
+  [ ! -d "$SYNAPSE_LMK_DIR" ] && $BB mkdir -p "$SYNAPSE_LMK_DIR";
+  if [ ! -f "$SYS_PROC" ]; then
+    echo "com.sec.android.app.launcher" > $SYS_PROC
+    echo "com.android.systemui" >> $SYS_PROC
+    echo "com.android.phone" >> $SYS_PROC
+  fi
+  if [ ! -f "$USER_PROC" ]; then
+    echo "com.kakao.talk" > $USER_PROC
+    echo "com.vipercn.viper4android_v2" >> $USER_PROC
+  fi
+  KAKAO=`$BB grep com.kakao.talk $USER_PROC`
+  if [ -z "$KAKAO" ]; then
+    echo "com.kakao.talk" >> $USER_PROC
+  fi
+fi;
+
+reset_uci() {
+  /sbin/uci reset;
+  /sbin/uci;
+}
+
+if [ $2 == "sys" ]; then
+  sysfs=/sys/module/lowmemorykiller/parameters/donotkill_sysproc_names;
+  sd=$SYNAPSE_LMK_DIR/sys_processes.txt;
+elif [ $2 == "user" ]; then
+  sysfs=/sys/module/lowmemorykiller/parameters/donotkill_proc_names;
+  sd=$SYNAPSE_LMK_DIR/user_processes.txt;
+fi;
+
+if [ ! -z "`cat $sysfs`" -a -z "`cat $sd`" ]; then
+  now=`cat $sysfs`;
+  for proc in ${now//,/ }; do
+    echo $proc >> $sd;
+    reset_uci;
+  done;
+fi;
+
+case $1 in
+  list)
+    list=`cat $sd`;
+    if [ ! -z "$list" ]; then
+      num=0;
+      for proc in $list; do
+        num=$(($num+1));
+        if [ "$num" == 1 ]; then
+          array="$proc";
+        else
+          array="$array $proc";
+        fi;
+      done;
+      echo "${array// /,}" > $sysfs;
+      echo "$list";
+    else
+      echo "None";
+    fi;
+  ;;
+  set)
+    list=`cat $sd`;
+    if [ ! -z "$list" ]; then
+      echo "$list" | $BB head -n 1;
+    else
+      echo "None";
+    fi;
+  ;;
+esac;

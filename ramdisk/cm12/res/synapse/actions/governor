@@ -1,0 +1,31 @@
+BB=/res/bin/busybox;
+G0=/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+G4=/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+
+refresh () {
+	am startservice -n com.af.synapse/.lib.ActionService -e json '{ SDirectoryParser: { id:"/sys/devices/system/cpu/cpu0/cpufreq"}}' &> /dev/null
+   am startservice -n com.af.synapse/.lib.ActionService -e json '{ SDirectoryParser: { id:"/sys/devices/system/cpu/cpu4/cpufreq"}}' &> /dev/null
+}
+
+if [ -f $1 ];then
+	OLD=`cat $1`
+
+	if [[ ! -z $2 ]]; then
+	  if [ $OLD != $2 ]; then
+        P=`cat /res/synapse/settings/hmp_packing`
+        echo $2 > $1
+	  fi
+
+      if [ "$P" == "Auto" ]; then
+        RESIZE_SCREEN=`wm size | grep "Override size:"`
+        #if [[ ! -z $RESIZE_SCREEN ]] && [[ $2 != "ktoonservative" ]]; then
+        if [[ ! -z $RESIZE_SCREEN ]]; then
+          echo "1" > /sys/kernel/hmp/packing_enable
+        else
+          echo "0" > /sys/kernel/hmp/packing_enable
+        fi
+      fi
+     #refresh &
+   fi
+   echo `cat $1`
+fi

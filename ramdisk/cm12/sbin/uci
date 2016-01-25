@@ -1,0 +1,67 @@
+#!/system/bin/sh
+
+BB=/res/bin/busybox
+
+if [ -e /data/PRIME-Kernel/.here ] && [ -e /data/PRIME-Kernel/synapse/config.json.generate ]; then
+	STR=/data/PRIME-Kernel/synapse
+	chmod -R 0755 /data/PRIME-Kernel/synapse
+else
+	STR=/res/synapse
+fi
+CONFIG_JSON=$STR/config.json
+ACTION=$STR/actions/
+ACTION_SCRIPTS=$STR/actions/
+
+mount -t rootfs -o rw,remount rootfs
+
+if [ ! -e /data/PRIME-Kernel/synapse/settings ]; then
+    $BB mkdir -p /data/PRIME-Kernel/synapse/settings
+    $BB chmod -R 0755 /data/PRIME-Kernel
+fi
+
+function initial_prof() {
+	if [ -f $1 ]; then
+		prof_value=`cat $1`
+		if [[ -z $prof_value ]] || [[ "$prof_value" == "null" ]]; then
+    		echo $2 > $1
+		fi
+	else
+		touch $1
+   		echo $2 > $1
+	fi
+}
+
+initial_prof /data/PRIME-Kernel/synapse/settings/dvfs_disabler 1
+initial_prof /data/PRIME-Kernel/synapse/settings/loader_unroot 1
+initial_prof /data/PRIME-Kernel/synapse/settings/extsd_patch_00 1
+initial_prof /data/PRIME-Kernel/synapse/settings/viper_patch_00 0
+initial_prof /data/PRIME-Kernel/synapse/settings/zram_prof 0
+initial_prof /data/PRIME-Kernel/synapse/settings/zram_old_size 1600
+initial_prof /data/PRIME-Kernel/synapse/settings/gms_drain 0
+initial_prof /data/PRIME-Kernel/synapse/settings/dcm_drain 0
+initial_prof /data/PRIME-Kernel/synapse/settings/tweak_perf 0
+initial_prof /data/PRIME-Kernel/synapse/settings/tweak_ram 0
+initial_prof /data/PRIME-Kernel/synapse/settings/tweak_net 0
+initial_prof /data/PRIME-Kernel/synapse/settings/tweak_touch 0
+initial_prof /data/PRIME-Kernel/synapse/settings/profile none
+initial_prof /data/PRIME-Kernel/synapse/settings/vnswap0 1
+initial_prof /data/PRIME-Kernel/synapse/settings/bbins_xbin 0
+
+chmod -R 0755 /res/synapse
+chmod -R 0755 /data/PRIME-Kernel/synapse
+chmod -R 0755 /sbin
+
+if [ ! -f $CONFIG_JSON ]; then
+	source $STR/config.json.generate > $CONFIG_JSON
+fi
+
+case "${1}" in
+  config)
+	cat $CONFIG_JSON;;
+  configpath)
+	echo $CONFIG_JSON;;
+  actionpath)
+	echo $ACTION_SCRIPTS;;
+  reset)
+   rm -f $STR/config.json;
+esac;

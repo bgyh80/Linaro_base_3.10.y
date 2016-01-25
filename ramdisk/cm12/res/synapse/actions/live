@@ -1,0 +1,295 @@
+alias bb=/res/bin/busybox
+
+case $1 in
+lmkcount)
+  echo LMK 횟수: $(cat /sys/module/lowmemorykiller/parameters/lmkcount)
+;;
+gpu)
+  echo Current Clock: $(($(cat /sys/devices/platform/gpusysfs/gpu_clock))) MHz
+  ;;
+entropy)
+  AVAIL=`cat /proc/sys/kernel/random/entropy_avail`
+  SIZE=`cat /proc/sys/kernel/random/poolsize`
+  PER=$(( SIZE/AVAIL ))
+  PER=`echo "$SIZE $AVAIL"|bb awk '{printf "%.1f% ",$2/$1*100}'`
+  echo "$PER% ($AVAIL)";
+  ;;
+entropy_size)
+  SIZE=`cat /proc/sys/kernel/random/poolsize`
+  echo "$SIZE";
+  ;;
+batttype)
+  echo Charge Type: `cat /sys/devices/battery.30/power_supply/battery/charge_type`
+  ;;
+battcurrav)
+  echo Current Average: $(($(cat /sys/devices/battery.30/power_supply/battery/current_avg) )) mA
+  ;;
+battcurrnow)
+  echo Current Now: $(($(cat /sys/devices/battery.30/power_supply/battery/current_now) )) mA
+  ;;
+battvoltnow)
+  echo Voltage Now: $(($(cat /sys/devices/battery.30/power_supply/battery/voltage_now) /1000)) mV
+  ;;
+batttemp)
+  echo Temp: $(($(cat /sys/devices/battery.30/power_supply/battery/batt_temp) / 10)) °C
+  ;;
+battcapa)
+  echo Capacity: $(($(cat /sys/devices/battery.30/power_supply/battery/capacity) )) %
+  ;;
+battstatus)
+  echo Status: `cat /sys/devices/battery.30/power_supply/battery/status`
+  ;;
+batthealth)
+  echo Health: `cat /sys/devices/battery.30/power_supply/battery/health`
+  ;;
+LivebigFrequency)
+  CPU4=`cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq 2> /dev/null`;
+
+  if [ -z "$CPU4" ]; then CPU4="Offline"; else CPU4="$((CPU4 / 1000)) MHz"; fi;
+		
+echo "$CPU4";
+;;
+LiveLITTLEFrequency)
+  CPU0=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq 2> /dev/null`;
+
+  if [ -z "$CPU0" ]; then CPU0="Offline"; else CPU0="$((CPU0 / 1000)) MHz"; fi;
+		
+echo "$CPU0";
+;;
+LiveMemory)
+  while read TYPE MEM KB; do
+	if [ "$TYPE" = "MemTotal:" ]; then
+		TOTAL="$((MEM / 1024)) MB";
+	elif [ "$TYPE" = "MemFree:" ]; then
+		CACHED=$((MEM / 1024));
+	elif [ "$TYPE" = "Cached:" ]; then
+		FREE=$((MEM / 1024));
+	elif [ "$TYPE" = "SwapCached:" ]; then
+		SC="$((MEM / 1024))";
+	elif [ "$TYPE" = "SwapTotal:" ]; then
+		ST="$((MEM / 1024)) MB";
+	elif [ "$TYPE" = "SwapFree:" ]; then
+		SF="$((MEM / 1024))";
+	fi;
+  done < /proc/meminfo;
+		
+  FREE="$((FREE + CACHED)) MB";
+  SF="$((SF + SC)) MB"
+  echo "Total: $TOTAL@nFree: $FREE@nSwap Total: $ST@nSwap Free: $SF";
+;;
+LiveUpTime)
+  TOTAL=`bb awk '{ print $1 }' /proc/uptime`;
+  AWAKE=$((`bb awk '{s+=$2} END {print s}' /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state` / 100));
+  SLEEP=`bb awk "BEGIN { print ($TOTAL - $AWAKE) }"`;
+		
+  PERC_A=`bb awk "BEGIN { print ( ($AWAKE / $TOTAL) * 100) }"`;
+  PERC_A="`bb printf "%0.1f\n" $PERC_A`%";
+  PERC_S=`bb awk "BEGIN { print ( ($SLEEP / $TOTAL) * 100) }"`;
+  PERC_S="`bb printf "%0.1f\n" $PERC_S`%";
+		
+  TOTAL=`echo - | bb awk -v "S=$TOTAL" '{printf "%dh:%dm:%ds",S/(60*60),S%(60*60)/60,S%60}'`;
+  AWAKE=`echo - | bb awk -v "S=$AWAKE" '{printf "%dh:%dm:%ds",S/(60*60),S%(60*60)/60,S%60}'`;
+  SLEEP=`echo - | bb awk -v "S=$SLEEP" '{printf "%dh:%dm:%ds",S/(60*60),S%(60*60)/60,S%60}'`;
+  echo "Total: $TOTAL (100.0%)@nSleep: $SLEEP ($PERC_S)@nAwake: $AWAKE ($PERC_A)";
+;;
+LiveUnUsed_LITTLE)
+  UNUSED="";
+  while read FREQ TIME; do
+	FREQ="$((FREQ / 1000)) ";
+	if [ $TIME -lt "100" ]; then
+		UNUSED="$UNUSED$FREQ, ";
+	fi;
+  done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+		
+  UNUSED=${UNUSED%??};
+  echo "$UNUSED";
+;;
+LiveUnUsed_big)
+  UNUSED="";
+  while read FREQ TIME; do
+	FREQ="$((FREQ / 1000)) ";
+	if [ $TIME -lt "100" ]; then
+		UNUSED="$UNUSED$FREQ, ";
+	fi;
+  done < /sys/devices/system/cpu/cpu4/cpufreq/stats/time_in_state;
+		
+  UNUSED=${UNUSED%??};
+  echo "$UNUSED";
+;;
+UnUsed)
+  UNUSED="";
+  while read FREQ TIME; do
+	FREQ="$((FREQ / 1000)) ";
+	if [ $TIME -lt "100" ]; then
+		UNUSED="$UNUSED$FREQ, ";
+	fi;
+  done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+
+  cpu4dir=`ls /sys/devices/system/cpu/cpu4/cpufreq/stats/time_in_state 2> /dev/null`
+  if [ ! -z $cpu4dir ]; then
+  UNUSED=${UNUSED%??};
+  echo "$UNUSED";
+  UNUSED="";
+  while read FREQ TIME; do
+	FREQ="$((FREQ / 1000)) ";
+	if [ $TIME -lt "100" ]; then
+		UNUSED="$UNUSED$FREQ, ";
+	fi;
+  done < /sys/devices/system/cpu/cpu4/cpufreq/stats/time_in_state;
+  fi
+
+  UNUSED=${UNUSED%??};
+  echo "$UNUSED";
+;;
+LiveCPU_big_Time)
+  cpu4dir=`ls /sys/devices/system/cpu/cpu4/cpufreq/stats/time_in_state 2> /dev/null`
+  if [ -z $cpu4dir ]; then
+        exit 0; 
+  fi
+  STATE="";
+  CNT=0;
+  SUM=`bb awk '{s+=$2} END {print s}' /sys/devices/system/cpu/cpu4/cpufreq/stats/time_in_state`;
+		
+  while read FREQ TIME; do
+	if [ "$CNT" -ge $2 ] && [ "$CNT" -le $3 ]; then
+		FREQ="$((FREQ / 1000)) MHz:";
+		if [ $TIME -ge "100" ]; then
+			PERC=`bb awk "BEGIN { print ( ($TIME / $SUM) * 100) }"`;
+			PERC="`bb printf "%0.1f\n" $PERC`%";
+			TIME=$((TIME / 100));
+			STATE="$STATE $FREQ `echo - | bb awk -v "S=$TIME" '{printf "%dh:%dm:%ds",S/(60*60),S%(60*60)/60,S%60}'` ($PERC)@n";
+		fi;
+	fi;
+	CNT=$((CNT+1));
+  done < /sys/devices/system/cpu/cpu4/cpufreq/stats/time_in_state;
+		
+  STATE=${STATE%??};
+  echo "$STATE";
+  ;;
+LiveCPU_LITTLE_Time)
+  STATE="";
+  CNT=0;
+  SUM=`bb awk '{s+=$2} END {print s}' /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state`;
+		
+  while read FREQ TIME; do
+	if [ "$CNT" -ge $2 ] && [ "$CNT" -le $3 ]; then
+		FREQ="$((FREQ / 1000)) MHz:";
+		if [ $TIME -ge "100" ]; then
+			PERC=`bb awk "BEGIN { print ( ($TIME / $SUM) * 100) }"`;
+			PERC="`bb printf "%0.1f\n" $PERC`%";
+			TIME=$((TIME / 100));
+			STATE="$STATE $FREQ `echo - | bb awk -v "S=$TIME" '{printf "%dh:%dm:%ds",S/(60*60),S%(60*60)/60,S%60}'` ($PERC)@n";
+		fi;
+	fi;
+	CNT=$((CNT+1));
+  done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+		
+  STATE=${STATE%??};
+  echo "$STATE";
+  ;;
+LiveGPUTime)
+  STATE="";
+  CNT=0;
+  SUM=`bb awk '{s+=$2} END {print s}' /sys/devices/14ac0000.mali/time_in_state`;
+		
+  while read FREQ TIME; do
+	if [ "$CNT" -ge $2 ] && [ "$CNT" -le $3 ]; then
+		FREQ="$((FREQ / 1)) MHz:";
+		if [ $TIME -ge "100" ]; then
+			PERC=`bb awk "BEGIN { print ( ($TIME / $SUM) * 100) }"`;
+			PERC="`bb printf "%0.1f\n" $PERC`%";
+			TIME=$((TIME / 100));
+			STATE="$STATE $FREQ `echo - | bb awk -v "S=$TIME" '{printf "%dh:%dm:%ds",S/(60*60),S%(60*60)/60,S%60}'` ($PERC)@n";
+		fi;
+	fi;
+	CNT=$((CNT+1));
+  done < /sys/devices/14ac0000.mali/time_in_state;
+		
+  STATE=${STATE%??};
+  echo "$STATE";
+  ;;
+KSMStats)
+  KSM="$(bb expr `cat /sys/kernel/mm/ksm/run`)"
+	if [ KSM -eq "1" ]; then
+		RUNS=`echo "전체 스캔: $((\`cat /sys/kernel/mm/ksm/full_scans\`))"`
+		SAVEDMEM=`echo "절약된 메모리: $((\`cat /sys/kernel/mm/ksm/pages_sharing\`*4096/1024/1024)) MB"`
+		SHARDMEM=`echo "공유 메모리: $((\`cat /sys/kernel/mm/ksm/pages_shared\`*4096/1024/1024)) MB"`
+		UNSHARDMEM=`echo "비공유 메모리: $((\`cat /sys/kernel/mm/ksm/pages_unshared\`*4096/1024/1024)) MB"`
+		echo $RUNS@n$SAVEDMEM@n$SHARDMEM@n$UNSHARDMEM
+	else
+		echo KSM is Disabled
+	fi
+  ;;
+UKSMStats)
+  UKSM="$(bb expr `cat /sys/kernel/mm/uksm/run`)"
+	if [ UKSM -eq "1" ]; then
+		RUNS=`echo "전체 스캔: $((\`cat /sys/kernel/mm/uksm/full_scans\`))"`
+		SAVEDMEM=`echo "절약된 메모리: $((\`cat /sys/kernel/mm/uksm/pages_sharing\`*4096/1024/1024)) MB"`
+		SHARDMEM=`echo "공유 메모리: $((\`cat /sys/kernel/mm/uksm/pages_shared\`*4096/1024/1024)) MB"`
+		UNSHARDMEM=`echo "비공유 메모리: $((\`cat /sys/kernel/mm/uksm/pages_unshared\`*4096/1024/1024)) MB"`
+		echo $RUNS@n$SAVEDMEM@n$SHARDMEM@n$UNSHARDMEM
+	else
+		echo UKSM 비활성화
+	fi
+  ;;
+zRamStats)
+    ZRAM=`cat /data/PRIME-Kernel/synapse/settings/zram_prof`;
+    #ZRAM="$(bb expr `cat /sys/block/zram0/disksize`)"
+	if [ $ZRAM -gt 0 ]; then
+       OSIZE=`cat /sys/block/zram0/orig_data_size`
+       CSIZE=`cat /sys/block/zram0/compr_data_size`
+       MEMUSED=`cat /sys/block/zram0/mem_used_total`
+	     echo "원본 데이터 크기: `echo $OSIZE|bb awk '{printf "%.2f% ",$1/1024/1024}'` MB@n"
+       echo "압축된 데이터 크기: `echo $CSIZE|bb awk '{printf "%.2f% ",$1/1024/1024}'` MB@n"
+		   echo "실제 RAM 사용량: `echo $MEMUSED|bb awk '{printf "%.2f% ",$1/1024/1024}'` MB@n"
+       RATIO=0
+       if [ $OSIZE -gt 4096 ]; then 
+           RATIO=`echo "$OSIZE $CSIZE"|bb awk '{printf "%.0f% ",$2/$1*100}'`
+       fi
+       echo "압축 비율: $RATIO %"
+	else
+		echo Z-RAM 비활성화
+	fi
+  ;;
+donate)
+    if [ -e /data/PRIME-Kernel/bin/synapse_loader212 ]; then
+    	synapse_version=`cat /data/PRIME-Kernel/synapse_loader_ver`
+        echo "애드온 버전: $synapse_version"
+#		if [[ $synapse_version < "2" ]]; then
+#	    	echo "@n애드온의 업데이트가 필요합니다."
+#    	fi
+    else
+        echo "기부 애드온이 설치되지 않았습니다.@n"
+        echo "유틸리티 탭의 모든 기능은 기부 애드온을 필요로 합니다."
+    fi
+  ;;
+profile_latest)
+    P_OLD=/data/PRIME-Kernel/synapse/settings/profile_old
+    [ ! -f $P_OLD ] && echo none > $P_OLD
+    value=`cat $P_OLD`
+    case $value in
+      "perfomanceext")
+        ret="성능 최대화"
+      ;;
+      "perfomance")
+        ret="성능 우선"
+      ;;
+      "balance")
+        ret="균형잡힌 최적화"
+      ;;
+      "battery")
+        ret="배터리 우선"
+      ;;
+      "batteryext")
+        ret="배터리 최대화"
+      ;;
+      "stability")
+        ret="안정성 우선"
+      ;;
+      "none")
+        ret="없음"
+      ;;
+    esac
+    echo $ret
+  ;;
+esac

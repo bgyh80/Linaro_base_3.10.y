@@ -1,0 +1,20 @@
+BB=/res/bin/busybox;
+
+SSRM=/system/framework/ssrm.jar
+P=$1
+
+if [ ! -z "$2" ]; then
+  $BB mount -o rw,remount /system
+  echo $2 > $P
+fi
+
+ret=`cat $P`
+
+if [ $ret -eq 0 ]; then
+  $BB mv $SSRM $SSRM.backup 2> /dev/null
+else
+  $BB mv $SSRM.backup $SSRM 2> /dev/null
+fi
+
+echo $ret
+

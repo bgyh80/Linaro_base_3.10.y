@@ -1,0 +1,9 @@
+BB=/res/bin/busybox;
+INC=/res/bin/hmp.inc
+
+if [ -e $INC ]; then
+    source $INC
+else
+    P=`cat $1`;
+    echo $P;
+fi

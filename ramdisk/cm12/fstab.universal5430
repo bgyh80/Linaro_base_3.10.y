@@ -1,0 +1,19 @@
+# Android fstab file.
+#<src>                  <mnt_point>         <type>    <mnt_flags and options>                               <fs_mgr_flags>
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
+# data partition must be located at the bottom for supporting device encryption
+
+/dev/block/mmcblk0p3     /efs         ext4    nosuid,nodev,noatime,noauto_da_alloc,discard,journal_async_commit,errors=panic    wait,check
+/dev/block/mmcblk0p9     /boot        emmc    defaults recoveryonly
+/dev/block/mmcblk0p10    /recovery    emmc    flags=backup=1 recoveryonly
+
+# VOLD
+/sys/devices/15400000.usb/15400000.dwc3/xhci-hcd*            auto                    auto    defaults    voldmanaged=usbdisk:auto
+/sys/devices/platform/exynos-dwc3.0/exynos-xhci/usb*sda,/sys/devices/15400000.usb/15400000.dwc3/xhci-hcd.2.auto/usb*sda            auto                    vfat    default     voldmanaged=UsbDriveA:auto
+/sys/devices/platform/exynos-dwc3.0/exynos-xhci/usb*sdb,/sys/devices/15400000.usb/15400000.dwc3/xhci-hcd.2.auto/usb*sdb            auto                    vfat    default     voldmanaged=UsbDriveB:auto
+/sys/devices/platform/exynos-dwc3.0/exynos-xhci/usb*sdc,/sys/devices/15400000.usb/15400000.dwc3/xhci-hcd.2.auto/usb*sdc            auto                    vfat    default     voldmanaged=UsbDriveC:auto
+/sys/devices/platform/exynos-dwc3.0/exynos-xhci/usb*sdd,/sys/devices/15400000.usb/15400000.dwc3/xhci-hcd.2.auto/usb*sdd            auto                    vfat    default     voldmanaged=UsbDriveD:auto
+/sys/devices/platform/exynos-dwc3.0/exynos-xhci/usb*sde,/sys/devices/15400000.usb/15400000.dwc3/xhci-hcd.2.auto/usb*sde            auto                    vfat    default     voldmanaged=UsbDriveE:auto
+/sys/devices/platform/exynos-dwc3.0/exynos-xhci/usb*sdf,/sys/devices/15400000.usb/15400000.dwc3/xhci-hcd.2.auto/usb*sdf           auto                    vfat    default     voldmanaged=UsbDriveF:auto
+

@@ -1,0 +1,17 @@
+#!/system/bin/sh
+
+PSRC=/sys/devices/battery.30
+STAT=`cat $PSRC/power_supply/battery/status`
+
+while [ $STAT -eq "Charging" ]; do
+	echo -n "CPU : "
+	for i in 0 1 2 3 4 5 6 7; do
+		echo -n "`cat /sys/devices/system/cpu/cpu$i/online` "
+	done
+	echo ""
+	echo -n "Charge : "
+	echo -n "`cat $PSRC/power_supply/battery/current_avg` / "
+	echo "`cat $PSRC/power_supply/battery/current_now`"
+    sleep 1
+done
+
