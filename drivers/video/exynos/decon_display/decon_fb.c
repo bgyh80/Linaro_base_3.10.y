@@ -2060,6 +2060,37 @@ static int s3c_format_bpp(enum s3c_fb_pixel_format fmt)
 	return ((bpp + 1) & (~1));
 }
 
+static bool is_prot_win_updated(struct s3c_fb *sfb,
+		struct s3c_fb_win_config *win_config,
+		struct s3c_fb_win_config *update_config)
+{
+	int i;
+	struct s3c_fb_win_config *config;
+	struct s3c_fb_rect r1, r2;
+
+	if (update_config->state == S3C_FB_WIN_STATE_DISABLED)
+		return true;
+
+	r1.left	= update_config->x;
+	r1.top = update_config->y;
+	r1.right = r1.left + update_config->w -	1;
+	r1.bottom = r1.top + update_config->h -	1;
+	for (i = 0; i <	sfb->variant.nr_windows; i++) {
+		config = &win_config[i];
+		if (config->state == S3C_FB_WIN_STATE_DISABLED)
+			continue;
+		if (config->protection)	{
+			r2.left	= config->x;
+			r2.top = config->y;
+			r2.right = r2.left + config->w - 1;
+			r2.bottom = r2.top + config->h - 1;
+			if (!s3c_fb_intersect(&r1, &r2))
+				return false;
+		}
+	}
+	return true;
+}
+
 static void s3c_set_win_update_config(struct s3c_fb *sfb,
 			struct s3c_fb_win_config *win_config,
 			struct s3c_reg_data *regs)
@@ -2105,6 +2136,9 @@ static void s3c_set_win_update_config(struct s3c_fb *sfb,
 	update_config->w = ((update_config->w + 7) >> 3) << 3;
 	if (update_config->x + update_config->w > sfb->lcd_info->xres)
 		update_config->x = sfb->lcd_info->xres - update_config->w;
+
+	if (!is_prot_win_updated(sfb, win_config, update_config))
+		update_config->state = S3C_FB_WIN_STATE_DISABLED;
 
 	if ((update_config->state == S3C_FB_WIN_STATE_UPDATE) &&
 		((update_config->x != sfb->update_win.x) ||
@@ -2161,6 +2195,7 @@ static void s3c_set_win_update_config(struct s3c_fb *sfb,
 		r2.bottom = r2.top + config->h - 1;
 		if (!s3c_fb_intersect(&r1, &r2)) {
 			config->state = S3C_FB_WIN_STATE_DISABLED;
+			config->protection = 0;
 			continue;
 		}
 		memcpy(&temp_config, config, sizeof(struct s3c_fb_win_config));
@@ -3673,17 +3708,11 @@ static long s3c_fb_sd_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
 	struct s3c_fb_win *win = v4l2_subdev_to_s3c_fb_win(sd);
 	struct s3c_fb *sfb = win->parent;
 	struct display_driver *dispdrv;
-	struct media_link *link;
-	struct media_entity *source;
-	struct media_entity *sink;
-	int ret = 0;
 
 	dispdrv = get_display_driver();
 
 	switch (cmd) {
 	case S3CFB_FLUSH_WORKQUEUE:
-		source = &sfb->md->gsc_sd[0]->entity;
-		sink = &sd->entity;
 #ifdef CONFIG_FB_HIBERNATION_DISPLAY
 		disp_pm_gate_lock(dispdrv, true);
 #endif
@@ -3699,11 +3728,6 @@ static long s3c_fb_sd_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
 
 		mutex_unlock(&sfb->output_lock);
 		s3c_fb_disable_otf(sfb);
-		link = media_entity_find_link(&source->pads[1],
-					&sink->pads[0]);
-		ret = media_entity_setup_link(link, 0);
-		if (ret < 0)
-			dev_err(sfb->dev, "fail to link disable\n");
 
 		disp_pm_runtime_put_sync(dispdrv);
 #ifdef CONFIG_FB_HIBERNATION_DISPLAY
@@ -3877,6 +3901,8 @@ static int s3c_fb_create_mc_links(struct s3c_fb_win *win)
 
 	/* link creation between pads: Gscaler[1] -> Window[0] */
 	md = (struct exynos_md *)module_name_to_driver_data(MDEV_MODULE_NAME);
+	if (win->index == 0)
+		md->decon_sd = &win->sd;
 
 	for (i = 0; i < MAX_GSC_SUBDEV; i++) {
 		ret = media_entity_create_link(&md->gsc_sd[i]->entity,

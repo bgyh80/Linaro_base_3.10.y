@@ -488,8 +488,21 @@ static int taos_get_lux(struct taos_data *taos)
 
 static void taos_light_enable(struct taos_data *taos)
 {
+	int adc =0;
+	int retry=3;
 	taos_dbgmsg("starting poll timer, delay %lldns\n",
 	ktime_to_ns(taos->light_poll_delay));
+
+	do {
+		adc = taos_get_lux(taos);
+		if (!adc) {
+			pr_err("%s - Error adc=%d", __func__, adc);
+			usleep_range(1000, 1100);
+		}
+		else
+			break;
+	} while (--retry>=0);
+
 	taos_get_lux(taos);
 	hrtimer_start(&taos->timer, taos->light_poll_delay, HRTIMER_MODE_REL);
 }

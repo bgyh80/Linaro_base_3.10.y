@@ -645,6 +645,7 @@ int gsc_set_scaler_info(struct gsc_ctx *ctx)
 	struct gsc_frame *s_frame = &ctx->s_frame;
 	struct gsc_frame *d_frame = &ctx->d_frame;
 	struct gsc_variant *variant = ctx->gsc_dev->variant;
+	unsigned long main_hratio, main_vratio;
 	int tx, ty;
 	int ret;
 
@@ -688,8 +689,16 @@ int gsc_set_scaler_info(struct gsc_ctx *ctx)
 	gsc_get_prescaler_shfactor(sc->pre_hratio, sc->pre_vratio,
 				   &sc->pre_shfactor);
 
-	sc->main_hratio = (s_frame->crop.width << 16) / tx;
-	sc->main_vratio = (s_frame->crop.height << 16) / ty;
+	main_hratio = (s_frame->crop.width << 16) / tx;
+	main_vratio = (s_frame->crop.height << 16) / ty;
+
+	sc->main_hratio_dirty =
+		(main_hratio != sc->main_hratio) ? true : false;
+	sc->main_vratio_dirty =
+		(main_vratio != sc->main_vratio) ? true : false;
+
+	sc->main_hratio = main_hratio;
+	sc->main_vratio = main_vratio;
 
 	gsc_dbg("scaler input/output size : sx = %d, sy = %d, tx = %d, ty = %d",
 		s_frame->crop.width, s_frame->crop.height, tx, ty);
@@ -1172,8 +1181,8 @@ static irqreturn_t gsc_irq_handler(int irq, void *priv)
 	int gsc_irq;
 
 	if (test_bit(ST_OUTPUT_OPEN, &gsc->state)) {
-		gsc->out.isr_time[gsc->real_isr_cnt % 50] = sched_clock();
-		gsc->real_isr_cnt++;
+		gsc->out.isr_time[gsc->out.real_isr_cnt % MAX_DEBUG_BUF_CNT] = sched_clock();
+		gsc->out.real_isr_cnt++;
 	}
 	spin_lock(&gsc->slock);
 
@@ -1240,7 +1249,7 @@ static irqreturn_t gsc_irq_handler(int irq, void *priv)
 		} else {
 			gsc_info("active buf empty");
 		}
-		gsc->isr_cnt++;
+		gsc->out.isr_cnt++;
 	} else if (test_and_clear_bit(ST_CAPT_RUN, &gsc->state)) {
 		if (!list_empty(&gsc->cap.active_buf_q)) {
 			struct gsc_input_buf *done_buf;

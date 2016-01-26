@@ -577,6 +577,7 @@ static void touchkey_glove_change_work(struct work_struct *work)
 #ifdef TKEY_FLIP_MODE
 	if (tkey_i2c->enabled_flip) {
 		dev_info(&tkey_i2c->client->dev,"As flip cover mode enabled, skip glove mode set\n");
+		tkey_i2c->tsk_glove_mode_status = false;
 		return;
 	}
 #endif
@@ -585,8 +586,10 @@ static void touchkey_glove_change_work(struct work_struct *work)
 	value = tkey_i2c->tsk_glove_mode_status;
 	mutex_unlock(&tkey_i2c->tsk_glove_lock);
 
-	if (!tkey_i2c->enabled)
+	if (!tkey_i2c->enabled) {
+		tkey_i2c->tsk_glove_mode_status = false;
 		return;
+	}
 
 	while (retry < 3) {
 		ret = i2c_touchkey_read(tkey_i2c, KEYCODE_REG, data, 4);

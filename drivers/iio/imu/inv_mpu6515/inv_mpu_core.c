@@ -253,7 +253,8 @@ static int accel_open_calibration(struct inv_mpu_state *st)
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
 
-	cal_filp = filp_open(MPU6500_ACCEL_CAL_PATH, O_RDONLY, 0);
+	cal_filp = filp_open(MPU6500_ACCEL_CAL_PATH,
+		O_RDONLY, S_IRUGO | S_IWUSR | S_IWGRP);
 	if (IS_ERR(cal_filp)) {
 		pr_err("%s: Can't open calibration file\n", __func__);
 		set_fs(old_fs);
@@ -288,7 +289,8 @@ static int gyro_open_calibration(struct inv_mpu_state *st)
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
 
-	cal_filp = filp_open(MPU6500_GYRO_CAL_PATH, O_RDONLY, 0);
+	cal_filp = filp_open(MPU6500_GYRO_CAL_PATH,
+		O_RDONLY, S_IRUGO | S_IWUSR | S_IWGRP);
 	if (IS_ERR(cal_filp)) {
 		pr_err("[SENSOR] %s: - Can't open calibration file\n", __func__);
 		set_fs(old_fs);
@@ -331,7 +333,8 @@ static int gyro_do_calibrate(struct inv_mpu_state *st)
 	set_fs(KERNEL_DS);
 
 	cal_filp = filp_open(MPU6500_GYRO_CAL_PATH,
-			O_CREAT | O_TRUNC | O_WRONLY, 0660);
+			O_CREAT | O_TRUNC | O_WRONLY,
+			S_IRUGO | S_IWUSR | S_IWGRP);
 	if (IS_ERR(cal_filp)) {
 		pr_err("[SENSOR] %s: - Can't open calibration file\n", __func__);
 		set_fs(old_fs);
@@ -901,7 +904,6 @@ static ssize_t _dmp_attr_store(struct device *dev,
 		break;
 	case ATTR_DMP_PED_Q_ON:
 		st->sensor[SENSOR_PEDQ].on = !!data;
-		st->sensor[SENSOR_PEDQ].old_ts = 0ULL;
 		break;
 	case ATTR_DMP_PED_Q_RATE:
 		if (data > MPU_DEFAULT_DMP_FREQ || data < 0)
@@ -912,7 +914,6 @@ static ssize_t _dmp_attr_store(struct device *dev,
 		break;
 	case ATTR_DMP_STEP_DETECTOR_ON:
 		st->sensor[SENSOR_STEP].on = !!data;
-		st->sensor[SENSOR_STEP].old_ts = 0ULL;
 		break;
 	default:
 		return -EINVAL;
@@ -3191,7 +3192,8 @@ static int accel_do_calibrate(struct inv_mpu_state *st, int enable)
 	set_fs(KERNEL_DS);
 
 	cal_filp = filp_open(MPU6500_ACCEL_CAL_PATH,
-			O_CREAT | O_TRUNC | O_WRONLY, 0660);
+			O_CREAT | O_TRUNC | O_WRONLY,
+			S_IRUGO | S_IWUSR | S_IWGRP);
 	if (IS_ERR(cal_filp)) {
 		pr_err("%s: Can't open calibration file\n", __func__);
 		set_fs(old_fs);

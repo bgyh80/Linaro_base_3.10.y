@@ -503,9 +503,6 @@ static int modemctl_notify_call(struct notifier_block *nfb,
 		} else {
 			mif_err("abnormal rx count was overflowed.\n");
 			abnormal_rx_cnt = 0;
-#ifdef DEBUG_MODEM_IF
-			ss300_force_crash_exit(mc);
-#endif
 		}
 		break;
 	}
