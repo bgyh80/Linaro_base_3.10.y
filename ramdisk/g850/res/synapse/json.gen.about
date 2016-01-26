@@ -22,12 +22,8 @@ cat << CTAG
 		{ SDescription:{ description:" " }},
 
 		{ SButton:{
-		   label:{en:"change log", ko:"변경 내역"},
+		   label:{en:"change log", ko:"변경내역 확인 / 다운로드"},
 		   action:"about changelog"
-		}},
-		{ SButton:{
-		   label:"최신버전 다운로드",
-		   action:"about download"
 		}},
 `
 if [ -e /sdcard/Synapse/betatester ]; then
@@ -44,7 +40,7 @@ fi
 		{ SDescription:{ description:" " }},
 		{ SButton:{
 		   label:"이 커널을 유용하게 사용하신다면...",
-		   action:"am start -a android.intent.action.VIEW -d http://enfree.com/stockrider/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+		   action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
 		}},
 		{ SButton:{
 		   label:"이메일로 피드백 하기",
