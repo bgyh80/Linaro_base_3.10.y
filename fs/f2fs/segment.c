@@ -85,21 +85,6 @@ struct llist_node *llist_reverse_order(struct llist_node *head)
  *
  * Note, that list is expected to be not empty.
  */
-static unsigned long __reverse_ulong(unsigned char *str)
-{
-	unsigned long tmp = 0;
-	int shift = 24, idx = 0;
-
-#if BITS_PER_LONG == 64
-	shift = 56;
-#endif
-	while (shift >= 0) {
-		tmp |= (unsigned long)str[idx++] << shift;
-		shift -= BITS_PER_BYTE;
-	}
-	return tmp;
-}
-
 #define list_last_entry(ptr, type, member) \
 	list_entry((ptr)->prev, type, member)
 
@@ -141,7 +126,6 @@ static inline unsigned long __reverse_ffs(unsigned long word)
 /*
  * __find_rev_next(_zero)_bit is copied from lib/find_next_bit.c because
  * f2fs_set_bit makes MSB and LSB reversed in a byte.
- * @size must be integral times of unsigned long.
  * Example:
  *                             LSB <--> MSB
  *   f2fs_set_bit(0, bitmap) => 0000 0001
@@ -150,7 +134,6 @@ static inline unsigned long __reverse_ffs(unsigned long word)
 static unsigned long __find_rev_next_bit(const unsigned long *addr,
 			unsigned long size, unsigned long offset)
 {
-#if 0
 	while (!f2fs_test_bit(offset, (unsigned char *)addr))
 		offset++;
 
@@ -158,9 +141,9 @@ static unsigned long __find_rev_next_bit(const unsigned long *addr,
 		offset = size;
 
 	return offset;
-#endif
+#if 0
 	const unsigned long *p = addr + BIT_WORD(offset);
-	unsigned long result = size;
+	unsigned long result = offset & ~(BITS_PER_LONG - 1);
 	unsigned long tmp;
 	unsigned long mask, submask;
 	unsigned long quot, rest;
@@ -168,34 +151,49 @@ static unsigned long __find_rev_next_bit(const unsigned long *addr,
 	if (offset >= size)
 		return size;
 
-	size -= (offset & ~(BITS_PER_LONG - 1));
+	size -= result;
 	offset %= BITS_PER_LONG;
+	if (!offset)
+		goto aligned;
 
-	while (1) {
-		if (*p == 0)
-			goto pass;
+	tmp = *(p++);
+	quot = (offset >> 3) << 3;
+	rest = offset & 0x7;
+	mask = ~0UL << quot;
+	submask = (unsigned char)(0xff << rest) >> rest;
+	submask <<= quot;
+	mask &= submask;
+	tmp &= mask;
+	if (size < BITS_PER_LONG)
+		goto found_first;
+	if (tmp)
+		goto found_middle;
 
-
-		tmp &= ~0UL >> offset;
-		if (size < BITS_PER_LONG)
-			tmp &= (~0UL << (BITS_PER_LONG - size));
+	size -= BITS_PER_LONG;
+	result += BITS_PER_LONG;
+aligned:
+	while (size & ~(BITS_PER_LONG-1)) {
+		tmp = *(p++);
 		if (tmp)
-			goto found;
-pass:
-		if (size <= BITS_PER_LONG)
-			break;
+			goto found_middle;
+		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
-		offset = 0;
 	}
-	return result;
-found:
-	return result - size + __reverse_ffs(tmp);
+	if (!size)
+		return result;
+	tmp = *p;
+found_first:
+	tmp &= (~0UL >> (BITS_PER_LONG - size));
+	if (tmp == 0UL)		/* Are any bits set? */
+		return result + size;   /* Nope. */
+found_middle:
+	return result + __reverse_ffs(tmp);
+#endif
 }
 
 static unsigned long __find_rev_next_zero_bit(const unsigned long *addr,
 			unsigned long size, unsigned long offset)
 {
-#if 0
 	while (f2fs_test_bit(offset, (unsigned char *)addr))
 		offset++;
 
@@ -203,39 +201,55 @@ static unsigned long __find_rev_next_zero_bit(const unsigned long *addr,
 		offset = size;
 
 	return offset;
-#endif
-
+#if 0
 	const unsigned long *p = addr + BIT_WORD(offset);
-	unsigned long result = size;
+	unsigned long result = offset & ~(BITS_PER_LONG - 1);
 	unsigned long tmp;
+	unsigned long mask, submask;
+	unsigned long quot, rest;
 
 	if (offset >= size)
 		return size;
 
-	size -= (offset & ~(BITS_PER_LONG - 1));
+	size -= result;
 	offset %= BITS_PER_LONG;
+	if (!offset)
+		goto aligned;
 
-	while (1) {
-		if (*p == 0)
-			goto pass;
+	tmp = *(p++);
+	quot = (offset >> 3) << 3;
+	rest = offset & 0x7;
+	mask = ~(~0UL << quot);
+	submask = (unsigned char)~((unsigned char)(0xff << rest) >> rest);
+	submask <<= quot;
+	mask += submask;
+	tmp |= mask;
+	if (size < BITS_PER_LONG)
+		goto found_first;
+	if (~tmp)
+		goto found_middle;
 
-		tmp = __reverse_ulong((unsigned char *)p);
-
-		tmp &= ~0UL >> offset;
-		if (size < BITS_PER_LONG)
-			tmp &= (~0UL << (BITS_PER_LONG - size));
-		if (tmp)
-			goto found;
-pass:
-		if (size <= BITS_PER_LONG)
-			break;
+	size -= BITS_PER_LONG;
+	result += BITS_PER_LONG;
+aligned:
+	while (size & ~(BITS_PER_LONG - 1)) {
+		tmp = *(p++);
+		if (~tmp)
+			goto found_middle;
+		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
-		offset = 0;
-		p++;
 	}
-	return result;
-found:
-	return result - size + __reverse_ffs(tmp);
+	if (!size)
+		return result;
+	tmp = *p;
+
+found_first:
+	tmp |= ~0UL << size;
+	if (tmp == ~0UL)        /* Are any bits zero? */
+		return result + size;   /* Nope. */
+found_middle:
+	return result + __reverse_ffz(tmp);
+#endif
 }
 
 void register_inmem_page(struct inode *inode, struct page *page)
@@ -286,7 +300,7 @@ int commit_inmem_pages(struct inode *inode, bool abort)
 	 * inode becomes free by iget_locked in f2fs_iget.
 	 */
 	if (!abort) {
-		f2fs_balance_fs(sbi, true);
+		f2fs_balance_fs(sbi);
 		f2fs_lock_op(sbi);
 	}
 
@@ -309,7 +323,6 @@ int commit_inmem_pages(struct inode *inode, bool abort)
 				}
 			}
 		} else {
-			ClearPageUptodate(cur->page);
 			trace_f2fs_commit_inmem_page(cur->page, INMEM_DROP);
 		}
 		set_page_private(cur->page, 0);
@@ -334,10 +347,8 @@ int commit_inmem_pages(struct inode *inode, bool abort)
  * This function balances dirty node and dentry pages.
  * In addition, it controls garbage collection.
  */
-void f2fs_balance_fs(struct f2fs_sb_info *sbi, bool need)
+void f2fs_balance_fs(struct f2fs_sb_info *sbi)
 {
-	if (!need)
-		return;
 	/*
 	 * We should do GC or end up with checkpoint, if there are so many dirty
 	 * dir/node pages without enough free segments.
@@ -365,12 +376,8 @@ void f2fs_balance_fs_bg(struct f2fs_sb_info *sbi)
 	if (!available_free_memory(sbi, NAT_ENTRIES) ||
 			excess_prefree_segs(sbi) ||
 			!available_free_memory(sbi, INO_ENTRIES) ||
-			(is_idle(sbi) && f2fs_time_over(sbi, CP_TIME))) {
-		if (test_opt(sbi, DATA_FLUSH))
-			sync_dirty_inodes(sbi, FILE_INODE);
+			jiffies > sbi->cp_expires)
 		f2fs_sync_fs(sbi->sb, true);
-		stat_inc_bg_cp_count(sbi->stat_info);
-	}
 }
 
 static int issue_flush_thread(void *data)
@@ -1193,7 +1200,6 @@ int f2fs_trim_fs(struct f2fs_sb_info *sbi, struct fstrim_range *range)
 	__u64 end = start + F2FS_BYTES_TO_BLK(range->len) - 1;
 	unsigned int start_segno, end_segno;
 	struct cp_control cpc;
-	int err = 0;
 
 	if (start >= MAX_BLKADDR(sbi) || range->len < sbi->blocksize)
 		return -EINVAL;
@@ -1224,12 +1230,12 @@ int f2fs_trim_fs(struct f2fs_sb_info *sbi, struct fstrim_range *range)
 				sbi->segs_per_sec) - 1, end_segno);
 
 		mutex_lock(&sbi->gc_mutex);
-		err = write_checkpoint(sbi, &cpc);
+		write_checkpoint(sbi, &cpc);
 		mutex_unlock(&sbi->gc_mutex);
 	}
 out:
 	range->len = F2FS_BLK_TO_BYTES(cpc.trimmed);
-	return err;
+	return 0;
 }
 
 static bool __has_curseg_space(struct f2fs_sb_info *sbi, int type)
@@ -1809,13 +1815,13 @@ int lookup_journal_in_cursum(struct f2fs_summary_block *sum, int type,
 			if (le32_to_cpu(nid_in_journal(sum, i)) == val)
 				return i;
 		}
-		if (alloc && __has_cursum_space(sum, 1, NAT_JOURNAL))
+		if (alloc && nats_in_cursum(sum) < NAT_JOURNAL_ENTRIES)
 			return update_nats_in_cursum(sum, 1);
 	} else if (type == SIT_JOURNAL) {
 		for (i = 0; i < sits_in_cursum(sum); i++)
 			if (le32_to_cpu(segno_in_journal(sum, i)) == val)
 				return i;
-		if (alloc && __has_cursum_space(sum, 1, SIT_JOURNAL))
+		if (alloc && sits_in_cursum(sum) < SIT_JOURNAL_ENTRIES)
 			return update_sits_in_cursum(sum, 1);
 	}
 	return -1;
