@@ -8,7 +8,7 @@ SWAP=/dev/block/vnswap0;
 
 case $1 in
 vnswap0)
-  P=/data/PRIME-Kernel/synapse/settings/vnswap0
+  P=/res/synapse/settings/vnswap0
   if [ ! -z $2 ]; then
 	  if [ $2 == Disabled ]; then
 		swapoff $SWAP > /dev/null 2>&1

@@ -233,7 +233,7 @@ UKSMStats)
 	fi
   ;;
 zRamStats)
-    ZRAM=`cat /data/PRIME-Kernel/synapse/settings/zram_prof`;
+    ZRAM=`cat /res/synapse/settings/zram_prof`;
     #ZRAM="$(bb expr `cat /sys/block/zram0/disksize`)"
 	if [ $ZRAM -gt 0 ]; then
        OSIZE=`cat /sys/block/zram0/orig_data_size`
@@ -264,7 +264,7 @@ donate)
     fi
   ;;
 profile_latest)
-    P_OLD=/data/PRIME-Kernel/synapse/settings/profile_old
+    P_OLD=/res/synapse/settings/profile_old
     [ ! -f $P_OLD ] && echo none > $P_OLD
     value=`cat $P_OLD`
     case $value in

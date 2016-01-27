@@ -64,7 +64,7 @@ fi;`
     if [ $ZRAM != 0 ]; then
         ZRAM=$((ZRAM / 1024 / 1024));
     else
-        ZRAM=\`cat /data/PRIME-Kernel/synapse/settings/zram_old_size\`
+        ZRAM=\`cat /res/synapse/settings/zram_old_size\`
     fi
     echo '
     { SPane:{
@@ -81,8 +81,8 @@ fi;`
 	{ SCheckBox:{
 		label: { en:"Enable Z-RAM", ko:"Z-RAM 활성화"},
 		description:" Z-RAM을 활성화 하면 호환성을 위해 VNSWAP에 사용되는 ZSWAP을 해제합니다(ZSWAP은 스왑메모리를 실시간 압축하는 기술입니다).",
-  	 	default:'\`cat /data/PRIME-Kernel/synapse/settings/zram_prof\`',
-		action:"zram /data/PRIME-Kernel/synapse/settings/zram_prof",
+  	 	default:'\`cat /res/synapse/settings/zram_prof\`',
+		action:"zram /res/synapse/settings/zram_prof",
 		notify:[
 			{
 				on:APPLY,

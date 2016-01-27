@@ -2,7 +2,7 @@
 
 BB=/res/bin/busybox
 
-if [ -e /data/PRIME-Kernel/.here ] && [ -e /data/PRIME-Kernel/synapse/config.json.generate ]; then
+if [ -e /data/PRIME-Kernel/.here ] && [ -e /res/synapse/config.json.generate ]; then
 	STR=/data/PRIME-Kernel/synapse
 	chmod -R 0755 /data/PRIME-Kernel/synapse
 else
@@ -14,8 +14,8 @@ ACTION_SCRIPTS=$STR/actions/
 
 mount -t rootfs -o rw,remount rootfs
 
-if [ ! -e /data/PRIME-Kernel/synapse/settings ]; then
-    $BB mkdir -p /data/PRIME-Kernel/synapse/settings
+if [ ! -e /res/synapse/settings ]; then
+    $BB mkdir -p /res/synapse/settings
     $BB chmod -R 0755 /data/PRIME-Kernel
 fi
 
@@ -31,21 +31,19 @@ function initial_prof() {
 	fi
 }
 
-initial_prof /data/PRIME-Kernel/synapse/settings/dvfs_disabler 1
-initial_prof /data/PRIME-Kernel/synapse/settings/loader_unroot 1
-initial_prof /data/PRIME-Kernel/synapse/settings/extsd_patch_00 1
-initial_prof /data/PRIME-Kernel/synapse/settings/viper_patch_00 0
-initial_prof /data/PRIME-Kernel/synapse/settings/zram_prof 0
-initial_prof /data/PRIME-Kernel/synapse/settings/zram_old_size 1600
-initial_prof /data/PRIME-Kernel/synapse/settings/gms_drain 0
-initial_prof /data/PRIME-Kernel/synapse/settings/dcm_drain 0
-initial_prof /data/PRIME-Kernel/synapse/settings/tweak_perf 0
-initial_prof /data/PRIME-Kernel/synapse/settings/tweak_ram 0
-initial_prof /data/PRIME-Kernel/synapse/settings/tweak_net 0
-initial_prof /data/PRIME-Kernel/synapse/settings/tweak_touch 0
-initial_prof /data/PRIME-Kernel/synapse/settings/profile none
-initial_prof /data/PRIME-Kernel/synapse/settings/vnswap0 1
-initial_prof /data/PRIME-Kernel/synapse/settings/bbins_xbin 0
+initial_prof /res/synapse/settings/dvfs_disabler 1
+initial_prof /res/synapse/settings/loader_unroot 1
+initial_prof /res/synapse/settings/extsd_patch_00 1
+initial_prof /res/synapse/settings/viper_patch_00 0
+initial_prof /res/synapse/settings/gms_drain 0
+initial_prof /res/synapse/settings/dcm_drain 0
+initial_prof /res/synapse/settings/tweak_perf 0
+initial_prof /res/synapse/settings/tweak_ram 0
+initial_prof /res/synapse/settings/tweak_net 0
+initial_prof /res/synapse/settings/tweak_touch 0
+initial_prof /res/synapse/settings/profile none
+initial_prof /res/synapse/settings/vnswap0 1
+initial_prof /res/synapse/settings/bbins_xbin 0
 
 chmod -R 0755 /res/synapse
 chmod -R 0755 /data/PRIME-Kernel/synapse

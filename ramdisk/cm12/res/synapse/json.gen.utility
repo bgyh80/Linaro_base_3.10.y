@@ -29,7 +29,7 @@ cat << CTAG
 	{ SCheckBox:{
 		label:"시냅스 로더 애드온을 루팅 해제 상태일 때에만 실행합니다.",
 		default:1,
-		action:"generic /data/PRIME-Kernel/synapse/settings/loader_unroot"
+		action:"generic /res/synapse/settings/loader_unroot"
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -40,7 +40,7 @@ cat << CTAG
 	{ SSpacer:{ height:1 }},
     { SOptionList:{
             default:"none",
-            action:"profile /data/PRIME-Kernel/synapse/settings/profile",
+            action:"profile /res/synapse/settings/profile",
             values:{
                 "none":"프리셋 선택",
                 "stability":"안정성 우선",
@@ -114,14 +114,14 @@ cat << CTAG
         label:"Google Play 서비스 패치",
         description:"특정 버전에서 발생하는 배터리 드레인을 해결합니다.\n",
 		default:0,
-		action:"hmp /data/PRIME-Kernel/synapse/settings/gms_drain"
+		action:"hmp /res/synapse/settings/gms_drain"
 	}},
 
 	{ SCheckBox:{
         label:"DCMProvider 사용중지",
         description:"갤러리에서 사진종류 보기 시 사람/풍경/동물/음식/문서 등의 분류를 생성하고 관리하는 역할을 합니다.\n",
 		default:0,
-		action:"hmp /data/PRIME-Kernel/synapse/settings/dcm_drain"
+		action:"hmp /res/synapse/settings/dcm_drain"
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -133,7 +133,7 @@ cat << CTAG
         label:"외부 SD카드 쓰기 권한 패치를 적용합니다.",
         description:"이 패치는 /system/etc/permissions/platform.xml 파일을 수정합니다. 패치 해제 시 원래대로 복구됩니다. 설정 변경 시 디바이스 재시작이 필요합니다.",
 		default:0,
-		action:"hmp /data/PRIME-Kernel/synapse/settings/extsd_patch_00"
+		action:"hmp /res/synapse/settings/extsd_patch_00"
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -144,8 +144,8 @@ cat << CTAG
 	{ SCheckBox:{
         label:"패치를 적용합니다.",
         description:"이 패치는 /system/etc/audio_policy.conf 파일의 deep_buffer{ } 구문을 제거하고 사운드얼라이브를 해제합니다. 패치 해제 시 원래대로 복구됩니다. 설정 변경 시 디바이스 재시작이 필요합니다.",
-		default:`cat /data/PRIME-Kernel/synapse/settings/viper_patch_00`,
-		action:"hmp /data/PRIME-Kernel/synapse/settings/viper_patch_00"
+		default:`cat /res/synapse/settings/viper_patch_00`,
+		action:"hmp /res/synapse/settings/viper_patch_00"
 	}},
 	{ SSpacer:{ height:1 }},
 	
@@ -157,7 +157,7 @@ cat << CTAG
         label:"Busybox를 /system/xbin 경로에 설치합니다.",
         description:"해제 시 /res/bin/bb 경로에 설치합니다. (해제를 추천)\n\n",
 		default:0,
-		action:"generic /data/PRIME-Kernel/synapse/settings/bbins_xbin"
+		action:"generic /res/synapse/settings/bbins_xbin"
 	}},
 	{ SButton:{
 		label:"Busybox Install",
