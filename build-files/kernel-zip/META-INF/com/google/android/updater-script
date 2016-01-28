@@ -1,0 +1,36 @@
+
+ui_print(" ");
+ui_print(" ");
+ui_print("****************************************");
+ui_print("     PRIME Kernel for universal5430 ");
+ui_print("****************************************");
+ui_print(" ");
+ui_print(" ");
+
+ifelse(is_mounted("/system"), unmount("/system"));
+ifelse(is_mounted("/data"), unmount("/data"));
+package_extract_dir("script", "/tmp/script");
+#set_metadata_recursive("/tmp/script", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0755);
+set_perm_recursive(0, 0, 0755, 0755, "/tmp/script");
+run_program("/tmp/script/busybox", "mount", "/system");
+run_program("/tmp/script/busybox", "mount", "/data");
+
+ui_print("  - remove old files...");
+run_program("/tmp/script/busybox", "sh", "/tmp/script/remove.sh");
+
+#package_extract_dir("system", "/system");
+package_extract_dir("data", "/data");
+
+#package_extract_file("boot.img", "/dev/block/platform/15540000.dwmmc0/by-name/BOOT");
+ui_print("  - Extract Boot Image...");
+package_extract_file("bootimg.tar.xz","/tmp/bootimg.tar.xz");
+ui_print("  - Flash Kernel...");
+run_program("/tmp/script/busybox", "sh", "/tmp/script/unpackimg.sh");
+ui_print("  - Set Environment...");
+run_program("/tmp/script/busybox", "sh", "/tmp/script/set.sh");
+
+#unmount("/system");
+#unmount("/data");
+ui_print(" ");
+ui_print("Done.");
+
