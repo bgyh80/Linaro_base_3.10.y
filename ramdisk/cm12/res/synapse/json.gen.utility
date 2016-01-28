@@ -29,7 +29,7 @@ cat << CTAG
 	{ SCheckBox:{
 		label:"시냅스 로더 애드온을 루팅 해제 상태일 때에만 실행합니다.",
 		default:1,
-		action:"generic /res/synapse/settings/loader_unroot"
+		action:"hmp /res/synapse/settings/loader_unroot"
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -157,7 +157,7 @@ cat << CTAG
         label:"Busybox를 /system/xbin 경로에 설치합니다.",
         description:"해제 시 /res/bin/bb 경로에 설치합니다. (해제를 추천)\n\n",
 		default:0,
-		action:"generic /res/synapse/settings/bbins_xbin"
+		action:"hmp /res/synapse/settings/bbins_xbin"
 	}},
 	{ SButton:{
 		label:"Busybox Install",

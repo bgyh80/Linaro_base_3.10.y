@@ -4,6 +4,6 @@ INC=/data/PRIME-Kernel/bin/profile.inc
 if [ -e $INC ]; then
     source $INC
 else
-    P=`cat /data/PRIME-Kernel/synapse/settings/profile`;
+    P=`cat /res/synapse/settings/profile`;
     echo $P;
 fi

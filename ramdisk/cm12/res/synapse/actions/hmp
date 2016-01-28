@@ -4,13 +4,9 @@ INC=/data/PRIME-Kernel/bin/hmp.inc
 if [ -e $INC ]; then
     source $INC
 else
-	if [ -f $1 ]; then
-		if [[ ! -z "$2" ]] && [[ -e $1 ]]; then
-			echo "$2" > $1 2> /dev/null;
-		fi;
-
-		echo "`cat $1`";
+	if [ -e $1 ]; then
+		echo $(cat $1);
 	else
-		echo "0";
-	fi;
+		echo 0
+	fi
 fi
