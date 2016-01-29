@@ -101,10 +101,12 @@ static void kbasep_instr_hwcnt_cacheclean(kbase_device *kbdev)
 	while (kbdev->hwcnt.state == KBASE_INSTR_STATE_RESETTING) {
 		spin_unlock_irqrestore(&kbdev->hwcnt.lock, flags);
 #if SLSI_INTEGRATION
-		if (kbdev->hwcnt.prev_mm)
-			wait_event_timeout(kbdev->hwcnt.cache_clean_wait,
-					kbdev->hwcnt.state != KBASE_INSTR_STATE_RESETTING, kbdev->hwcnt.timeout);
-		else
+		if (kbdev->hwcnt.prev_mm) {
+			int ret = wait_event_timeout(kbdev->hwcnt.cache_clean_wait,
+			           kbdev->hwcnt.state != KBASE_INSTR_STATE_RESETTING, kbdev->hwcnt.timeout);
+			if (ret == 0)
+				kbdev->hwcnt.state = KBASE_INSTR_STATE_IDLE;
+		} else
 #endif
 		wait_event(kbdev->hwcnt.cache_clean_wait,
 		           kbdev->hwcnt.state != KBASE_INSTR_STATE_RESETTING);
@@ -297,10 +299,6 @@ mali_error kbase_instr_hwcnt_enable(kbase_context *kctx, kbase_uk_hwcnt_setup *s
 	access_allowed = kbase_security_has_capability(kctx, KBASE_SEC_INSTR_HW_COUNTERS_COLLECT, KBASE_SEC_FLAG_NOAUDIT);
 	if (MALI_FALSE == access_allowed)
 		return MALI_ERROR_FUNCTION_FAILED;
-
-	/* MALI_SEC_INTEGRATION */
-	if (kbdev && kbdev->hwcnt.kctx != NULL)
-		return MALI_ERROR_NONE;
 
 	return kbase_instr_hwcnt_enable_internal(kbdev, kctx, setup);
 }
@@ -653,6 +651,7 @@ mali_error kbase_instr_hwcnt_dump(kbase_context *kctx)
 		ret = wait_event_timeout(kbdev->hwcnt.wait, kbdev->hwcnt.triggered != 0, kbdev->hwcnt.timeout);
 		if ((kbdev->hwcnt.trig_exception == 1) || (ret == 0)) {
 			kbdev->hwcnt.trig_exception = 0;
+			kbdev->hwcnt.state = KBASE_INSTR_STATE_IDLE;
 			err = MALI_ERROR_FUNCTION_FAILED;
 			goto out;
 		}
@@ -913,6 +912,7 @@ void kbasep_cache_clean_worker(struct work_struct *data)
 {
 	kbase_device *kbdev;
 	unsigned long flags;
+	int ret;
 
 	kbdev = container_of(data, kbase_device, hwcnt.cache_clean_work);
 
@@ -925,11 +925,13 @@ void kbasep_cache_clean_worker(struct work_struct *data)
 		   || kbdev->hwcnt.state == KBASE_INSTR_STATE_CLEANING) {
 		spin_unlock_irqrestore(&kbdev->hwcnt.lock, flags);
 #if SLSI_INTEGRATION
-		if (kbdev->hwcnt.prev_mm)
-			wait_event_timeout(kbdev->hwcnt.cache_clean_wait,
+		if (kbdev->hwcnt.prev_mm) {
+			ret = wait_event_timeout(kbdev->hwcnt.cache_clean_wait,
 					(kbdev->hwcnt.state != KBASE_INSTR_STATE_RESETTING
 					 && kbdev->hwcnt.state != KBASE_INSTR_STATE_CLEANING), kbdev->hwcnt.timeout);
-		else
+			if (ret == 0)
+				kbdev->hwcnt.state = KBASE_INSTR_STATE_IDLE;
+		} else
 #endif
 		wait_event(kbdev->hwcnt.cache_clean_wait,
 		           (kbdev->hwcnt.state != KBASE_INSTR_STATE_RESETTING

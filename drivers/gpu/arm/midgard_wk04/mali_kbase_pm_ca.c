@@ -91,6 +91,7 @@ void kbase_pm_ca_set_policy(kbase_device *kbdev, const kbase_pm_ca_policy *new_p
 	/* A suspend won't happen here, because we're in a syscall from a userspace thread */
 	kbase_pm_context_active(kbdev);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 
 	/* Remove the policy to prevent IRQ handlers from working on it */
@@ -118,6 +119,7 @@ void kbase_pm_ca_set_policy(kbase_device *kbdev, const kbase_pm_ca_policy *new_p
 	spin_unlock_irqrestore(&kbdev->pm.power_change_lock, flags);
 
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 
 	/* Now the policy change is finished, we release our fake context active reference */
 	kbase_pm_context_idle(kbdev);

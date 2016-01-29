@@ -901,7 +901,9 @@ copy_failed:
 				platform->custom_cpu_max_lock = EGL_MAX_CLOCK;
 				platform->target_lock_type = BOOST_LOCK;
 				gpu_dvfs_handler_control(kbdev, GPU_HANDLER_DVFS_MIN_LOCK, GPU_MIN_CLOCK);
+#ifdef CONFIG_ARM_EXYNOS5430_BUS_DEVFREQ
 				pm_qos_update_request(&exynos5_g3d_cpu_egl_min_qos, EGL_MIN_CLOCK);
+#endif
 #endif
 			}
 			break;
@@ -919,12 +921,14 @@ copy_failed:
 				platform->custom_cpu_max_lock = 0;
 				platform->target_lock_type = BOOST_LOCK;
 				gpu_dvfs_handler_control(kbdev, GPU_HANDLER_DVFS_MIN_UNLOCK, 0);
+#ifdef CONFIG_ARM_EXYNOS5430_BUS_DEVFREQ
 				pm_qos_update_request(&exynos5_g3d_cpu_egl_min_qos, 0);
+#endif
 #endif
 			}
 			break;
 		}
-		
+
 	case KBASE_FUNC_UNSET_GPU_MIN_LOCK :
 		{
 #if defined(SET_MINLOCK)
@@ -2764,6 +2768,8 @@ static int kbase_platform_device_probe(struct platform_device *pdev)
 	core_props->gpu_freq_khz_max = kbasep_get_config_value(kbdev, platform_data, KBASE_CONFIG_ATTR_GPU_FREQ_KHZ_MAX);
 	kbdev->gpu_props.irq_throttle_time_us = kbasep_get_config_value(kbdev, platform_data, KBASE_CONFIG_ATTR_GPU_IRQ_THROTTLE_TIME_US);
 
+	wake_lock_init(&kbdev->pm.kbase_wake_lock, WAKE_LOCK_SUSPEND, "kbase_wake_lock");
+
 	err = kbase_common_device_init(kbdev);
 	if (err) {
 		dev_err(osdev->dev, "Failed kbase_common_device_init\n");
@@ -2793,6 +2799,8 @@ static int kbase_common_device_remove(struct kbase_device *kbdev)
 {
 	if (kbdev->pm.callback_power_runtime_term)
 		kbdev->pm.callback_power_runtime_term(kbdev);
+
+	wake_lock_destroy(&kbdev->pm.kbase_wake_lock);
 
 	/* Remove the sys power policy file */
 	device_remove_file(kbdev->osdev.dev, &dev_attr_power_policy);

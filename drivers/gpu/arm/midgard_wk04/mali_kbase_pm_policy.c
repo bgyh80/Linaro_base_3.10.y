@@ -158,6 +158,7 @@ static void kbasep_pm_do_gpu_poweroff_wq(struct work_struct *data)
 
 	kbdev = container_of(data, kbase_device, pm.gpu_poweroff_work);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 
 	spin_lock_irqsave(&kbdev->pm.power_change_lock, flags);
@@ -180,6 +181,7 @@ static void kbasep_pm_do_gpu_poweroff_wq(struct work_struct *data)
 	}
 
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 }
 
 static enum hrtimer_restart kbasep_pm_do_shader_poweroff_callback(struct hrtimer *timer)
@@ -226,7 +228,11 @@ mali_error kbase_pm_policy_init(kbase_device *kbdev)
 	hrtimer_init(&kbdev->pm.shader_poweroff_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	kbdev->pm.shader_poweroff_timer.function = kbasep_pm_do_shader_poweroff_callback;
 
+#ifdef CONFIG_SOC_EXYNOS5433_REV_1
+	kbdev->pm.pm_current_policy = policy_list[1];
+#else
 	kbdev->pm.pm_current_policy = policy_list[2];
+#endif
 
 	kbdev->pm.pm_current_policy->init(kbdev);
 
@@ -411,6 +417,7 @@ void kbase_pm_set_policy(kbase_device *kbdev, const kbase_pm_policy *new_policy)
 	/* A suspend won't happen here, because we're in a syscall from a userspace thread */
 	kbase_pm_context_active(kbdev);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 
 	/* Remove the policy to prevent IRQ handlers from working on it */
@@ -438,6 +445,7 @@ void kbase_pm_set_policy(kbase_device *kbdev, const kbase_pm_policy *new_policy)
 	kbase_pm_update_cores_state(kbdev);
 
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 
 	/* Now the policy change is finished, we release our fake context active reference */
 	kbase_pm_context_idle(kbdev);

@@ -59,6 +59,7 @@ bool hwcnt_check_conditions(struct kbase_device *kbdev)
 
 	KBASE_DEBUG_ASSERT(kbdev);
 
+#if 0
 	if ((!kbdev->hwcnt.condition_to_dump) && (platform->cur_clock >= GPU_MAX_CLOCK_LIMIT)) {
 		kbase_pm_policy_change(kbdev, 1);
 		kbdev->hwcnt.condition_to_dump = TRUE;
@@ -68,17 +69,18 @@ bool hwcnt_check_conditions(struct kbase_device *kbdev)
 		kbdev->hwcnt.cnt_for_bt_start = 0;
 		kbdev->hwcnt.cnt_for_stop = 0;
 	} else if ((kbdev->hwcnt.condition_to_dump) && (platform->cur_clock < GPU_MAX_CLOCK_LIMIT)) {
+#endif
 		kbdev->hwcnt.cnt_for_stop++;
 		if (kbdev->hwcnt.cnt_for_stop > 5) {
 			KBASE_TRACE_ADD_EXYNOS(kbdev, LSI_HWCNT_OFF_DVFS, NULL, NULL, 0u, kbdev->hwcnt.kspace_addr);
 			if (kbdev->hwcnt.kspace_addr)
 				kbase_instr_hwcnt_stop(kbdev);
 			kbdev->hwcnt.condition_to_dump = FALSE;
-			kbase_pm_policy_change(kbdev, 2);
+			//kbase_pm_policy_change(kbdev, 2);
 			kbdev->hwcnt.cnt_for_stop = 0;
 			platform->hwcnt_bt_clk = FALSE;
 		}
-	}
+	//}
 
 	return kbdev->hwcnt.condition_to_dump;
 }

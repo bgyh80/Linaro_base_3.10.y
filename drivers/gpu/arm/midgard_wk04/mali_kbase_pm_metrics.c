@@ -98,7 +98,12 @@ mali_error kbasep_pm_metrics_init(kbase_device *kbdev)
 	kbdev->pm.metrics.time_period_start = ktime_get();
 	kbdev->pm.metrics.time_busy = 0;
 	kbdev->pm.metrics.time_idle = 0;
+	/* MALI_SEC */
+#ifdef SEPERATED_UTILIZATION
+	kbdev->pm.metrics.gpu_active = MALI_FALSE;
+#else
 	kbdev->pm.metrics.gpu_active = MALI_TRUE;
+#endif /* SEPERATED_UTILIZATION */
 	kbdev->pm.metrics.timer_active = MALI_TRUE;
 
 	spin_lock_init(&kbdev->pm.metrics.lock);
@@ -204,6 +209,7 @@ void kbase_pm_record_gpu_state(struct kbase_device *kbdev, mali_bool is_active)
 
     KBASE_DEBUG_ASSERT(kbdev != NULL);
 
+    wake_lock(&kbdev->pm.kbase_wake_lock);
     mutex_lock(&kbdev->pm.lock);
 
     spin_lock_irqsave(&kbdev->pm.metrics.lock, flags);
@@ -218,7 +224,6 @@ void kbase_pm_record_gpu_state(struct kbase_device *kbdev, mali_bool is_active)
      *    the call to kbase_pm_context_idle()
      * 2) hwcnt collection keeps the GPU powered
      */
-
     if (!kbdev->pm.metrics.gpu_active && is_active) {
         /* Going from idle to active, and not already recorded.
          * Log current time spent idle so far */
@@ -236,6 +241,7 @@ void kbase_pm_record_gpu_state(struct kbase_device *kbdev, mali_bool is_active)
     spin_unlock_irqrestore(&kbdev->pm.metrics.lock, flags);
 
     mutex_unlock(&kbdev->pm.lock);
+    wake_unlock(&kbdev->pm.kbase_wake_lock);
 }
 KBASE_EXPORT_TEST_API(kbase_pm_record_gpu_state)
 #endif

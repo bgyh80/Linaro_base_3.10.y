@@ -205,6 +205,7 @@ mali_error kbase_pm_powerup(kbase_device *kbdev)
 
 	KBASE_DEBUG_ASSERT(kbdev != NULL);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 
 	/* A suspend won't happen during startup/insmod */
@@ -214,6 +215,7 @@ mali_error kbase_pm_powerup(kbase_device *kbdev)
 	ret = kbase_pm_init_hw(kbdev, MALI_FALSE );
 	if (ret != MALI_ERROR_NONE) {
 		mutex_unlock(&kbdev->pm.lock);
+		wake_unlock(&kbdev->pm.kbase_wake_lock);
 		return ret;
 	}
 
@@ -241,6 +243,7 @@ mali_error kbase_pm_powerup(kbase_device *kbdev)
 	/* Turn on the GPU and any cores needed by the policy */
 	kbase_pm_do_poweron(kbdev, MALI_FALSE);
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 
 	/* Idle the GPU and/or cores, if the policy wants it to */
 	kbase_pm_context_idle(kbdev);
@@ -270,6 +273,7 @@ int kbase_pm_context_active_handle_suspend(kbase_device *kbdev, kbase_pm_suspend
 	if (old_count == 0)
 		kbase_timeline_pm_send_event(kbdev, KBASE_TIMELINE_PM_EVENT_GPU_ACTIVE);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 	if (kbase_pm_is_suspending(kbdev))
 	{
@@ -280,6 +284,7 @@ int kbase_pm_context_active_handle_suspend(kbase_device *kbdev, kbase_pm_suspend
 			/* FALLTHROUGH */
 		case KBASE_PM_SUSPEND_HANDLER_DONT_INCREASE:
 			mutex_unlock(&kbdev->pm.lock);
+			wake_unlock(&kbdev->pm.kbase_wake_lock);
 			if (old_count == 0)
 				kbase_timeline_pm_handle_event(kbdev, KBASE_TIMELINE_PM_EVENT_GPU_ACTIVE);
 			return 1;
@@ -310,6 +315,7 @@ int kbase_pm_context_active_handle_suspend(kbase_device *kbdev, kbase_pm_suspend
 	}
 
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 
 	return 0;
 }
@@ -331,6 +337,7 @@ void kbase_pm_context_idle(kbase_device *kbdev)
 	if (old_count == 0)
 		kbase_timeline_pm_send_event(kbdev, KBASE_TIMELINE_PM_EVENT_GPU_IDLE);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 
 	c = --kbdev->pm.active_count;
@@ -358,6 +365,7 @@ void kbase_pm_context_idle(kbase_device *kbdev)
 	}
 
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 }
 
 KBASE_EXPORT_TEST_API(kbase_pm_context_idle)
@@ -366,10 +374,12 @@ void kbase_pm_halt(kbase_device *kbdev)
 {
 	KBASE_DEBUG_ASSERT(kbdev != NULL);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 	kbase_pm_cancel_deferred_poweroff(kbdev);
 	kbase_pm_do_poweroff(kbdev, MALI_FALSE);
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 }
 
 KBASE_EXPORT_TEST_API(kbase_pm_halt)
@@ -395,6 +405,21 @@ void kbase_pm_suspend(struct kbase_device *kbdev)
 	int nr_keep_gpu_powered_ctxs;
 	KBASE_DEBUG_ASSERT(kbdev);
 
+	wake_lock(&kbdev->pm.kbase_wake_lock);
+	mutex_lock(&kbdev->pm.lock);
+	KBASE_DEBUG_ASSERT(!kbase_pm_is_suspending(kbdev));
+	kbdev->pm.suspending = MALI_TRUE;
+	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
+
+	/* From now on, the active count will drop towards zero. Sometimes, it'll
+	 * go up briefly before going down again. However, once it reaches zero it
+	 * will stay there - guaranteeing that we've idled all pm references */
+
+	/* Suspend job scheduler and associated components, so that it releases all
+	 * the PM active count references */
+	kbasep_js_suspend(kbdev);
+
 #if SLSI_INTEGRATION
 	if (kbdev->hwcnt.prev_mm) {
 		struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
@@ -416,24 +441,7 @@ void kbase_pm_suspend(struct kbase_device *kbdev)
 			kbase_instr_hwcnt_suspend(kbdev);
 
 		mutex_unlock(&kbdev->hwcnt.mlock);
-	}
-#endif
-
-	mutex_lock(&kbdev->pm.lock);
-	KBASE_DEBUG_ASSERT(!kbase_pm_is_suspending(kbdev));
-	kbdev->pm.suspending = MALI_TRUE;
-	mutex_unlock(&kbdev->pm.lock);
-
-	/* From now on, the active count will drop towards zero. Sometimes, it'll
-	 * go up briefly before going down again. However, once it reaches zero it
-	 * will stay there - guaranteeing that we've idled all pm references */
-
-	/* Suspend job scheduler and associated components, so that it releases all
-	 * the PM active count references */
-	kbasep_js_suspend(kbdev);
-
-#if SLSI_INTEGRATION
-	if (!kbdev->hwcnt.prev_mm)
+	} else
 #endif
 	/* Suspend any counter collection that might be happening */
 	kbase_instr_hwcnt_suspend(kbdev);
@@ -456,10 +464,12 @@ void kbase_pm_suspend(struct kbase_device *kbdev)
 	/* Force power off the GPU and all cores (regardless of policy), only after
 	 * the PM active count reaches zero (otherwise, we risk turning it off
 	 * prematurely) */
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 	kbase_pm_cancel_deferred_poweroff(kbdev);
 	kbase_pm_do_poweroff(kbdev, MALI_TRUE);
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 }
 
 void kbase_pm_resume(struct kbase_device *kbdev)
@@ -467,10 +477,12 @@ void kbase_pm_resume(struct kbase_device *kbdev)
 	int nr_keep_gpu_powered_ctxs;
 
 	/* MUST happen before any pm_context_active calls occur */
+	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 	kbdev->pm.suspending = MALI_FALSE;
 	kbase_pm_do_poweron(kbdev, MALI_TRUE);
 	mutex_unlock(&kbdev->pm.lock);
+	wake_unlock(&kbdev->pm.kbase_wake_lock);
 
 	/* Initial active call, to power on the GPU/cores if needed */
 	kbase_pm_context_active(kbdev);

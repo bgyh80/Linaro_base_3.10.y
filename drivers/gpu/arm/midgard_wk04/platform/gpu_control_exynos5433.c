@@ -35,7 +35,6 @@
 #define G3D_NOC_DCG_EN 0x14a90200
 #endif
 
-#define VOLT_RANGE_STEP 25000
 extern struct kbase_device *pkbdev;
 
 #ifdef CONFIG_PM_RUNTIME
@@ -168,10 +167,11 @@ int gpu_clock_on(struct exynos_context *platform)
 		goto err_return;
 	}
 
-	if (platform->aclk_g3d) {
-		(void) clk_prepare_enable(platform->aclk_g3d);
-		KBASE_TRACE_ADD_EXYNOS(pkbdev, LSI_CLOCK_ON, NULL, NULL, 0u, 0u);
-	}
+	if (!gpu_is_clock_on(platform))
+		if (platform->aclk_g3d) {
+			(void) clk_prepare_enable(platform->aclk_g3d);
+			KBASE_TRACE_ADD_EXYNOS(pkbdev, LSI_CLOCK_ON, NULL, NULL, 0u, 0u);
+		}
 
 #if GPU_DYNAMIC_CLK_GATING
 	gpu_dcg_enable(platform);
@@ -201,39 +201,22 @@ int gpu_clock_off(struct exynos_context *platform)
 #if GPU_DYNAMIC_CLK_GATING
 	gpu_dcg_disable(platform);
 #endif
-
 	if (!gpu_is_power_on()) {
 		GPU_LOG(DVFS_WARNING, "can't set clock off in g3d power off status\n");
 		ret = -1;
 		goto err_return;
 	}
-
 	if (platform->clk_g3d_status == 0) {
 		ret = 0;
 		goto err_return;
 	}
 
-#if GPU_POWERON_SRC_CLK_OSC
-   if (platform->mout_g3d_pll)
-   {
-       ret = clk_set_parent(platform->mout_g3d_pll, platform->fin_pll);
-       if (ret < 0) {
-           GPU_LOG(DVFS_ERROR, "failed to clk_set_parent [mout_g3d_pll]\n");
-           goto err_return;
-       }
-       GPU_LOG(DVFS_DEBUG, "changed to OSC for mout_g3d_pll\n");
-   }
-   else
-   {
-       GPU_LOG(DVFS_ERROR, "can't get clock mout_g3d_pll\n");
-   }
-#endif
-
+#if 0
 	if (platform->aclk_g3d) {
 		(void)clk_disable_unprepare(platform->aclk_g3d);
 		KBASE_TRACE_ADD_EXYNOS(pkbdev, LSI_CLOCK_OFF, NULL, NULL, 0u, 0u);
 	}
-
+#endif
 	platform->clk_g3d_status = 0;
 
 err_return:
@@ -308,7 +291,6 @@ int gpu_set_clock(struct exynos_context *platform, int freq)
 	long g3d_rate_prev = -1;
 	unsigned long g3d_rate = freq * MHZ;
 	int ret = 0;
-
 	if (platform->aclk_g3d == 0)
 		return -1;
 
@@ -336,7 +318,6 @@ int gpu_set_clock(struct exynos_context *platform, int freq)
 		ret = gpu_set_maximum_outstanding_req(L2CONFIG_MO_1BY8);
 		if ( ret < 0)
 			GPU_LOG(DVFS_ERROR, "failed to set MO (%d)\n", ret);
-
 		/*change here for future stable clock changing*/
 		ret = clk_set_parent(platform->mout_g3d_pll, platform->fin_pll);
 		if (ret < 0) {
@@ -350,13 +331,21 @@ int gpu_set_clock(struct exynos_context *platform, int freq)
 			GPU_LOG(DVFS_ERROR, "failed to clk_set_rate [fout_g3d_pll]\n");
 			goto err;
 		}
-
 		/*restore parent*/
 		ret = clk_set_parent(platform->mout_g3d_pll, platform->fout_g3d_pll);
 		if (ret < 0) {
 			GPU_LOG(DVFS_ERROR, "failed to clk_set_parent [mout_g3d_pll]\n");
 			goto err;
 		}
+
+#ifdef CONFIG_SOC_EXYNOS5433_REV_0
+		/*restore parent*/
+		ret = clk_set_parent(platform->mout_aclk_g3d, platform->aclk_g3d);
+		if (ret < 0) {
+			GPU_LOG(DVFS_ERROR, "failed to clk_set_parent [mout_ack_g3d]\n");
+			goto err;
+		}
+#endif
 
 		ret = gpu_set_maximum_outstanding_req(L2CONFIG_MO_NO_RESTRICT);
 		if ( ret < 0)
@@ -417,6 +406,14 @@ static int gpu_get_clock(kbase_device *kbdev)
 		return -1;
 	}
 
+#ifdef CONFIG_SOC_EXYNOS5433_REV_0
+	platform->mout_aclk_g3d = clk_get(kbdev->osdev.dev, "mout_aclk_g3d");
+	if (IS_ERR(platform->mout_aclk_g3d)) {
+		GPU_LOG(DVFS_ERROR, "failed to clk_get [mout_aclk_g3d]\n");
+		return -1;
+	}
+#endif
+
 	return 0;
 }
 
@@ -459,18 +456,13 @@ int gpu_set_voltage(struct exynos_context *platform, int vol)
 	if (_vol == vol)
 		return 0;
 
-	if (!gpu_is_power_on()) {
-		GPU_LOG(DVFS_WARNING, "gpu_set_clk_vol in the G3D power-off state!\n");
-		return -1;
-	}
-
 #ifdef CONFIG_REGULATOR
 	if (!platform->g3d_regulator) {
 		GPU_LOG(DVFS_ERROR, "g3d_regulator is not initialized\n");
 		return -1;
 	}
 
-	if (regulator_set_voltage(platform->g3d_regulator, vol, vol + VOLT_RANGE_STEP) != 0) {
+	if (regulator_set_voltage(platform->g3d_regulator, vol, vol) != 0) {
 		GPU_LOG(DVFS_ERROR, "failed to set voltage, voltage: %d\n", vol);
 		return -1;
 	}
@@ -534,7 +526,7 @@ int gpu_regulator_init(struct exynos_context *platform)
 		return -1;
 	}
 
-	gpu_voltage = get_match_volt(ID_G3D, MALI_DVFS_BL_CONFIG_FREQ*1000);
+	gpu_voltage = 0;//get_match_volt(ID_G3D, MALI_DVFS_BL_CONFIG_FREQ*1000);
 	if (gpu_voltage == 0)
 		gpu_voltage = GPU_DEFAULT_VOLTAGE;
 
