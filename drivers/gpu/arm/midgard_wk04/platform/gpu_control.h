@@ -50,8 +50,8 @@ typedef enum {
 #endif /* CONFIG_SOC_EXYNOS5422_REV_0 */
 #define G3D_MIN_FREQ    177000
 #elif SOC_NAME == 5430
-#define G3D_MAX_FREQ    600000
-#define G3D_MIN_FREQ    160000
+#define G3D_MAX_FREQ    700000
+#define G3D_MIN_FREQ    100000
 #elif SOC_NAME == 5433
 #define G3D_MAX_FREQ    700000
 #define G3D_MIN_FREQ    160000

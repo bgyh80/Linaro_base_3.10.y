@@ -44,6 +44,7 @@ int gpu_dvfs_handler_control(struct kbase_device *kbdev, gpu_dvfs_handler_comman
 #ifdef CONFIG_CPU_THERMAL_IPA
 int gpu_dvfs_get_clock(int level);
 int gpu_dvfs_get_step(void);
+int gpu_dvfs_get_stock_level(int clock);
 #endif /* CONFIG_CPU_THERMAL_IPA */
 
 #endif /* _GPU_DVFS_HANDLER_H_ */
