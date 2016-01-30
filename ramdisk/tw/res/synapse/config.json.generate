@@ -14,7 +14,7 @@ cat << CTAG
       `. $STR/json.gen.cpuvolt`,
       `. $STR/json.gen.cpugov`,
       `. $STR/json.gen.hmp`
-      `. $STR/json.gen.gpu2`,
+      `. $STR/json.gen.gpu`,
       `. $STR/json.gen.bus`,
       `. $STR/json.gen.io`,
       `. $STR/json.gen.tmu2`,
