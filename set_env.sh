@@ -2,8 +2,8 @@
 
 export ARCH=arm
 #export CROSS_COMPILE=/home/dq/dev/UBERTC-arm-eabi/bin/arm-eabi-
-export CROSS_COMPILE=/home/dq/dev/UBERTC-arm-eabi-6.0/bin/arm-eabi-
-export CROSS_COMPILE=/home/dq/dev/UBERTC-arm-linux-androideabi-5.3/bin/arm-linux-androideabi-
+#export CROSS_COMPILE=/home/dq/dev/UBERTC-arm-eabi-6.0/bin/arm-eabi-
+export CROSS_COMPILE=/home/dq/dev/UBERTC-arm-eabi-5.3/bin/arm-eabi-
 
 TMPDIR=./build-files/tmp
 CDATE=$(date +"%Y%m%d")
