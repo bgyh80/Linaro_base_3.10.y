@@ -104,7 +104,6 @@ static struct pm_qos_request boot_min_cpu_qos;
 static struct pm_qos_request boot_max_cpu_qos;
 static struct pm_qos_request boot_min_kfc_qos;
 static struct pm_qos_request boot_max_kfc_qos;
-static struct pm_qos_request boot_min_gpu_qos;
 static struct pm_qos_request min_cpu_qos;
 static struct pm_qos_request max_cpu_qos;
 static struct pm_qos_request min_kfc_qos;
@@ -2429,15 +2428,3 @@ static int __init exynos_cpufreq_late_init(void)
 
 late_initcall(exynos_cpufreq_late_init);
 #endif
-
-static int __init exynos_gpufreq_boot_init(void)
-{
-	pm_qos_add_request(&boot_min_gpu_qos, PM_QOS_GPU_FREQ_MIN,
-					PM_QOS_GPU_FREQ_MIN_DEFAULT_VALUE);
-
-	pm_qos_update_request_timeout(&boot_min_gpu_qos, 420, 20 * USEC_PER_SEC);
-
-	return 0;
-}
-
-late_initcall(exynos_gpufreq_boot_init);
