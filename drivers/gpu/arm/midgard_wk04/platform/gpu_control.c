@@ -115,7 +115,7 @@ int gpu_control_state_set(struct kbase_device *kbdev, gpu_control_state state, i
 
 		if (platform->min_lock > 0)
 			platform->cur_clock = MAX(platform->min_lock, platform->cur_clock);
-		else if (platform->max_lock > 0)
+		if (platform->max_lock > 0)
 			platform->cur_clock = MIN(platform->max_lock, platform->cur_clock);
 
 		platform->down_requirement = platform->table[platform->step].stay_count;
@@ -197,8 +197,8 @@ static int gpu_pm_qos_command(struct exynos_context *platform, gpu_pmqos_state s
 #endif
 #endif
 			pm_qos_update_request(&exynos5_g3d_cpu_egl_max_qos, platform->table[platform->step].cpu_max_freq);
-		break;
 
+		break;
 	case GPU_CONTROL_PM_QOS_RESET:
 		pm_qos_update_request(&exynos5_g3d_mif_qos, 0);
 		pm_qos_update_request(&exynos5_g3d_int_qos, 0);

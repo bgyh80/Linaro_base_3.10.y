@@ -18,7 +18,6 @@
 
 #include <linux/suspend.h>
 #include <linux/pm_runtime.h>
-#include <linux/pm_qos.h>
 
 #include "mali_kbase_platform.h"
 #include "gpu_dvfs_handler.h"
@@ -261,41 +260,6 @@ kbase_pm_callback_conf pm_callbacks = {
 };
 #endif /* CONFIG_MALI_T6XX_RT_PM */
 
-static int exynos_gpu_min_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	struct exynos_context *platform = (struct exynos_context *)pkbdev->platform_context;
-	pr_debug("%s: lock minimal gpu freq %lu\n", __func__, val);
-
-	platform->target_lock_type = BOOST_LOCK;
-
-	if (val)
-		gpu_dvfs_handler_control(pkbdev, GPU_HANDLER_DVFS_MIN_LOCK, val);
-	else
-		gpu_dvfs_handler_control(pkbdev, GPU_HANDLER_DVFS_MIN_UNLOCK, val);
-
-	return NOTIFY_OK;
-}
-
-static struct notifier_block exynos_gpu_min_qos_notifier = {
-	.notifier_call = exynos_gpu_min_qos_handler,
-};
-
-static int exynos_gpu_max_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	struct exynos_context *platform = (struct exynos_context *)pkbdev->platform_context;
-
-	pr_debug("%s: lock maximal gpu freq %lu\n", __func__, val);
-
-	platform->target_lock_type = BOOST_LOCK;
-	gpu_dvfs_handler_control(pkbdev, GPU_HANDLER_DVFS_MAX_LOCK, val);
-
-	return NOTIFY_OK;
-}
-
-static struct notifier_block exynos_gpu_max_qos_notifier = {
-	.notifier_call = exynos_gpu_max_qos_handler,
-};
-
 int gpu_notifier_init(kbase_device *kbdev)
 {
 	struct exynos_context *platform = (struct exynos_context *)kbdev->platform_context;
@@ -317,16 +281,11 @@ int gpu_notifier_init(kbase_device *kbdev)
 
 	pm_runtime_enable(kbdev->osdev.dev);
 
-	pm_qos_add_notifier(PM_QOS_GPU_FREQ_MIN, &exynos_gpu_min_qos_notifier);
-	pm_qos_add_notifier(PM_QOS_GPU_FREQ_MAX, &exynos_gpu_max_qos_notifier);
-
 	return MALI_TRUE;
 }
 
 void gpu_notifier_term(void)
 {
-	pm_qos_remove_notifier(PM_QOS_GPU_FREQ_MIN, &exynos_gpu_min_qos_notifier);
-	pm_qos_remove_notifier(PM_QOS_GPU_FREQ_MAX, &exynos_gpu_max_qos_notifier);
 #ifdef CONFIG_MALI_T6XX_RT_PM
 	unregister_pm_notifier(&gpu_pm_nb);
 #endif /* CONFIG_MALI_T6XX_RT_PM */

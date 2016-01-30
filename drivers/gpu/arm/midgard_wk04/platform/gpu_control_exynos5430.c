@@ -35,7 +35,6 @@
 #define G3D_NOC_DCG_EN 0x14a90200
 #endif
 
-#define VOLT_RANGE_STEP 25000
 extern struct kbase_device *pkbdev;
 
 #ifdef CONFIG_PM_RUNTIME
@@ -459,18 +458,13 @@ int gpu_set_voltage(struct exynos_context *platform, int vol)
 	if (_vol == vol)
 		return 0;
 
-	if (!gpu_is_power_on()) {
-		GPU_LOG(DVFS_WARNING, "gpu_set_clk_vol in the G3D power-off state!\n");
-		return -1;
-	}
-
 #ifdef CONFIG_REGULATOR
 	if (!platform->g3d_regulator) {
 		GPU_LOG(DVFS_ERROR, "g3d_regulator is not initialized\n");
 		return -1;
 	}
 
-	if (regulator_set_voltage(platform->g3d_regulator, vol, vol + VOLT_RANGE_STEP) != 0) {
+	if (regulator_set_voltage(platform->g3d_regulator, vol, vol) != 0) {
 		GPU_LOG(DVFS_ERROR, "failed to set voltage, voltage: %d\n", vol);
 		return -1;
 	}

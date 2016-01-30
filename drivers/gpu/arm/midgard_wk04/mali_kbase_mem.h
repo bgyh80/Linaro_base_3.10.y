@@ -203,6 +203,8 @@ typedef struct kbase_va_region {
 
 /* VA managed by us */
 #define KBASE_REG_CUSTOM_VA         (1ul << 8)
+#define KBASE_REG_CUSTOM_PMEM       (1ul << 18)
+#define KBASE_REG_CUSTOM_TMEM       (1ul << 19)
 
 /* inner shareable coherency */
 #define KBASE_REG_SHARE_IN          (1ul << 9)
@@ -225,11 +227,6 @@ typedef struct kbase_va_region {
 #define KBASE_REG_MEMATTR_MASK      (7ul << 16)
 #define KBASE_REG_MEMATTR_INDEX(x)  (((x) & 7) << 16)
 #define KBASE_REG_MEMATTR_VALUE(x)  (((x) & KBASE_REG_MEMATTR_MASK) >> 16)
-
-#if SLSI_INTEGRATION
-#define KBASE_REG_CUSTOM_TMEM       (1ul << 19)
-#define KBASE_REG_CUSTOM_PMEM       (1ul << 20)
-#endif
 
 #define KBASE_REG_ZONE_SAME_VA      KBASE_REG_ZONE(0)
 

@@ -176,7 +176,7 @@ void kbase_job_done_slot(kbase_device *kbdev, int s, u32 completion_code, u64 jo
 	KBASE_DEBUG_ASSERT(kbdev);
 
 	if (completion_code != BASE_JD_EVENT_DONE && completion_code != BASE_JD_EVENT_STOPPED)
-		KBASE_DEBUG_PRINT_ERROR(KBASE_JM, "t6xx: GPU fault 0x%02lx from job slot %d\n", (unsigned long)completion_code, s);
+		dev_err(kbdev->osdev.dev, "t6xx: GPU fault 0x%02lx from job slot %d\n", (unsigned long)completion_code, s);
 
 	/* IMPORTANT: this function must only contain work necessary to complete a
 	 * job from a Real IRQ (and not 'fake' completion, e.g. from
@@ -200,7 +200,8 @@ void kbase_job_done_slot(kbase_device *kbdev, int s, u32 completion_code, u64 jo
 	if (completion_code != BASE_JD_EVENT_DONE && completion_code != BASE_JD_EVENT_STOPPED) {
 
 #if KBASE_TRACE_DUMP_ON_JOB_SLOT_ERROR != 0
-		KBASE_TRACE_DUMP(kbdev);
+		/* Remove the rbuf dump because of too many log */
+		/* KBASE_TRACE_DUMP(kbdev); */
 #endif
 	}
 	if (job_tail != 0) {
@@ -1086,7 +1087,6 @@ void kbasep_reset_timeout_worker(struct work_struct *data)
 		return;
 	}
 
-	wake_lock(&kbdev->pm.kbase_wake_lock);
 	mutex_lock(&kbdev->pm.lock);
 	/* We hold the pm lock, so there ought to be a current policy */
 	KBASE_DEBUG_ASSERT(kbdev->pm.pm_current_policy);
@@ -1122,7 +1122,8 @@ void kbasep_reset_timeout_worker(struct work_struct *data)
 
 	/* S.LSI intergration */
 	gpu_register_dump();
-	KBASE_TRACE_DUMP(kbdev);
+	/* Remove the rbuf dump because of too many log */
+	/* KBASE_TRACE_DUMP(kbdev); */
 
 	bckp_state = kbdev->hwcnt.state;
 	kbdev->hwcnt.state = KBASE_INSTR_STATE_RESETTING;
@@ -1214,7 +1215,7 @@ void kbasep_reset_timeout_worker(struct work_struct *data)
 
 		nr_done = kbasep_jm_nr_jobs_submitted(slot);
 		while (nr_done) {
-			KBASE_DEBUG_PRINT_ERROR(KBASE_JD, "Job stuck in slot %d on the GPU was cancelled", i);
+			dev_err(kbdev->osdev.dev, "Job stuck in slot %d on the GPU was cancelled", i);
 			kbase_job_done_slot(kbdev, i, BASE_JD_EVENT_JOB_CANCELLED, 0, &end_timestamp);
 			nr_done--;
 		}
@@ -1254,7 +1255,6 @@ void kbasep_reset_timeout_worker(struct work_struct *data)
 	}
 	mutex_unlock(&js_devdata->runpool_mutex);
 	mutex_unlock(&kbdev->pm.lock);
-	wake_unlock(&kbdev->pm.kbase_wake_lock);
 
 	kbase_pm_context_idle(kbdev);
 	KBASE_TRACE_ADD(kbdev, JM_END_RESET_WORKER, NULL, NULL, 0u, 0);

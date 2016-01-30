@@ -55,10 +55,10 @@ static gpu_dvfs_info gpu_dvfs_infotbl_default[] = {
 #endif /* CONFIG_SOC_EXYNOS5422_REV_0 */
 #elif SOC_NAME == 5430
 #if defined(CONFIG_EXYNOS5430_WQHD)     /* EXYNOS5430 Resolution : WQHD */
-	{1000000, 160,  0,  60, 2, 0, 136000, 133000,  500000, CPU_MAX},
-	{1000000, 266, 45,  60, 2, 0, 211000, 160000,  500000, CPU_MAX},
-	{1025000, 350, 64,  70, 2, 0, 413000, 200000,  500000, CPU_MAX},
-	{1025000, 420, 75,  85, 1, 0, 543000, 267000,  900000, 1800000},
+	{1000000, 160,  0,  90, 1, 0, 136000, 133000,  500000, CPU_MAX},
+	{1000000, 266, 80,  90, 1, 0, 211000, 160000,  500000, CPU_MAX},
+	{1025000, 350, 80,  90, 1, 0, 413000, 200000,  500000, CPU_MAX},
+	{1025000, 420, 80,  99, 1, 0, 543000, 267000,  900000, 1800000},
 	{1075000, 500, 98,  99, 1, 0, 633000, 317000, 1300000, 1800000},
 #ifdef CONFIG_MALI_HWCNT_UTIL
 	{1125000, 550, 98,  99, 1, 0, 825000, 413000, 1300000, 1300000},
@@ -67,17 +67,6 @@ static gpu_dvfs_info gpu_dvfs_infotbl_default[] = {
 #endif
 	{1150000, 600, 98, 100, 1, 0, 825000, 413000, 1300000, 1300000},
 #elif defined(CONFIG_EXYNOS5430_FHD)    /* EXYNOS5430 Resolution : FHD */
-#ifdef CONFIG_ESPRESSO_TV_PRIMARY
-	{1000000, 160,  0,  90, 1, 0, 136000, 133000,  500000, CPU_MAX},
-	/* For 4K TV Primary, make 266 as the limitation of the lowest G3D clock frequency */
-	{1000000, 266,  0,  50, 1, 0, 272000, 160000,  500000, CPU_MAX},
-	{1025000, 350, 40,  90, 1, 0, 413000, 200000,  500000, CPU_MAX},
-	{1025000, 420, 80,  90, 1, 0, 543000, 267000,  900000, 1800000},
-	{1075000, 500, 80,  99, 1, 0, 633000, 317000, 1500000, 1800000},
-	/* For 4K TV Primary, make 550 as the limitation of the highest G3D clock frequency */
-	{1125000, 550, 98, 100, 1, 0, 825000, 413000, 1500000, 1800000},
-	{1150000, 600, 78, 100, 1, 0, 825000, 413000, 1500000, 1800000},
-#else
 	{1000000, 160,  0,  90, 1, 0, 211000, 100000,  500000, CPU_MAX},
 	{1000000, 266, 80,  90, 1, 0, 272000, 133000,  500000, CPU_MAX},
 	{1025000, 350, 80,  90, 1, 0, 413000, 133000,  500000, CPU_MAX},
@@ -89,7 +78,6 @@ static gpu_dvfs_info gpu_dvfs_infotbl_default[] = {
 	{1125000, 550, 98, 100, 1, 0, 825000, 400000, 1300000, 1300000},
 #endif
 	{1150000, 600, 98, 100, 1, 0, 825000, 400000, 1300000, 1300000},
-#endif
 #elif defined(CONFIG_EXYNOS5430_HD)     /* EXYNOS5430 Resolution : HD */
 	{1000000, 160,  0,  90, 1, 0, 413000, 100000,       0, CPU_MAX},
 	{1000000, 266, 80,  90, 2, 0, 413000, 100000,       0, CPU_MAX},
@@ -216,7 +204,7 @@ static int gpu_dvfs_governor_booster(struct kbase_device *kbdev, int utilization
 			((cur_weight - weight) > booster_threshold)) {
 		platform->step += 2;
 		platform->down_requirement = platform->table[platform->step].stay_count;
-		GPU_LOG(DVFS_INFO, "[G3D_booster] increase G3D level 2 step\n");
+		GPU_LOG(DVFS_WARNING, "[G3D_booster] increase G3D level 2 step\n");
 		DVFS_ASSERT(platform->step < platform->table_size);
 	} else if ((platform->step < platform->table_size-1) &&
 			(utilization > platform->table[platform->step].max_threshold)) {
@@ -256,8 +244,6 @@ static int gpu_dvfs_update_asv_table(struct exynos_context *platform, int govern
 	}
 	return 0;
 }
-
-static struct pm_qos_constraints max_gpu_qos_const;
 
 int gpu_dvfs_governor_init(struct kbase_device *kbdev, int governor_type)
 {
@@ -344,10 +330,6 @@ int gpu_dvfs_governor_init(struct kbase_device *kbdev, int governor_type)
 #endif /* CONFIG_MALI_T6XX_DVFS */
 
 	platform->cur_clock = platform->table[platform->step].clock;
-
-	max_gpu_qos_const.target_value = platform->table[platform->table_size - 1].clock;
-	max_gpu_qos_const.default_value = platform->table[platform->table_size - 1].clock;
-	pm_qos_update_constraints(PM_QOS_GPU_FREQ_MAX, &max_gpu_qos_const);
 
 	/* asv info update */
 	gpu_dvfs_update_asv_table(platform, governor_type);

@@ -33,9 +33,7 @@
 #if defined(SET_MINLOCK)
 #include "platform/mali_kbase_platform.h"
 #include "platform/gpu_dvfs_handler.h"
-#ifdef CONFIG_ARM_EXYNOS5430_BUS_DEVFREQ
 extern struct pm_qos_request exynos5_g3d_cpu_egl_min_qos;
-#endif
 #endif
 #endif
 
@@ -332,9 +330,7 @@ void kbase_destroy_context(kbase_context *kctx)
 		platform->custom_cpu_max_lock = 0;
 		platform->target_lock_type = BOOST_LOCK;
 		gpu_dvfs_handler_control(kbdev, GPU_HANDLER_DVFS_MIN_UNLOCK, 0);
-#ifdef CONFIG_ARM_EXYNOS5430_BUS_DEVFREQ
 		pm_qos_update_request(&exynos5_g3d_cpu_egl_min_qos, 0);
-#endif
 #endif
 	}
 #endif

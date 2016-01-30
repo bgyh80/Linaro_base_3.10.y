@@ -27,7 +27,6 @@
 
 #include <mali_midg_regmap.h>
 #include <linux/atomic.h>
-#include <linux/wakelock.h>
 
 /* Forward definition - see mali_kbase.h */
 struct kbase_device;
@@ -171,7 +170,6 @@ typedef struct kbase_pm_device_data {
 	 * This lock must also be held whenever the GPU is being powered on or off.
 	 */
 	struct mutex lock;
-	struct wake_lock kbase_wake_lock;
 
 	/** The policy that is currently actively controlling core availability.
 	 *
