@@ -18,74 +18,18 @@ cat << CTAG
 	}},
     { SDescription:{ description:"" }},
 	{ SPane:{
-                title:"GPU MAX/MIN Clock Control"
-        }},
-	{ SSeekBar:{
-		title:"GPU MAX Freq",
-		description:" Set Maximum GPU Freq. Stock is 600MHz.",
-                default:`cat /sys/devices/14ac0000.mali/max_clock`,
-		action:"generic /sys/devices/14ac0000.mali/max_clock",
-		values:{`for FREQ in $(cat /sys/devices/14ac0000.mali/volt_table|$BB cut -c 1-3); do
-                   echo "$FREQ:\"${FREQ} MHz\","
-                 done`}
-	}},
-    { SDescription:{ description:"" }},
-	{ SSeekBar:{
-		title:"GPU MIN Freq",
-		description:" Set Minimum GPU Freq. Stock is 160MHz.",
-                default:`cat /sys/devices/14ac0000.mali/min_clock`,
-		action:"generic /sys/devices/14ac0000.mali/min_clock",
-		values:{`for FREQ in $(cat /sys/devices/14ac0000.mali/volt_table|$BB cut -c 1-3); do
-                   echo "$FREQ:\"${FREQ} MHz\","
-                 done`}
-	}},
-    { SDescription:{ description:"" }},
-	{ SPane:{
 		title:"GPU Governor",
                 description:" Booster may give improved graphic & benchmark performance at the expense of battery."
     }},
     { SDescription:{ description:"" }},
     { SOptionList:{
-            default:`echo $($STR/actions/gpu_governor gpu_gov)`,
+            default:"Default",
             action:"gpu_governor gpu_gov",
-            values:[Default, Interactive, Static, Booster]
+            values:[Default, Static, Booster]
     }},
-    { SPane:{
-            title:"GPU Interactive governor tunables"
-    }},
-    { SDescription:{ description:"" }},
-	{ SSeekBar:{
-                title:"GPU highspeed clock",
-                description:" Boost the minimum freqency the GPU scales up to.\n",
-                default:`cat /sys/devices/14ac0000.mali/highspeed_clock`,
-                unit:"MHz",
-                action:"generic /sys/devices/14ac0000.mali/highspeed_clock",
-                values:{
-`
-                        while read FREQ VOLT; do
-                                        LABEL=$(/res/bin/busybox expr $FREQ)
-                                echo "$FREQ:\"${LABEL}MHz\", "
-                        done < /sys/devices/14ac0000.mali/volt_table
-`
-                }
+	{ SDescription:{
+		description:""
 	}},
-    { SDescription:{ description:"" }},
-	{ SSeekBar:{
-                title:"GPU highspeed load",
-                description:" Jump the minimum frequency level to highspeed_clock when the GPU utilization over this value.\n",
-                default:`cat /sys/devices/14ac0000.mali/highspeed_load`,
-				max:100, min:1, unit:"%", step:1,
-                action:"generic /sys/devices/14ac0000.mali/highspeed_load",
-	}},
-    { SDescription:{ description:"" }},
-	{ SSeekBar:{
-                title:"GPU highspeed delay",
-                description:" Jump the minimum frequency level to highspeed_clock when the GPU utilization over highspeed_load and over this delayed value.\n",
-                default:`cat /sys/devices/14ac0000.mali/highspeed_delay`,
-                max:100, min:0, unit:"ms", step:1,
-                action:"generic /sys/devices/14ac0000.mali/highspeed_delay",
-	}},
-    { SDescription:{ description:"" }},
 
     { SPane:{
             title:"GPU power policy control",
@@ -122,13 +66,6 @@ cat << CTAG
 	{ SDescription:{
 		description:""
 	}},
-`
-while read FREQ VOLT; do
-        echo '{ SSeekBar:{'
-                echo 'title:"'$FREQ' MHz", default:'$VOLT', '
-                echo 'action:"gpuvolt '${FREQ}'", unit:" mV", weight:0.001, min:700000, max:1187500, step:6250 }}, '
-done < /sys/devices/14ac0000.mali/volt_table
-`
 	{ SDescription:{
 		description:""
 	}},
