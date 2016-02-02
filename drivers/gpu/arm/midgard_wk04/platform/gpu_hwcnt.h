@@ -14,7 +14,7 @@
 #define MALI_SIZE_OF_HWCBLK 64
 
 #if SOC_NAME == 5430
-#define GPU_MAX_CLOCK_LIMIT 667
+#define GPU_MAX_CLOCK_LIMIT 600
 #endif
 
 enum HWCNT_OFFSET {
