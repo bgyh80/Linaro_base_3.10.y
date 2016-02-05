@@ -54,7 +54,7 @@ on post-fs-data
 
 # for LGU I-WLAN
 on property:sys.mobicoredaemon.enable=true
-    insmod /lib/modules/mwlan_aarp.ko
+    insmod /system/lib/modules/mwlan_aarp.ko
     chmod 0755 /system/bin/mwlan_helper
 
 # for LGU I-WLAN service

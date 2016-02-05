@@ -20,9 +20,9 @@ wbuildprop() {
 #wbuildprop wlan.wfd.hdcp disable
 
 if [ ! `$BB grep "SYSTEMLESS" /data/.supersu` ]; then
-    echo SYSTEMLESS=false>>/data/.supersu
+    echo SYSTEMLESS=true >> /data/.supersu
 else
-    $BB sed -i -e "s/SYSTEMLESS=.*/SYSTEMLESS=false/g" /data/.supersu
+    $BB sed -i -e "s/SYSTEMLESS=.*/SYSTEMLESS=true/g" /data/.supersu
 fi
 
 mkdir /system/etc/init.d

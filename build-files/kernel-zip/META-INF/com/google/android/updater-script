@@ -29,8 +29,13 @@ run_program("/tmp/script/busybox", "sh", "/tmp/script/unpackimg.sh");
 ui_print("  - Set Environment...");
 run_program("/tmp/script/busybox", "sh", "/tmp/script/set.sh");
 
+ui_print("  - extracting kernel modules...");
+delete_recursive("/system/lib/modules");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0755, 0755, "/system/lib/modules");
+ui_print("");
+
 #unmount("/system");
 #unmount("/data");
 ui_print(" ");
-ui_print("Done.");
 

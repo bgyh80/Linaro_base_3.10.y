@@ -3,6 +3,7 @@
 source ./set_env.sh
 
 rm $TMPDIR/* 2> /dev/null
+cleardir
 #make clean
 
 echo ""
@@ -18,8 +19,17 @@ if [ $BUILD_G850_TW -eq 1 ]; then
     echo -n "SEANDROIDENFORCE" >> $TMPDIR/g850tw-boot.img
 fi
 
+if [ $ADD_MODULES -eq 1 ]; then
+	for i in $(find ./ -name '*.ko'); do
+		cp -av "$i" ./build-files/kernel-zip/system/lib/modules/ >/dev/null 2>&1
+		rm -f "$i" >/dev/null 2>&1
+		echo $i
+	done;
+fi
+
 if [ $BUILD_G850_CM -eq 1 ]; then
 	cleardir $RAMDISK_CM
+	cp -rf $RAMDISK_TW/res/synapse/* $RAMDISK_CM/res/synapse/
     echo ""
     echo "------------------------ SM-G850x CM ----------------------------"
     mtp_nosec && make -j4

@@ -1,0 +1,10 @@
+#!/res/bin/busybox sh
+
+BB=/res/bin/busybox;
+INC=/data/PRIME-Kernel/bin/modules.inc
+
+if [ -e $INC ]; then
+    source $INC
+else
+	echo "0";
+fi

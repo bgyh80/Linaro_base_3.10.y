@@ -3,10 +3,6 @@
 source ./set_env.sh
 cleardir $RAMDISK_TW
 
-for i in $(find ./ -name '*.ko'); do
-	cp -av "$i" $RAMDISK_TW/lib/modules/ >/dev/null 2>&1
-done;
-
 rm $TMPDIR/* 2>/dev/null
 
 if [ ! -e ./arch/arm/boot/zImage ]; then
