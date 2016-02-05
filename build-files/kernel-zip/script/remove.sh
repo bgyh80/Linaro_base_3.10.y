@@ -10,6 +10,7 @@ if [ ! -e /data/media/0/Synapse/.do_not_remove_data ]; then
 fi
 #bb rm -f /data/su.img
 bb rm /system/xbin/uci
+bb rm /system/etc/init.d/UKM
 
 #if [ -e /system/xbin/busybox ]; then
 #    for i in $(/system/xbin/busybox --list); do
@@ -17,3 +18,5 @@ bb rm /system/xbin/uci
 #    done
 #    rm /system/xbin/busybox
 #fi;
+
+

@@ -102,6 +102,8 @@ fi
 
 bb chmod -R 0755 /res/bin
 
+bb rm /system/etc/init.d/UKM
+bb rm /system/xbin/uci
 /sbin/uci reset
 /sbin/uci
 

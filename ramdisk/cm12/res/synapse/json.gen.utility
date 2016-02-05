@@ -197,6 +197,21 @@ cat << CTAG
 		default:0,
 		action:"modules isofs",
 	}},
+	{ SSpacer:{ height:1 }},
+	{ SCheckBox:{
+		label:"CD-ROM (UDF)",
+		description:"The new file system used on mount some CD-ROMs and DVDs written in packet mode.",
+		default:$(echo "$(/res/synapse/actions/modules udf)"),
+		action:"modules udf",
+	}},
+	{ SSpacer:{ height:1 }},
+	{ SCheckBox:{
+		label:"X-Box GamePad",
+		description:"Microsoft X-Box gamepad, rumblepad & Xbox360 controller 'BigX' LED support.",
+		default:$(echo "$(/res/synapse/actions/modules xpad)"),
+		action:"modules xpad",
+	}},
+
 
 	{ SSpacer:{ height:2 }},
 
