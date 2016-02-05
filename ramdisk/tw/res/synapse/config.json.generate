@@ -26,6 +26,7 @@ cat << CTAG
       `. $STR/json.gen.wakelock`,
       `. $STR/json.gen.advanced`,
       `. $STR/json.gen.utility`
+      `. $STR/json.gen.km`
       `. $STR/json.gen.log`,
       `. $STR/json.gen.profile`,
       `. $STR/json.gen.reboot`,

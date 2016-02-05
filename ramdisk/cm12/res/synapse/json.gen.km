@@ -1,0 +1,69 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Kernel Modules", ko:"커널모듈"},
+    elements:[
+    {SLiveLabel:{
+        title:"애드온 설치 상태",
+		refresh:5000,
+        action:"live donate"
+    }},
+`
+  if [ ! -e /data/PRIME-Kernel/bin/synapse_loader212 ]; then
+    echo '
+	{ SDescription:{description:"커널모듈은 기부하신 분들께 제공되는 혜택입니다."}},
+	{ SDescription:{description:"기부는 간접적인 개발 참여 방법입니다. 이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요."}},
+	{ SButton:{
+		label:"기부로 개발에 동참하기",
+		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+	}},'
+  fi
+`
+	{ SSpacer:{ height:1 }},
+
+	{ SPane:{
+		title:"Kernel Modules",
+		description:{en:"Here you can load some kernel modules that will allow some extra functions.", ko:"커널모듈을 허용해서 새로운 디바이스 드라이버를 추가 할 수 있습니다."}
+	}},
+	{ SCheckBox:{
+		label:"CIFS",
+		description:{en:"This will allow you to use apps that can mount internal storage and publish over network. User can access data and system over network.", ko:"네트워크 상의 원격지 컴퓨터의 저장소를 로컬 폴더에 마운트하여 액세스 하거나 애플리케이션에 접근할 수 있습니다. PC의 동영상을 스트리밍 하는데 주로 쓰입니다."},
+		default:0,
+		action:"modules cifs",
+	}},
+	{ SSpacer:{ height:1 }},
+    { SCheckBox:{
+        label:"NTFS",
+		description:{en: "Microsoft Windows NTFS support with partial, but safe, write support in the NTFS driver.", ko:"마이크로소프트의 NTFS를 쓰기 모드를 포함해서 부분적으로 지원합니다.(안전합니다)"},
+		default:0,
+		action:"modules ntfs",
+	}},
+	{ SSpacer:{ height:1 }},
+	{ SCheckBox:{
+		label:"CD-ROM (ISO-9660)",
+		description:"ISO-9660 CD-ROM file system support with Microsoft Joliet CD-ROM extensions.",
+		default:0,
+		action:"modules isofs",
+	}},
+	{ SSpacer:{ height:1 }},
+	{ SCheckBox:{
+		label:"CD-ROM (UDF)",
+		description:"The new file system used on mount some CD-ROMs and DVDs written in packet mode.",
+		default:$(echo "$(/res/synapse/actions/modules udf)"),
+		action:"modules udf",
+	}},
+	{ SSpacer:{ height:1 }},
+	{ SCheckBox:{
+		label:"X-Box Gamepad",
+		description:"Microsoft X-Box gamepad, rumblepad & Xbox360 controller 'BigX' LED support.",
+		default:$(echo "$(/res/synapse/actions/modules xpad)"),
+		action:"modules xpad",
+	}},
+
+
+	{ SSpacer:{ height:2 }},
+
+    ]
+}
+CTAG
