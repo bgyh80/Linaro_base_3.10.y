@@ -88,6 +88,21 @@ struct llist_node *llist_reverse_order(struct llist_node *head)
 #define list_last_entry(ptr, type, member) \
 	list_entry((ptr)->prev, type, member)
 
+static unsigned long __reverse_ulong(unsigned char *str)
+{
+	unsigned long tmp = 0;
+	int shift = 24, idx = 0;
+
+#if BITS_PER_LONG == 64
+	shift = 56;
+#endif
+	while (shift >= 0) {
+		tmp |= (unsigned long)str[idx++] << shift;
+		shift -= BITS_PER_BYTE;
+	}
+	return tmp;
+}
+
 /*
  * __reverse_ffs is copied from include/asm-generic/bitops/__ffs.h since
  * MSB and LSB are reversed in a byte by f2fs_set_bit.
@@ -97,27 +112,31 @@ static inline unsigned long __reverse_ffs(unsigned long word)
 	int num = 0;
 
 #if BITS_PER_LONG == 64
-	if ((word & 0xffffffff) == 0) {
+	if ((word & 0xffffffff00000000UL) == 0)
 		num += 32;
+	else
 		word >>= 32;
-	}
 #endif
-	if ((word & 0xffff) == 0) {
+	if ((word & 0xffff0000) == 0)
 		num += 16;
+	else
 		word >>= 16;
-	}
-	if ((word & 0xff) == 0) {
+
+	if ((word & 0xff00) == 0)
 		num += 8;
+	else
 		word >>= 8;
-	}
+
 	if ((word & 0xf0) == 0)
 		num += 4;
 	else
 		word >>= 4;
+
 	if ((word & 0xc) == 0)
 		num += 2;
 	else
 		word >>= 2;
+
 	if ((word & 0x2) == 0)
 		num += 1;
 	return num;
@@ -128,9 +147,9 @@ static inline unsigned long __reverse_ffs(unsigned long word)
  * f2fs_set_bit makes MSB and LSB reversed in a byte.
  * @size must be integral times of unsigned long.
  * Example:
- *                             LSB <--> MSB
- *   f2fs_set_bit(0, bitmap) => 0000 0001
- *   f2fs_set_bit(7, bitmap) => 1000 0000
+ *                             MSB <--> LSB
+ *   f2fs_set_bit(0, bitmap) => 1000 0000
+ *   f2fs_set_bit(7, bitmap) => 0000 0001
  */
 static unsigned long __find_rev_next_bit(const unsigned long *addr,
 			unsigned long size, unsigned long offset)
@@ -269,11 +288,12 @@ int commit_inmem_pages(struct inode *inode, bool abort)
 				trace_f2fs_commit_inmem_page(cur->page, INMEM);
 				fio.page = cur->page;
 				err = do_write_data_page(&fio);
-				submit_bio = true;
 				if (err) {
 					unlock_page(cur->page);
 					break;
 				}
+				clear_cold_data(cur->page);
+				submit_bio = true;
 			}
 		} else {
 			ClearPageUptodate(cur->page);
@@ -2374,7 +2394,7 @@ static void discard_dirty_segmap(struct f2fs_sb_info *sbi,
 	struct dirty_seglist_info *dirty_i = DIRTY_I(sbi);
 
 	mutex_lock(&dirty_i->seglist_lock);
-	kvfree(dirty_i->dirty_segmap[dirty_type]);
+	f2fs_kvfree(dirty_i->dirty_segmap[dirty_type]);
 	dirty_i->nr_dirty[dirty_type] = 0;
 	mutex_unlock(&dirty_i->seglist_lock);
 }
@@ -2382,7 +2402,7 @@ static void discard_dirty_segmap(struct f2fs_sb_info *sbi,
 static void destroy_victim_secmap(struct f2fs_sb_info *sbi)
 {
 	struct dirty_seglist_info *dirty_i = DIRTY_I(sbi);
-	kvfree(dirty_i->victim_secmap);
+	f2fs_kvfree(dirty_i->victim_secmap);
 }
 
 static void destroy_dirty_segmap(struct f2fs_sb_info *sbi)
@@ -2421,8 +2441,8 @@ static void destroy_free_segmap(struct f2fs_sb_info *sbi)
 	if (!free_i)
 		return;
 	SM_I(sbi)->free_info = NULL;
-	kvfree(free_i->free_segmap);
-	kvfree(free_i->free_secmap);
+	f2fs_kvfree(free_i->free_segmap);
+	f2fs_kvfree(free_i->free_secmap);
 	kfree(free_i);
 }
 
@@ -2443,9 +2463,9 @@ static void destroy_sit_info(struct f2fs_sb_info *sbi)
 	}
 	kfree(sit_i->tmp_map);
 
-	kvfree(sit_i->sentries);
-	kvfree(sit_i->sec_entries);
-	kvfree(sit_i->dirty_sentries_bitmap);
+	f2fs_kvfree(sit_i->sentries);
+	f2fs_kvfree(sit_i->sec_entries);
+	f2fs_kvfree(sit_i->dirty_sentries_bitmap);
 
 	SM_I(sbi)->sit_info = NULL;
 	kfree(sit_i->sit_bitmap);

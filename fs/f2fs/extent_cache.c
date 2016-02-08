@@ -629,7 +629,7 @@ free_node:
 			}
 
 			if (node_cnt + tree_cnt >= nr_shrink)
-				break;
+				goto unlock_out;
 		}
 	}
 unlock_out:
