@@ -39,7 +39,7 @@ if [ $BUILD_G850_CM -eq 1 ]; then
 fi
 
 if [ $BUILD_G850_TWRP -eq 1 ]; then
-    TWRP=./twrp
+    TWRP=./twrp3
 	cleardir $TWRP
     echo ""
     echo "---------------------- build TWRP -----------------------"
@@ -47,8 +47,8 @@ if [ $BUILD_G850_TWRP -eq 1 ]; then
     ./utility/mkbootfs $TWRP | $COMPRESS > $TMPDIR/ramdisk.img
     ./utility/mkbootimg --base 0x10000000 --pagesize 2048 --kernel ./arch/arm/boot/zImage --ramdisk $TMPDIR/ramdisk.img --dt ./utility/$DTB -o $TMPDIR/recovery.img
     echo -n "SEANDROIDENFORCE" >> $TMPDIR/recovery.img
-    cd $TMPDIR && tar -cvf twrp-2.8.7.0-$CDATE-slte.tar recovery.img >/dev/null 2>&1 && cd $CDIR
-    mv -f $TMPDIR/twrp-2.8.7.0-$CDATE-slte.tar ../HostPC/Kernel/
+    cd $TMPDIR && tar -cvf twrp-3.0.0.0-$CDATE-slte.tar recovery.img >/dev/null 2>&1 && cd $CDIR
+    mv -f $TMPDIR/twrp-3.0.0.0-$CDATE-slte.tar ../HostPC/Kernel/
     mtp_sec
 fi
 
