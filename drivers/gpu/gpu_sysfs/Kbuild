@@ -40,6 +40,21 @@ endif
 # End ------ ARM Midgard-WK04 device
 # ==================================
 
+# ==================================
+# Start ---- ARM Midgard-R5P0 device
+ifeq ($(CONFIG_MALI_MIDGARD_R5P0_06REL0),y)
+
+# --- For EXYNOS5430(MaliT628) Device. 
+ifeq ($(CONFIG_SOC_EXYNOS5430),y)
+gpu_sysfs-y +=	gpu_sysfs_target_exynos5430.o 
+# Verify: target specific file is defined.
+GPU_SYSFS_TARGET_FILE_DEFINED=1
+endif
+
+endif
+# End ------ ARM Midgard-R5P0 device
+# ==================================
+
 
 # ==================================
 # Start ---- ARM Midgard device ----
