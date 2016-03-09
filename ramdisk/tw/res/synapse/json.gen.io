@@ -1,5 +1,5 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"Storage", ko:"저장소"},
@@ -40,16 +40,6 @@ cat << CTAG
 	{ SDescription:{
 		description:" "
 	}},
-   `if [ -e "/sys/block/mmcblk1" ]; then
-        $STR/json.gen.io2
-    else
-        echo '{ SDescription:{
-        description:" 외장 SD카드를 장착했음에도 이 메세지가 나온다면 재부팅하거나 재시작 메뉴에서 '시냅스 재시작'을 눌러주세요."}},
-        { SDescription:{
-            description:" "
-        }},
-        '
-    fi`
 
 	{ SPane:{
 		title:{en:"Dynamic FSync",ko:"Dynamic FSync (동적 파일 동기화)"}

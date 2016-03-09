@@ -1,13 +1,27 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:HMP,
     elements:[
-		{ SDescription:{
-			description:"big.LITTLE의 가장 강력한 이용 모델은 동시에 모든 물리적 코어의 사용을 가능하게 하는 '이종 멀티 프로세싱(HMP)'입니다. HMP는 연산이 많은 스레드에는 big코어를 할당하고 연산이 적은 스레드에는 LITTLE코어를 할당합니다."
+`
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
+	{ SButton:{
+		label:"기부로 개발에 동참하기",
+		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+	}},
+	{ SSpacer:{ height:2 }},'
+  fi
+`
+
+	    { SPane:{
+		    title:"HMP",
+			description:"big.LITTLE의 가장 강력한 이용 모델은 동시에 모든 물리적 코어의 사용을 가능하게 하는 '이종 멀티 프로세싱(HMP)'입니다. HMP는 연산이 많은 스레드에는 big코어를 할당하고 연산이 적은 스레드에는 LITTLE코어를 할당합니다.\n"
 		}},
-        { SDescription:{description:""}},
     
         { SPane:{
                 title:"HMP Little packing control",
@@ -15,13 +29,13 @@ cat << CTAG
         }},
         { SOptionList:{
                 default:`cat /sys/kernel/hmp/packing_enable`,
-                action:"generic /sys/kernel/hmp/packing_enable",
+                action:"hmp /sys/kernel/hmp/packing_enable",
                 values:{
                     "0":"Disabled",
                     "1":"Enabled"
                 },
         }},
-		{ SDescription:{description:""}},
+		{ SSpacer:{ height:1 }},
 
         { SSeekBar:{
             title:{en:"HMP packing limit", ko:"HMP packing 제한"},
@@ -29,60 +43,60 @@ cat << CTAG
             max:1500,
             min:14, step:1,
             default:`cat /sys/kernel/hmp/packing_limit`,
-            action:"generic /sys/kernel/hmp/packing_limit"
+            action:"hmp /sys/kernel/hmp/packing_limit"
         }},
 
 
-        { SDescription:{description:" "}},
+		{ SSpacer:{ height:1 }},
 
         { SPane:{
             title:"HMP 스케줄링 제어",
             description:" HMP 스케줄링의 제한점을 조절하면 big코어의 사용률에 영향을 주어 배터리와 성능 사이에서 사용자가 직접 조율 가능합니다.",
         }},
-        { SDescription:{description:" "}},
+		{ SSpacer:{ height:1 }},
 
         { SSeekBar:{
             title:{en:"Down threshold", ko:"하향 제한점"},
             description:{en:"Less value, more use of 'big core' which makes better FPS(frame per second) in game and more value, less use of 'big core' which makes battery efficiency better. Default value is 256.", ko:"값이 낮을수록 big 코어를 더 오래 사용하여 게임 성능(screen fps)이 좋아지고 높을수록 big 코어 사용 시간이 짧아져 배터리 효율이 좋아집니다. 기본값은 256입니다."},
             max:1000, min:64, step:1,
             default:`cat /sys/kernel/hmp/down_threshold`,
-            action:"generic /sys/kernel/hmp/down_threshold",
+            action:"hmp /sys/kernel/hmp/down_threshold",
         }},
         { SSeekBar:{
             title:{en:"Up threshold", ko:"상향 제한점"},
             description:{en:"Less value use 'big core' more frequently, more value use 'big core' less frequently. So the latter makes battery efficiency better. If you set this value very high, some specific apps will not use any of 'big core'(0%). So the UI performance could be bad. If you want very smooth internet browser scroll, set value under 600. Default value is 650.", ko:"값이 낮을수록 big코어를 더 자주 사용하고 높을수록 더 적은 횟수로 사용하여 배터리 효율이 좋아집니다. 매우 높게 설정하면 특정 앱의 경우 big 코어를 전혀 사용하지 않아(0%) UI 성능이 나빠집니다. 부드러운 인터넷 스크롤을 원하면 600 이하로 설정하세요. 기본값은 650입니다."},
             max:1000, min:64, step:1,
             default:`cat /sys/kernel/hmp/up_threshold`,
-            action:"generic /sys/kernel/hmp/up_threshold",
+            action:"hmp /sys/kernel/hmp/up_threshold",
         }},
-        { SDescription:{description:" "}},
+		{ SSpacer:{ height:1 }},
 
         { SPane:{
-            title:"HMP Power Migration (experimental)",
-            description:{en:"Refactoring HMP Scheduling by power efficiency. Not recommend in WQHD resolution.﻿", ko:" 전력 효율에 따라 HMP 스케줄링을 리팩토링합니다.\n! 테스트 용도로만 사용하세요. (실험적 기능)"},
+            title:"HMP Power Migration",
+            description:{en:"Refactoring HMP Scheduling by power efficiency.", ko:" 전력 효율에 따라 HMP 스케줄링을 리팩토링합니다."},
         }},
 		{ SCheckBox:{
 			label:"Enable power migration",
        	 	default:`cat /sys/kernel/hmp/power_migration`,
-			action:"generic /sys/kernel/hmp/power_migration"
+			action:"hmp /sys/kernel/hmp/power_migration"
 		}},
-        { SDescription:{description:" "}},
+        { SSpacer:{ height:1 }},
 
         { SSeekBar:{
             title:"up_perf_threshold",
             max:1000, min:1, step:1,
             default:`cat /sys/kernel/hmp/up_perf_threshold`,
-            action:"generic /sys/kernel/hmp/up_perf_threshold"
+            action:"hmp /sys/kernel/hmp/up_perf_threshold"
         }},
         { SSeekBar:{
             title:"up_power_threshold",
             max:1000, min:1, step:1,
             default:`cat /sys/kernel/hmp/up_power_threshold`,
-            action:"generic /sys/kernel/hmp/up_power_threshold"
+            action:"hmp /sys/kernel/hmp/up_power_threshold"
         }},
 
-        { SDescription:{description:" "}},
-        { SDescription:{description:" "}},
+        { SSpacer:{ height:1 }},
+        { SSpacer:{ height:1 }},
     ]
 }
 CTAG

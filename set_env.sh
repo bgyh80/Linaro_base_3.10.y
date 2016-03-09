@@ -8,7 +8,8 @@ export CROSS_COMPILE=/home/dq/dev/UBERTC-arm-eabi-5.3/bin/arm-eabi-
 TMPDIR=./build-files/tmp
 CDATE=$(date +"%Y%m%d")
 CDIR=$PWD
-KERNEL_VERSION=$(cat .config | grep -m 1 "CONFIG_LOCALVERSION" | sed s/[^0-9.]//g)
+KERNEL_VERSION=$(grep -m 1 "CONFIG_LOCALVERSION" .config | sed s/\"//g)
+KERNEL_VERSION=${KERNEL_VERSION##*-v}
 KERNEL_NAME="G850-PRIME_Kernel-v$KERNEL_VERSION.zip"
 COMPRESS="gzip -9"
 
@@ -17,7 +18,7 @@ ADD_MODULES=1
 RAMDISK_TW=./ramdisk/tw
 RAMDISK_CM=./ramdisk/cm12
 BUILD_G850_TW=1
-BUILD_G850_CM=1
+BUILD_G850_CM=0
 BUILD_G850_TWRP=0
 
 # echo "RAMDISK: $RAMDISK"

@@ -1,26 +1,22 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"Kernel Modules", ko:"커널모듈"},
     elements:[
-    {SLiveLabel:{
-        title:"애드온 설치 상태",
-		refresh:5000,
-        action:"live donate"
-    }},
 `
-  if [ ! -e /data/PRIME-Kernel/bin/synapse_loader212 ]; then
-    echo '
-	{ SDescription:{description:"커널모듈은 기부하신 분들께 제공되는 혜택입니다."}},
-	{ SDescription:{description:"기부는 간접적인 개발 참여 방법입니다. 이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요."}},
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
 	{ SButton:{
 		label:"기부로 개발에 동참하기",
 		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
-	}},'
+	}},
+	{ SSpacer:{ height:2 }},'
   fi
 `
-	{ SSpacer:{ height:1 }},
 
 	{ SPane:{
 		title:"Kernel Modules",

@@ -1,26 +1,22 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"Utility", ko:"유틸리티"},
     elements:[
-    {SLiveLabel:{
-        title:"애드온 설치 상태",
-		refresh:5000,
-        action:"live donate"
-    }},
 `
-  if [ ! -e /data/PRIME-Kernel/bin/synapse_loader212 ]; then
-    echo '
-	{ SDescription:{description:"유틸리티는 기부하신 분들께 제공되는 혜택입니다."}},
-	{ SDescription:{description:"기부는 간접적인 개발 참여 방법입니다. 이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요."}},
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
 	{ SButton:{
 		label:"기부로 개발에 동참하기",
 		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
-	}},'
+	}},
+	{ SSpacer:{ height:2 }},'
   fi
 `
-	{ SSpacer:{ height:1 }},
 
     { SPane:{
 		title:"시냅스 로더",
@@ -142,16 +138,6 @@ cat << CTAG
 	}},
 	{ SSpacer:{ height:1 }},
 
- 	{ SPane:{
-		title:"프라이빗 모드 패치",
-        description:" 커스텀 상태의 디바이스에서 프라이빗 모드가 작동하도록 수정합니다.\n이 패치는 180Kbyte의 데이터 다운로드가 발생합니다.\n",
-    }},
-	{ SButton:{
-		label:"프라이빗 모드 패치 적용 / 취소",
-		action:"priv patch"
-	}},
-	{ SSpacer:{ height:1 }},
-	
  	{ SPane:{
 		title:"Busybox Install/Remove",
         description:" Busybox는 루팅 권한을 요구하는 대부분의 앱에서 필요로 하지만 최근의 금융앱과 일부 게임에서는 루팅 검사 때 Busybox 설치 유무도 확인하고 있습니다.\n",

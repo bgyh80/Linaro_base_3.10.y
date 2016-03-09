@@ -79,13 +79,12 @@ echo Y > /sys/module/mmc_core/parameters/use_spi_crc
 echo 0 > /proc/sys/kernel/randomize_va_space
 echo 0 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
 echo 1 > /sys/kernel/logger_mode/logger_mode
-echo 720 > /sys/kernel/hmp/up_perf_threshold
 echo 500000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 echo 1300000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo 800000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
 echo 1800000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
-
-echo 30 > /sys/module/zswap/parameters/max_pool_percent
+echo 80 > /sys/module/zswap/parameters/max_pool_percent
+echo 40960 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
 
 echo "1 1200000 1200000 0 0 1" > /sys/class/input_booster/key/freq
 echo "1 0 500 0" > /sys/class/input_booster/key/time

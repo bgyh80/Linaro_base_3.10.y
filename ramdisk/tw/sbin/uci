@@ -1,17 +1,6 @@
 #!/system/bin/sh
 
-BB=/res/bin/busybox
-
-if [ -e /data/PRIME-Kernel/.here ] && [ -e /res/synapse/config.json.generate ]; then
-	STR=/data/PRIME-Kernel/synapse
-	chmod -R 0755 /data/PRIME-Kernel/synapse
-else
-	STR=/res/synapse
-fi
-CONFIG_JSON=$STR/config.json
-ACTION=$STR/actions/
-ACTION_SCRIPTS=$STR/actions/
-
+source /res/synapse/config.general
 mount -t rootfs -o rw,remount rootfs
 
 if [ ! -e /res/synapse/settings ]; then
@@ -44,13 +33,13 @@ initial_prof /res/synapse/settings/tweak_touch 0
 initial_prof /res/synapse/settings/profile none
 initial_prof /res/synapse/settings/vnswap0 1
 initial_prof /res/synapse/settings/bbins_xbin 0
+initial_prof /res/synapse/settings/synapse_do_not_clear 0
 
 chmod -R 0755 /res/synapse
-chmod -R 0755 /data/PRIME-Kernel/synapse
-chmod -R 0755 /sbin
+#chmod -R 0755 /sbin
 
 if [ ! -f $CONFIG_JSON ]; then
-	source $STR/config.json.generate > $CONFIG_JSON
+	source $PRIME/config.json.generate > $CONFIG_JSON
 fi
 
 case "${1}" in
@@ -61,5 +50,5 @@ case "${1}" in
   actionpath)
 	echo $ACTION_SCRIPTS;;
   reset)
-   rm -f $STR/config.json;
+   rm -f $PRIME/config.json;
 esac;

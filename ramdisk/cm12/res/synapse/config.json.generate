@@ -1,37 +1,30 @@
 #!/res/bin/busybox sh
 
-BB=/res/bin/busybox
-SEC_BP=/sys/devices/battery.26/unstable_power_detection
-ARIZONA_CTL=/sys/class/misc/arizona_control/hp_left_dvol
+source /res/synapse/config.general
 
 cat << CTAG
 
 {
     sections: [
-     `. $STR/json.gen.about`,
-     `. $STR/json.gen.cpustats`,
-      `. $STR/json.gen.cpufreq`,
-      `. $STR/json.gen.cpuvolt`,
-      `. $STR/json.gen.cpugov`,
-      `. $STR/json.gen.hmp`
-      `. $STR/json.gen.gpu`,
-      `. $STR/json.gen.bus`,
-      `. $STR/json.gen.io`,
-      `. $STR/json.gen.tmu2`,
-      `. $STR/json.gen.memory`,
-      `. $STR/json.gen.led2`,
-      `[ ! -e $SEC_BP ] && . $STR/json.gen.charge
-       [ -e $SEC_BP ] && . $STR/json.gen.charge.sec`,
-      `[ -e $ARIZONA_CTL ] && . $STR/json.gen.audio`,
-      `. $STR/json.gen.wakelock`,
-      `. $STR/json.gen.advanced`,
-      `. $STR/json.gen.utility`
-      `. $STR/json.gen.km`
-      `. $STR/json.gen.log`,
-      `. $STR/json.gen.profile`,
-      `. $STR/json.gen.reboot`,
+	`. $PRIME/json.gen.about`,
+    `. $PRIME/json.gen.cpustats`,
+	`. $PRIME/json.gen.cpufreq`,
+	`. $PRIME/json.gen.cpuvolt`,
+	`. $PRIME/json.gen.cpugov`,
+	`. $PRIME/json.gen.gpu`,
+	`. $PRIME/json.gen.bus`,
+	`. $PRIME/json.gen.io`,
+	`. $PRIME/json.gen.hmp`,
+	`. $PRIME/json.gen.memory`,
+	`. $PRIME/json.gen.charge.sec`,
+	`. $PRIME/json.gen.wakelock`,
+	`. $PRIME/json.gen.advanced`,
+	`. $PRIME/json.gen.km`,
+	`. $PRIME/json.gen.utility`,
+	`. $PRIME/json.gen.log`,
+	`. $PRIME/json.gen.profile`,
+	`. $PRIME/json.gen.reboot`,
     ]
-
 }
 CTAG
 

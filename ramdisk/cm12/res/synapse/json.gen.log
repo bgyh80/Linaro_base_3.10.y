@@ -1,5 +1,5 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"LOGS", ko:"로그"},

@@ -1,22 +1,40 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:GPU,
     elements:[
-        { SPane:{
-                title:"GPU state"
-        }},
-        { SLiveLabel:{
-                title:"GPU live frequency",
-                action:"live gpu"
-        }},
+    { SPane:{
+            title:"GPU state"
+    }},
+    { SLiveLabel:{
+            title:"GPU live frequency",
+            action:"live gpu"
+    }},
 	{ SLiveLabel:{
                 title:"Time in States",
 		refresh:2500,
 		action:"live LiveGPUTime 0 8"
 	}},
-    { SDescription:{ description:"" }},
+	{ SSpacer:{ height:1 }},
+
+	{ SPane:{ 
+		title:{en:"GPU Thermal Control", ko:"GPU 발열 제어"},
+		description:{en:" In this section can control GPU temperature throttle mechanism at your OWN RISK!", ko:"GPU 온도 제어 메카니즘을 제어합니다.\n<주의!> 본인 책임하에 변경하세요."},
+	}},
+	{ SSpacer:{ height:1 }},
+	{ SOptionList:{
+		title:"On/Off GPU Thermal Manager(DVFS)",
+		description:"",
+                default:`cat /sys/devices/14ac0000.mali/tmu`,
+		action:"generic /sys/devices/14ac0000.mali/tmu",
+		values:{
+		   	"0":"Disabled",
+		   	"1":"Enabled"
+		},
+	}},
+	{ SSpacer:{ height:1 }},
+
 	{ SPane:{
 		title:"GPU Governor",
                 description:" Booster may give improved graphic & benchmark performance at the expense of battery."

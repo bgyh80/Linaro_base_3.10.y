@@ -1,9 +1,22 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"Wakelock", ko:"웨이크락"},
     elements:[
+`
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
+	{ SButton:{
+		label:"기부로 개발에 동참하기",
+		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+	}},
+	{ SSpacer:{ height:2 }},'
+  fi
+`
 
 	{ SPane:{
         title:{en:"Wireless(Wi-Fi) wakelock timeout control", ko:"무선랜(Wi-Fi) 웨이크락 지연시간 제어"},
@@ -15,7 +28,7 @@ cat << CTAG
             max:8,
             step:1,
             default:`cat /sys/module/dhd/parameters/wl_divide`,
-            action:"generic /sys/module/dhd/parameters/wl_divide"
+            action:"hmp /sys/module/dhd/parameters/wl_divide"
 	    }},
 	{ SSpacer:{ height:1 }},
 
@@ -28,35 +41,35 @@ cat << CTAG
 	{ SCheckBox:{
 		label:"SensorHub",
 		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_sensorhub_ws",
+		action:"hmp /sys/module/wakeup/parameters/enable_sensorhub_ws",
 	}},
 	{ SSpacer:{ height:1 }},
 
 	{ SCheckBox:{
 		label:"SSP",
 		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_ssp_ws",
+		action:"hmp /sys/module/wakeup/parameters/enable_ssp_ws",
 	}},
 	{ SSpacer:{ height:1 }},
 
 	{ SCheckBox:{
 		label:"lli_pm",
 		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_lli_pm_ws",
+		action:"hmp /sys/module/wakeup/parameters/enable_lli_pm_ws",
 	}},
 	{ SSpacer:{ height:1 }},
 
 	{ SCheckBox:{
 		label:"radio-interface",
 		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_radio_interface_ws",
+		action:"hmp /sys/module/wakeup/parameters/enable_radio_interface_ws",
 	}},
 	{ SSpacer:{ height:1 }},
 
 	{ SCheckBox:{
 		label:"umts_ipc0",
 		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_umts_ipc0_ws",
+		action:"hmp /sys/module/wakeup/parameters/enable_umts_ipc0_ws",
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -64,7 +77,7 @@ cat << CTAG
 		label:"PowerManagerService.WakeLocks",
 		description:"주의. 실험적인 항목입니다.",
 		default:1,
-		action:"generic /sys/module/wakeup/parameters/enable_power_manager_service_ws",
+		action:"hmp /sys/module/wakeup/parameters/enable_power_manager_service_ws",
 	}},
 
 	{ SSpacer:{ height:2 }},

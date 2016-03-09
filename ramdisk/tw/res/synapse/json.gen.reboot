@@ -1,5 +1,5 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"Restart", ko:"재시작"},

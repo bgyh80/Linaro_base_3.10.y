@@ -25,37 +25,49 @@ if [ $carrier == "L" ]; then
 fi
 
 # Configure interactive
+echo 40000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time
+echo 75 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
+echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_slack
+echo 1000000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq
+echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate
+echo 39000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay
+echo 40000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/boostpulse_duration
+echo 84 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load
+echo 99000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time
+echo 20000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate
+echo 20000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_slack
+echo 1200000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq
+echo 75 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load
+echo "60 1300000:63 1500000:65 1900000:70" > /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads
+echo 19000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay
+echo 40000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/boostpulse_duration
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy
 
 # Configure cafactive
 echo cafactive > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 echo cafactive > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
-echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/timer_rate
 echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/timer_slack
 echo 40000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/min_sample_time
-echo 900000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/hispeed_freq
-echo 85 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/go_hispeed_load
 echo 75 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/target_loads
+echo 900000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/hispeed_freq
+echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/timer_rate
 echo 19000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/above_hispeed_delay
 echo 40000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/boostpulse_duration
+echo 85 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/go_hispeed_load
 echo 20000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/timer_rate
 echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/timer_slack
 echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/min_sample_time
 echo 1200000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/hispeed_freq
-echo 75 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/go_hispeed_load
-echo "90" > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/target_loads
-echo "20000" > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/above_hispeed_delay
+echo "60 1300000:63 1500000:65 1900000:70" > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/target_loads
+echo 19000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/above_hispeed_delay
 echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/boostpulse_duration
+echo 75 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/go_hispeed_load
 echo 100000 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/max_freq_hysteresis
 echo 100000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/max_freq_hysteresis
-
-# io_is_busy
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/io_is_busy
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/io_is_busy
 
-#echo interactive > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-#echo interactive > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
 
 # fix some kernel value
 
@@ -67,13 +79,12 @@ echo Y > /sys/module/mmc_core/parameters/use_spi_crc
 echo 0 > /proc/sys/kernel/randomize_va_space
 echo 0 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
 echo 1 > /sys/kernel/logger_mode/logger_mode
-echo 720 > /sys/kernel/hmp/up_perf_threshold
 echo 500000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 echo 1300000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo 800000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
 echo 1800000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
-
-echo 30 > /sys/module/zswap/parameters/max_pool_percent
+echo 80 > /sys/module/zswap/parameters/max_pool_percent
+echo 40960 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
 
 echo "1 1200000 1200000 0 0 1" > /sys/class/input_booster/key/freq
 echo "1 0 500 0" > /sys/class/input_booster/key/time

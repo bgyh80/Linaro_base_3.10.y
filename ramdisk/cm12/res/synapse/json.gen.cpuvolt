@@ -1,23 +1,30 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"CPU Volt", ko: "CPU 전압"},
     elements:[
-	{ SDescription:{description:""}},
-	{SDescription:{
-		description:"경고! 전압조절은 시스템 불안정과 기기 손상 위험이 있습니다."
+`
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
+	{ SButton:{
+		label:"기부로 개발에 동참하기",
+		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
 	}},
-	{ SDescription:{description:""}},
-	{ SPane:{
-		title:"CPU 전압조절",
-        }},
-{ SDescription:{description:"전압을 낮추면 CPU에 공급되는 전력이 감소합니다.\n오버클럭 시 안정성을 위해서는 전압을 올려야합니다.\n낮은 전압 설정은 시스템을 불안정하게 하고 프리징을 일으킬 수 있습니다."}},
+	{ SSpacer:{ height:2 }},'
+  fi
+`
 
-	{ SDescription:{
-		description:""
-	}},
-        { STitleBar:{ title:"A15 빅 코어" }},
+	{ SPane:{
+		title:"주의사항",
+		description:"경고! 전압조절은 시스템 불안정과 기기 손상의 위험이 있습니다.\n전압을 낮추면 기기에 공급되는 전력이 감소합니다.\n오버클럭 시 안정성을 위해서는 전압을 올려야합니다.\n낮은 전압 설정은 시스템을 불안정과 프리징을 유발할 수 있으며, 성능(벤치마크 점수) 저하의 원인이 됩니다.",
+    }},
+	{ SSpacer:{ height:1 }},
+
+    { STitleBar:{ title:"A15 빅 코어" }},
 `
 while read FREQ VOLT; do
 LABEL=$(/res/bin/busybox expr $FREQ / 1000)

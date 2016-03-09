@@ -1,10 +1,24 @@
 #!/res/bin/busybox sh
 P=/sys/devices/battery.26
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"Power", ko:"전원"},
     elements:[
+`
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
+	{ SButton:{
+		label:"기부로 개발에 동참하기",
+		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+	}},
+	{ SSpacer:{ height:2 }},'
+  fi
+`
+
 	{ SPane:{ 
 		title:{en:"Status", ko:"상태"},
 	}},
@@ -25,7 +39,7 @@ cat << CTAG
 		description:{ko:"해제하면 충전회로에 설계된 불안정성 검사를 무시합니다. 배터리 또는 충전기와 기기의 손상 위험이 있으니 신중히 결정하세요.", en:"If disabled, the charger chip will ignore unstable currents. Use at risk of your charger or charging ports. Unstable power detection will reduce the input current until a stable voltage from the power source is achieved."},
 		label:{ko:"불안정성 검사 허용", en:"Unstable power detection"},
 		default:`cat $P/unstable_power_detection`,
-                action:"generic $P/unstable_power_detection"
+                action:"hmp $P/unstable_power_detection"
 	}},
 	{ SDescription:{
 		description:""
@@ -45,14 +59,14 @@ cat << CTAG
 		title:"AC/Mains Input Current",
 		min:100, max:2100, unit:"mA", step:50,
 		default:`cat $P/ac_input`,
-                action:"generic $P/ac_input"
+                action:"hmp $P/ac_input"
 	}},
 	{ SSeekBar:{
 		title:"AC/Mains Charge Current",
 		description:"AC or mains charge current supplied to battery during charging.",
 		min:100, max:2100, unit:"mA", step:50,
 		default:`cat $P/ac_charge`,
-                action:"generic $P/ac_charge"
+                action:"hmp $P/ac_charge"
 	}},
 	{ SDescription:{
 		description:"Input and charging current are limited to certain maximas if the screen is turned on to avoid elevated heat generation. Normal charging limits are applied when the screen is off."
@@ -62,13 +76,13 @@ cat << CTAG
 		title:"AC/Mains Input Current (Screen-on)",
 		min:400, max:3000, unit:"mA", step:50,
 		default:`cat $P/siop_input_limit`,
-                action:"generic $P/siop_input_limit"
+                action:"hmp $P/siop_input_limit"
 	}},
 	{ SSeekBar:{
 		title:"AC/Mains Charge Current (Screen-on)",
 		min:400, max:3000, unit:"mA", step:50,
 		default:`cat $P/siop_charge_limit`,
-                action:"generic $P/siop_charge_limit"
+                action:"hmp $P/siop_charge_limit"
 	}},
 
 	{ STitleBar:{ 
@@ -79,13 +93,13 @@ cat << CTAG
 		title:"SDP Input Current",
 		min:400, max:1500, unit:"mA", step:10,
 		default:`cat $P/sdp_input`,
-        action:"generic $P/sdp_input"
+        action:"hmp $P/sdp_input"
 	}},
 	{ SSeekBar:{
 		title:"SDP Charge Current",
 		min:400, max:1500, unit:"mA", step:10,
 		default:`cat $P/sdp_charge`,
-        action:"generic $P/sdp_charge"
+        action:"hmp $P/sdp_charge"
 	}},
 	{ STitleBar:{ 
 		title:"Dedicated Charging Port",
@@ -95,13 +109,13 @@ cat << CTAG
 		title:"DCP Input Current",
 		min:400, max:2000, unit:"mA", step:50,
 		default:`cat $P/dcp_input`,
-        action:"generic $P/dcp_input"
+        action:"hmp $P/dcp_input"
 	}},
 		{ SSeekBar:{
 		title:"DCP Charge Current",
 		min:400, max:2000, unit:"mA", step:50,
 		default:`cat $P/dcp_charge`,
-        action:"generic $P/dcp_charge"
+        action:"hmp $P/dcp_charge"
 	}},
 
 	{ STitleBar:{ 
@@ -112,13 +126,13 @@ cat << CTAG
 		title:"CDP Input Current",
 		min:400, max:1500, unit:"mA", step:50,
 		default:`cat $P/cdp_input`,
-        action:"generic $P/cdp_input"
+        action:"hmp $P/cdp_input"
 	}},
 		{ SSeekBar:{
 		title:"CDP Charge Current",
 		min:400, max:1500, unit:"mA", step:50,
 		default:`cat $P/cdp_charge`,
-        action:"generic $P/cdp_charge"
+        action:"hmp $P/cdp_charge"
 	}},
 
 	{ STitleBar:{ 
@@ -129,13 +143,13 @@ cat << CTAG
 		title:"ACA Input Current",
 		min:100, max:1000, unit:"mA", step:10,
 		default:`cat $P/aca_input`,
-        action:"generic $P/aca_input"
+        action:"hmp $P/aca_input"
 	}},
 		{ SSeekBar:{
 		title:"ACA Charge Current",
 		min:100, max:1000, unit:"mA", step:10,
 		default:`cat $P/aca_charge`,
-        action:"generic $P/aca_charge"
+        action:"hmp $P/aca_charge"
 	}},
 	
 	{ STitleBar:{ 
@@ -146,13 +160,13 @@ cat << CTAG
 		title:"Car Input Limit",
 		min:0, max:2000, unit:"mA", step:50,
 		default:`cat $P/car_input`,
-        action:"generic $P/car_input"
+        action:"hmp $P/car_input"
 	}},
 		{ SSeekBar:{
 		title:"Car Charge Limit",
 		min:0, max:2000, unit:"mA", step:50,
 		default:`cat $P/car_charge`,
-        action:"generic $P/car_charge"
+        action:"hmp $P/car_charge"
 	}},
 
 	{ STitleBar:{ 
@@ -163,13 +177,13 @@ cat << CTAG
                 title:"Wireless Input Limit",
                 min:100, max:1500, unit:"mA", step:20,
                 default:`cat $P/wc_input`,
-                action:"generic $P/wc_input"
+                action:"hmp $P/wc_input"
         }},
 	        { SSeekBar:{
                 title:"Wireless Charge Limit",
                 min:100, max:1500, unit:"mA", step:20,
                 default:`cat $P/wc_charge`,
-                action:"generic $P/wc_charge"
+                action:"hmp $P/wc_charge"
         }},
 		
 		{ STitleBar:{ 
@@ -181,50 +195,50 @@ cat << CTAG
 		title:"500mA MHL Class Input limit",
 		min:300, max:1000, unit:"mA", step:50,
 		default:`cat $P/mhl_500_input`,
-        action:"generic $P/mhl_500_input"
+        action:"hmp $P/mhl_500_input"
 	}},
 		{ SSeekBar:{
 		title:"500mA MHL Class charge limit",
 		min:300, max:1000, unit:"mA", step:50,
 		default:`cat $P/mhl_500_charge`,
-        action:"generic $P/mhl_500_charge"
+        action:"hmp $P/mhl_500_charge"
 	}},
 
 	{ SSeekBar:{
 		title:"900mA MHL Class Input limit",
 		min:300, max:1500, unit:"mA", step:50,
 		default:`cat $P/mhl_900_input`,
-        action:"generic $P/mhl_900_input"
+        action:"hmp $P/mhl_900_input"
 	}},
 		{ SSeekBar:{
 		title:"900mA MHL Class charge limit",
 		min:300, max:1500, unit:"mA", step:50,
 		default:`cat $P/mhl_900_charge`,
-        action:"generic $P/mhl_900_charge"
+        action:"hmp $P/mhl_900_charge"
 	}},
 	{ SSeekBar:{
 		title:"1500mA MHL Class Input limit",
 		min:300, max:2000, unit:"mA", step:50,
 		default:`cat $P/mhl_1500_input`,
-        action:"generic $P/mhl_1500_input"
+        action:"hmp $P/mhl_1500_input"
 	}},
 		{ SSeekBar:{
 		title:"1500mA MHL Class Charge limit",
 		min:300, max:2000, unit:"mA", step:50,
 		default:`cat $P/mhl_1500_charge`,
-        action:"generic $P/mhl_1500_charge"
+        action:"hmp $P/mhl_1500_charge"
 	}},
 	{ SSeekBar:{
 		title:"USB powered MHL adapter Input limit",
 		min:200, max:2000, unit:"mA", step:50,
 		default:`cat $P/mhl_usb_input`,
-        action:"generic $P/mhl_usb_input"
+        action:"hmp $P/mhl_usb_input"
 	}},
 		{ SSeekBar:{
 		title:"USB powered MHL adapter Charge limit",
 		min:200, max:2000, unit:"mA", step:50,
 		default:`cat $P/mhl_usb_charge`,
-        action:"generic $P/mhl_usb_charge"
+        action:"hmp $P/mhl_usb_charge"
 	}},
 
 	{ SDescription:{description:" "}},

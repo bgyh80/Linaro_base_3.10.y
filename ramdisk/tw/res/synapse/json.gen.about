@@ -1,5 +1,5 @@
 #!/res/bin/busybox sh
-
+LOADER_VER_PATH=/data/PRIME-Kernel/synapse_loader_ver
 cat << CTAG
 {
     name:"About",
@@ -25,27 +25,29 @@ cat << CTAG
 		   label:{en:"change log", ko:"변경내역 확인 / 다운로드"},
 		   action:"about changelog"
 		}},
-`
-if [ -e /sdcard/Synapse/betatester ]; then
-GET_TESTVER="\`curl http://enfree.com/stockrider/?page=allow_tester_download\`"
-  if [ $GET_TESTVER == "true" ]; then
-	echo '{ SButton:{
-		   label:"테스트 버전 다운로드",
-		   action:"am start -a android.intent.action.VIEW -d http://enfree.com/stockrider/?page=tester_download > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
-		}},'
-  fi
-fi
-`
-		{ SDescription:{ description:" " }},
-		{ SDescription:{ description:" " }},
+
+	{ SSpacer:{ height:2 }},
+
 		{ SButton:{
 		   label:"이 커널을 유용하게 사용하신다면...",
-		   action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+		   action:"am start -a android.intent.action.VIEW -d $URL/?page=donate > /dev/null 2>&1 & echo $DMSG4"
 		}},
 		{ SButton:{
 		   label:"이메일로 피드백 하기",
 		   action:"am start -a android.intent.action.VIEW -d mailto:dqstyle@gmail.com > /dev/null 2>&1& echo '     이메일 앱을 실행합니다.     '"
 		}},
+
+	{ SSpacer:{ height:2 }},
+	{ SPane:{
+        title:"애드온 설치 상태",
+	}},
+	{ SSpacer:{ height:1 }},
+    {SLiveLabel:{
+		refresh:5000,
+        action:"live donate"
+    }},
+	{ SSpacer:{ height:2 }},
+
     ]
 }
 

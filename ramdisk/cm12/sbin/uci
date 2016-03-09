@@ -11,6 +11,7 @@ fi
 CONFIG_JSON=$STR/config.json
 ACTION=$STR/actions/
 ACTION_SCRIPTS=$STR/actions/
+LOADER_VER_PATH=/data/PRIME-Kernel/synapse_loader_ver
 
 mount -t rootfs -o rw,remount rootfs
 

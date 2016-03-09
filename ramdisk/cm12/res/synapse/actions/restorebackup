@@ -2,7 +2,7 @@ BB=/res/bin/busybox;
 
 if [ -d /data/data/com.af.synapse ]; then
 
-  SYNAPSE_SD_DIR=/sdcard/Synapse;
+  SYNAPSE_SD_DIR=/data/media/0/Synapse;
   SYNAPSE_BOOT_DIR=$SYNAPSE_SD_DIR/kernel_backups;
   SYNAPSE_CONFIG_DIR=$SYNAPSE_SD_DIR/saved_profiles;
 
@@ -67,7 +67,6 @@ case "$1" in
                 do
                     value=`$sqlite $DB_SYNAPSE "SELECT value FROM action_value WHERE key='$key';"`
                     if [ "$value" != "BOOT_IS_STABLE" ] && [ "$value" != "BOOT_IS_PENDING" ]; then
-                        echo "$key = $value" >> /sdcard/synapse_loader.log
                         $action/$key $value > /dev/null 2>&1
                     fi
                 done < $KEY_LIST

@@ -15,7 +15,7 @@ cp -f  $TMPDIR/boot.img ../HostPC/Kernel/boot.img
 
 echo ""
 echo - wating device...
-adb wait-for-device
+#adb wait-for-device
 echo - push boot.img to /device/sdcard/ ...
 adb shell "rm -f /data/local/tmp/boot.img"
 adb push $TMPDIR/boot.img /data/local/tmp/boot.img

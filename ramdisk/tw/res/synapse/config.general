@@ -1,0 +1,15 @@
+#!/res/bin/busybox sh
+
+BB=/res/bin/busybox
+STR=/res/synapse
+PRIME=$STR
+CONFIG_JSON=$PRIME/config.json
+ACTION=$PRIME/actions/
+ACTION_SCRIPTS=$PRIME/actions/
+LOADER_VER_PATH=/data/PRIME-Kernel/synapse_loader_ver
+URL="http://enfree.com/prime"
+DMSG1="기부하신 후 사용할 수 있는 기능입니다."
+DMSG2="기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n"
+DMSG3="기부로 개발에 동참하기"
+DMSG4="'     웹브라우저를 실행합니다.     '"
+

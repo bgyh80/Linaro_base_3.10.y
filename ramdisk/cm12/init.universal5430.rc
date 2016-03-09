@@ -1035,6 +1035,7 @@ on property:ro.debuggable=1
 # LPM
 on charger
     mount ext4 /dev/block/mmcblk0p18 /system wait ro
+    mount f2fs /dev/block/mmcblk0p18 /system wait ro
     class_start sec-charger
 
 service playlpm /system/bin/lpm

@@ -1,9 +1,23 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"Memory", ko:"메모리"},
     elements:[
+`
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
+	{ SButton:{
+		label:"기부로 개발에 동참하기",
+		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
+	}},
+	{ SSpacer:{ height:2 }},'
+  fi
+`
+
 	{ SPane:{
 		title:"Memory state"
 	}},
@@ -30,7 +44,7 @@ cat << CTAG
 		description:"vmpressure 이벤트에 반응하여 동적으로 더 공격적인 LMK를 수행합니다.",
 		label: { en:"Enable Adaptive LMK", ko:"Adaptive LMK 활성화"},
    	 	default:'\`cat /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk\`',
-		action:"generic /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk",
+		action:"hmp /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk",
     }},
 	{ SDescription:{description:" "}},
     { SSeekBar:{
@@ -42,7 +56,7 @@ cat << CTAG
 		 step:256,
 		 weight:0.00390625,
         default:'\`cat /sys/module/lowmemorykiller/parameters/vmpressure_file_min\`',
-        action:"generic /sys/module/lowmemorykiller/parameters/vmpressure_file_min"
+        action:"hmp /sys/module/lowmemorykiller/parameters/vmpressure_file_min"
     }},
     { SSeekBar:{
         title:"vmpressure_scale_max",
@@ -51,7 +65,7 @@ cat << CTAG
 		max:100,
 		step:1,
         default:'\`cat /sys/module/vmpressure/parameters/vmpressure_scale_max\`',
-        action:"generic /sys/module/vmpressure/parameters/vmpressure_scale_max"
+        action:"hmp /sys/module/vmpressure/parameters/vmpressure_scale_max"
     }},
 	{ SDescription:{description:" "}},'
 fi;`
@@ -135,10 +149,10 @@ fi;`
 	
 	{ SSeekBar:{
 		title:"ZSwap memory pool",
-		description:" ZSwap memory pool percentage of main memory that may be used as compressed page cache. Default is 30.",
-		min:0, max:50, unit:" %", step:1,
+		description:" ZSwap memory pool percentage of main memory that may be used as compressed page cache. Default is 80.",
+		min:0, max:85, unit:" %", step:2,
 		default:`cat /sys/module/zswap/parameters/max_pool_percent`,
-		action:"generic /sys/module/zswap/parameters/max_pool_percent"
+		action:"hmp /sys/module/zswap/parameters/max_pool_percent"
 	}},
 	{ SSpacer:{ height:1 }},
 	
@@ -149,7 +163,7 @@ fi;`
 		min:0,
 		step:10,
 		default:`cat /proc/sys/vm/swappiness`,
-		action:"generic /proc/sys/vm/swappiness",
+		action:"hmp /proc/sys/vm/swappiness",
 	}},
 	{ SSpacer:{ height:2 }},
 

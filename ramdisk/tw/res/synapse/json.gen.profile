@@ -1,5 +1,5 @@
 #!/res/bin/busybox sh
-
+source /res/synapse/config.general
 cat << CTAG
 {
     name:{en:"BACKUP & RESTORE",ko:"백업 & 리스토어"},

@@ -33,9 +33,10 @@ ro.config.timaversion=0
 wlan.wfd.hdcp=disable
 persist.cne.feature=0
 
-# enabled a simpler memory management system
+# ram management
+ro.config.dha_cached_min=12
+ro.config.dha_cached_max=24
+ro.config.dha_empty_min=8
+ro.config.dha_lmk_scale=1
 ro.config.fha_enable=true
-
-# removed cached apps
-ro.sys.fw.use_trim_settings=false
 

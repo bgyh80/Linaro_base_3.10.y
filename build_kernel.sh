@@ -9,6 +9,7 @@ cleardir
 echo ""
 rm .version 2>/dev/null
 
+cp -rf $RAMDISK_TW/res/synapse/* $RAMDISK_CM/res/synapse/
 if [ $BUILD_G850_TW -eq 1 ]; then
 	cleardir $RAMDISK_TW
     echo ""
