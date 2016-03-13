@@ -1,0 +1,46 @@
+#!/res/bin/busybox sh
+
+cat << CTAG
+{
+    name:{en:"Preset", ko:"프리셋"},
+    elements:[
+    { SDescription:{
+        description:"미리 설정된 프리셋을 불러옵니다. 시냅스의 모든 설정이 아닌, 일부 설정만 변경됩니다. 예를 들어 오버클럭이나 전압조절 같은 기기수율에 따라 달라져야 하는 설정은 변경되지 않습니다.\n\n적용 후 '시냅스 재시작' 버튼을 누르시고 다시 실행되면 상단에 나타난 Apply 버튼(체크 모양)을 눌러주세요."
+    }},
+	{ SSpacer:{ height:1 }},
+
+	{ STitleBar:{ title:"기본 프리셋" }},
+	{ SButton:{
+		label:"성능 우선",
+        action:"profile /data/StockRider/synapse/settings/profile perfomance",
+	}},
+	{ SButton:{
+		label:"배터리 효율 우선",
+        action:"profile /data/StockRider/synapse/settings/profile battery",
+	}},
+	{ SSpacer:{ height:1 }},
+	{ STitleBar:{ title:"확장 프리셋" }},
+	{ SButton:{
+		label:"균형잡힌 최적화 (권장)",
+        action:"profile /data/StockRider/synapse/settings/profile balance",
+	}},
+	{ SButton:{
+		label:"성능 최대화",
+        action:"profile /data/StockRider/synapse/settings/profile perfomanceext",
+	}},
+	{ SButton:{
+		label:"배터리 효율 최대화",
+        action:"profile /data/StockRider/synapse/settings/profile batteryext",
+	}},
+	{ SSpacer:{ height:2 }},
+
+	{ STitleBar:{ title:"재시작 도구" }},
+	{ SButton:{
+		label:"시냅스 재시작",
+		action:"devtools restart"
+	}},
+
+	{ SSpacer:{ height:2 }},
+    ]
+}
+CTAG

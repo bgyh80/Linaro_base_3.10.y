@@ -1,9 +1,127 @@
+#!/system/bin/sh
+
 BB=/res/bin/busybox;
 INC=/data/PRIME-Kernel/bin/profile.inc
+
+ACT=/res/synapse/actions
+CURRENT_GOV=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+RESIZE_SCREEN=`wm size | grep "Override size:"`
+GOV=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+P=/data/PRIME-Kernel/synapse/settings/profile
+P_OLD=/data/PRIME-Kernel/synapse/settings/profile_old
+
+if [ $CURRENT_GOV == "interactive" ]; then
+    GOVERNOR0=/sys/devices/system/cpu/cpu0/cpufreq/interactive
+    GOVERNOR4=/sys/devices/system/cpu/cpu4/cpufreq/interactive
+else
+    GOVERNOR0=/sys/devices/system/cpu/cpu0/cpufreq/cafactive
+    GOVERNOR4=/sys/devices/system/cpu/cpu4/cpufreq/cafactive
+fi
+
+function set_val() {
+    [ -f $2 ] && echo $1 > $2 2>/dev/null
+}
+
+RET_VALUE=$2
 
 if [ -e $INC ]; then
     source $INC
 else
-    P=`cat /res/synapse/settings/profile`;
-    echo $P;
+  case $RET_VALUE in
+  "perfomance")
+	  set_val 0 /sys/kernel/hmp/packing_enable
+	  set_val 1 $GOVERNOR0/io_is_busy
+	  set_val 1 $GOVERNOR4/io_is_busy
+	  set_val 70 $GOVERNOR0/go_hispeed_load
+	  set_val 70 $GOVERNOR4/go_hispeed_load
+	  set_val 1100000 $GOVERNOR0/hispeed_freq
+	  set_val 1500000 $GOVERNOR4/hispeed_freq
+	  set_val 80000 $GOVERNOR0/min_sample_time
+	  set_val 20000 $GOVERNOR0/timer_rate
+	  set_val 0 $GOVERNOR0/boost
+	  set_val 0 /sys/devices/14ac0000.mali/tmu
+	  set_val 1 /sys/devices/14ac0000.mali/dvfs_governor
+	  set_val N /sys/module/mmc_core/parameters/use_spi_crc
+	  set_val 1 /sys/kernel/dyn_fsync/Dyn_fsync_active
+	  for i in /sys/block/*/queue/add_random; do echo 0 > $i; done > /dev/null 2>&1
+	  for i in /sys/block/*/queue/rq_affinity; do echo 2 > $i; done > /dev/null 2>&1
+	  set_val 128 /proc/sys/kernel/random/read_wakeup_threshold
+	  set_val 896 /proc/sys/kernel/random/write_wakeup_threshold
+	  set_val 2 /sys/class/input_booster/level
+	  set_val 8 /sys/power/cpucore_max_num_limit
+	  set_val 4 /sys/module/dhd/parameters/wl_divide
+	  set_val westwood /proc/sys/net/ipv4/tcp_congestion_control
+	  set_val 1 /proc/sys/vm/dynamic_dirty_writeback
+	  set_val 0 /proc/sys/kernel/randomize_va_space
+	  set_val 241 /sys/kernel/hmp/down_threshold
+	  set_val 512 /sys/kernel/hmp/up_threshold
+	  set_val N /sys/module/workqueue/parameters/power_efficient
+	  set_val 61440 /sys/module/lowmemorykiller/parameters/vmpressure_file_min
+	  set_val 1 /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
+	  set_val 200000 $GOVERNOR0/max_freq_hysteresis
+	  set_val 50000 $GOVERNOR4/max_freq_hysteresis
+	  set_val 160 /sys/kernel/hmp/up_perf_threshold
+	  set_val 1 /sys/kernel/hmp/power_migration
+	  set_val cafactive /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	  set_val cafactive /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+   	  echo "    프리셋이 적용되었습니다. 시냅스 재시작 버튼을 누르세요.    "
+	  ;;
+
+  "battery")
+	  if [[ ! -z $RESIZE_SCREEN ]]; then
+		set_val 1 /sys/kernel/hmp/packing_enable
+		set_val 570 /sys/kernel/hmp/packing_limit
+	  else
+		set_val 0 /sys/kernel/hmp/packing_enable
+		set_val 42 /sys/kernel/hmp/packing_limit
+	  fi
+	  set_val 1 $GOVERNOR0/io_is_busy
+	  set_val 1 $GOVERNOR4/io_is_busy
+	  set_val 120 $GOVERNOR0/go_hispeed_load
+	  set_val 89 $GOVERNOR4/go_hispeed_load
+	  set_val 700000 $GOVERNOR0/hispeed_freq
+	  set_val 800000 $GOVERNOR4/hispeed_freq
+	  set_val 40000 $GOVERNOR0/min_sample_time
+	  set_val 40000 $GOVERNOR0/timer_rate
+	  set_val 0 $GOVERNOR0/boost
+	  set_val 1 /sys/devices/14ac0000.mali/tmu
+	  set_val 2 /sys/devices/14ac0000.mali/dvfs_governor
+	  set_val N /sys/module/mmc_core/parameters/use_spi_crc
+	  set_val 1 /sys/kernel/dyn_fsync/Dyn_fsync_active
+	  for i in /sys/block/*/queue/add_random; do echo 0 > $i; done > /dev/null 2>&1
+	  for i in /sys/block/*/queue/rq_affinity; do echo 1 > $i; done > /dev/null 2>&1
+	  set_val 64 /proc/sys/kernel/random/read_wakeup_threshold
+	  set_val 896 /proc/sys/kernel/random/write_wakeup_threshold
+	  set_val 0 /sys/class/input_booster/level
+	  set_val 8 /sys/power/cpucore_max_num_limit
+	  set_val 6 /sys/module/dhd/parameters/wl_divide
+	  set_val westwood /proc/sys/net/ipv4/tcp_congestion_control
+	  set_val 1 /proc/sys/vm/dynamic_dirty_writeback
+	  set_val 0 /proc/sys/kernel/randomize_va_space
+	  set_val 320 /sys/kernel/hmp/down_threshold
+	  set_val 870 /sys/kernel/hmp/up_threshold
+	  set_val Y /sys/module/workqueue/parameters/power_efficient
+	  set_val 40960 /sys/module/lowmemorykiller/parameters/vmpressure_file_min
+	  set_val 0 /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
+	  set_val 100000 $GOVERNOR0/max_freq_hysteresis
+	  set_val 50000 $GOVERNOR4/max_freq_hysteresis
+	  set_val 597 /sys/kernel/hmp/up_perf_threshold
+	  set_val 1 /sys/kernel/hmp/power_migration
+	  set_val interactive /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	  set_val interactive /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+   	  echo "    프리셋이 적용되었습니다. 시냅스 재시작 버튼을 누르세요.    "
+	  ;;
+   "perfomanceext")
+    	echo "    기부 하신 후 이용 가능합니다.    "
+      ;;
+   "batteryext")
+    	echo "    기부 하신 후 이용 가능합니다.    "
+      ;;
+   "balance")
+    	echo "    기부 하신 후 이용 가능합니다.    "
+      ;;
+   "stability")
+    	echo "    기부 하신 후 이용 가능합니다.    "
+      ;;
+  esac
 fi
