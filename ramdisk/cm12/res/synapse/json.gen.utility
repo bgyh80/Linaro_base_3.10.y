@@ -96,21 +96,14 @@ cat << CTAG
 	{ SSpacer:{ height:1 }},
 
  	{ SPane:{
-		title:"배터리 드레인 패치",
-        description:"백그라운드 앱에 의해 발생하는 배터리 드레인 현상을 해결합니다.\n",
+		title:"시냅스 데이터",
+        description:"커널 플래싱 시 시냅스 앱 데이터를 초기화 하지 않도록 선택할 수 있습니다.\n오래된 이전 버전이나 타 커널을 사용후 새로 플래싱 할 때는 반드시 시냅스 앱 데이터를 초기화 해야만 정상적인 사용이 가능합니다.\n무슨 의미인지 이해 하셨고 문제 발생 시 직접 해결 가능하신 경우에만 이 기능을 활성화 하시기 바랍니다.\n",
     }},
 	{ SCheckBox:{
-        label:"Google Play 서비스 패치",
-        description:"특정 버전에서 발생하는 배터리 드레인을 해결합니다.\n",
+        label:"시냅스 앱 데이터를 초기화 하지 않습니다.",
+        description:"활성화 하면 TWRP에서 커널 플래싱 시 기존 시냅스 앱의 데이터를 초기화 하지 않습니다. 기본값은 '해제'입니다.",
 		default:0,
-		action:"hmp /res/synapse/settings/gms_drain"
-	}},
-
-	{ SCheckBox:{
-        label:"DCMProvider 사용중지",
-        description:"갤러리에서 사진종류 보기 시 사람/풍경/동물/음식/문서 등의 분류를 생성하고 관리하는 역할을 합니다.\n",
-		default:0,
-		action:"hmp /res/synapse/settings/dcm_drain"
+		action:"func donotclear"
 	}},
 	{ SSpacer:{ height:1 }},
 

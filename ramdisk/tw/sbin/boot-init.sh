@@ -115,6 +115,20 @@ bb chmod -R 0755 /res/bin
 
 bb rm /system/etc/init.d/UKM
 bb rm /system/xbin/uci
+
+# busybox install
+INS_XBIN=`cat /data/StockRider/synapse/settings/bbins_xbin`
+INS_LAST=`cat /data/StockRider/synapse/settings/bbins_last`
+if [ $INS_LAST -eq 1 ] && [ $INS_XBIN -eq 0 ]; then
+if [ $INS_LAST -eq 1 ]; then
+	if [ $INS_XBIN -eq 0 ]; then P=/res/bin/bb;
+	else P=/system/xbin; fi
+	if [ ! -f $P/busybox ]; then
+		$BB ln -sf /res/bin/busybox $P/busybox
+		$P/busybox --install -s $P
+	fi
+fi
+
 /sbin/uci reset
 /sbin/uci
 
