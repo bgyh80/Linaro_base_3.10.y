@@ -1,0 +1,13 @@
+#!/res/bin/busybox sh
+BB=/res/bin/busybox;
+INC=/data/PRIME-Kernel/bin/func.inc
+
+if [ -e $INC ]; then
+    source $INC
+else
+  case $1 in
+    donotclear)
+		echo 0
+    ;;
+  esac
+fi
