@@ -21,8 +21,9 @@ cat << CTAG
 	`. $PRIME/json.gen.advanced`,
 	`. $PRIME/json.gen.km`,
 	`. $PRIME/json.gen.utility`,
-	`. $PRIME/json.gen.log`,
+	`. $PRIME/json.gen.preset`,
 	`. $PRIME/json.gen.profile`,
+	`. $PRIME/json.gen.log`,
 	`. $PRIME/json.gen.reboot`,
     ]
 }
