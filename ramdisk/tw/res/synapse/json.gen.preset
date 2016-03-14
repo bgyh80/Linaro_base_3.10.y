@@ -32,6 +32,10 @@ cat << CTAG
 		label:"배터리 효율 최대화",
         action:"profile /data/StockRider/synapse/settings/profile batteryext",
 	}},
+	{ SButton:{
+		label:"안정성 우선",
+        action:"profile /data/StockRider/synapse/settings/profile stability",
+	}},
 	{ SSpacer:{ height:2 }},
 
 	{ STitleBar:{ title:"재시작 도구" }},
