@@ -6,7 +6,7 @@ cat << CTAG
     elements:[
 	{ SPane:{
 		title:"CPU Governor",
-        description:"가버너는 요구되는 작업량에 따라 CPU클럭을 변경합니다.\ninteractive는 성능이 뛰어나고 배터리 효율은 보통입니다.\ncafactive는 퀄컴의 오픈소스 버전 interactive 이며 다방면으로 뛰어난 성능을 보입니다.\nperfomance는 항상 최대 클럭으로 고정하기 때문에 특정한 목적이 아니라면 사용하지 않는 게 좋습니다.",
+        description:"가버너는 요구되는 작업량에 따라 CPU클럭을 변경합니다.\ninteractive는 성능이 뛰어나고 배터리 효율은 보통입니다.\ncafactive는 퀄컴의 오픈소스 버전 interactive 이며 다방면으로 뛰어난 성능을 보입니다.\nperfomance는 항상 최대 클럭으로 고정하기 때문에 특정한 목적이 아니라면 사용하지 않는 게 좋습니다.\n\n sched 가버너는 EAS 스케줄러를 위한 가버너 이므로 사용하지 마세요.\n\n주의!! 가버너 변경 시 big.LITTLE 지원 가버너(interactive, cafactive)는 반드시 b/L 코어 모두를 동일한 가버너로 설정해야 정상적으로 작동합니다.",
     }},
 	{ SDescription:{description:""}},
     { SOptionList:{
