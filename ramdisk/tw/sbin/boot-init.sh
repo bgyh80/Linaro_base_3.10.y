@@ -68,6 +68,10 @@ echo 100000 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/max_freq_hysteresis
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/cafactive/io_is_busy
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/cafactive/io_is_busy
 
+# Configure interactive
+echo interactive > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo interactive > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+
 
 # fix some kernel value
 
@@ -84,6 +88,7 @@ echo 1300000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo 800000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
 echo 1800000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
 echo 80 > /sys/module/zswap/parameters/max_pool_percent
+echo 130 > /proc/sys/vm/swappiness
 echo 40960 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
 
 echo "1 1200000 1200000 0 0 1" > /sys/class/input_booster/key/freq
