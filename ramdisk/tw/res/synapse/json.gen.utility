@@ -82,18 +82,6 @@ cat << CTAG
 	{ SSpacer:{ height:1 }},
 
  	{ SPane:{
-		title:"외부 SD카드 쓰기권한",
-        description:"외부 SD카드에 읽기와 쓰기 권한을 부여합니다.",
-    }},
-	{ SCheckBox:{
-        label:"외부 SD카드 쓰기 권한 패치를 적용합니다.",
-        description:"이 패치는 /system/etc/permissions/platform.xml 파일을 수정합니다. 패치 해제 시 원래대로 복구됩니다. 설정 변경 시 디바이스 재시작이 필요합니다.",
-		default:0,
-		action:"hmp /res/synapse/settings/extsd_patch_00"
-	}},
-	{ SSpacer:{ height:1 }},
-
- 	{ SPane:{
 		title:"Viper4Android 시스템 사운드 적용 패치",
         description:"패치를 사용하면 Viper4Android의 음장 효과가 시스템 전체 사운드에 적용됩니다. 'Viper4Android'는 직접 설치하셔야합니다.",
     }},
