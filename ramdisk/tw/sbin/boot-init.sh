@@ -25,6 +25,8 @@ if [ $carrier == "L" ]; then
 fi
 
 # Configure interactive
+echo interactive > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo interactive > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
 echo 40000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time
 echo 75 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
 echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_slack
@@ -91,14 +93,6 @@ echo 80 > /sys/module/zswap/parameters/max_pool_percent
 echo 130 > /proc/sys/vm/swappiness
 echo 40960 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
 
-echo "1 1200000 1200000 0 0 1" > /sys/class/input_booster/key/freq
-echo "1 0 500 0" > /sys/class/input_booster/key/time
-echo "2 0 1200000 0 0 0" > /sys/class/input_booster/touch/freq
-echo "3 0 800000 0 0 0" > /sys/class/input_booster/touch/freq
-echo "1 0 0 0" > /sys/class/input_booster/touch/time
-echo "2 130 500 0" > /sys/class/input_booster/touch/time
-echo "3 0 500 0" > /sys/class/input_booster/touch/time
-
 if [ ! -f /system/.knox_removed ]; then
     bb rm -rf /system/app/Bridge
     bb rm -rf /system/app/KnoxAttestationAgent
@@ -117,15 +111,14 @@ if [ ! -f /system/.knox_removed ]; then
 fi
 
 bb chmod -R 0755 /res/bin
-
+bb chmod -R 0755 /res/synapse
 bb rm /system/etc/init.d/UKM
 bb rm /system/xbin/uci
 
 # busybox install
-INS_XBIN=`cat /data/StockRider/synapse/settings/bbins_xbin`
-INS_LAST=`cat /data/StockRider/synapse/settings/bbins_last`
-if [ $INS_LAST -eq 1 ] && [ $INS_XBIN -eq 0 ]; then
-if [ $INS_LAST -eq 1 ]; then
+INS_XBIN=`cat /data/PRIME-Kernel/synapse/settings/bbins_xbin`
+INS_LAST=`cat /data/PRIME-Kernel/synapse/settings/bbins_last`
+if [ "$INS_LAST" -eq 1 ]; then
 	if [ $INS_XBIN -eq 0 ]; then P=/res/bin/bb;
 	else P=/system/xbin; fi
 	if [ ! -f $P/busybox ]; then
@@ -134,10 +127,12 @@ if [ $INS_LAST -eq 1 ]; then
 	fi
 fi
 
+# Synapse Loader
+/sbin/synapse_loader.sh
+
+# Synapse Interface
 /sbin/uci reset
 /sbin/uci
-
-/sbin/synapse_loader.sh
 
 echo init.d script start >> /data/PRIME-Kernel/kernel.log
 echo - excecuted on $(date +"%Y-%d-%m %r") >> /data/PRIME-Kernel/kernel.log

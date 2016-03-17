@@ -6,8 +6,8 @@ SYNAPSE_LOADER_ACT=1
 SYNAPSE_LOADER_LOG=/sdcard/synapse_loader.log
 LOADER_VER_PATH=/data/PRIME-Kernel/synapse_loader_ver
 
-rm $SYNAPSE_LOADER_LOG
-rm $LOADER_VER_PATH
+rm $SYNAPSE_LOADER_LOG 2> /dev/null
+rm $LOADER_VER_PATH 2> /dev/null
 
 echo synapseloader start >> /data/PRIME-Kernel/kernel.log
 echo - excecuted on $(date +"%Y-%d-%m %r") >> /data/PRIME-Kernel/kernel.log
@@ -25,12 +25,12 @@ if [ -f $SYNAPSE_LOADER_SRC ]; then
 	cat $SYNAPSE_LOADER_SRC|/res/bin/busybox base64 -d > $SYNAPSE_LOADER_EXE
 	chmod 755 $SYNAPSE_LOADER_EXE
 	LOADER_VER=`echo $($SYNAPSE_LOADER_EXE version)`
-	if [[ "$LOADER_VER" < "2.0" ]]; then
-		SYNAPSE_LOADER_SRC="synapseloader_notfound"
-		echo 0 >> $LOADER_VER_PATH
-	else
+	#if [[ "$LOADER_VER" < "1.0" ]]; then
+	#	SYNAPSE_LOADER_SRC="synapseloader_notfound"
+	#	echo 0 >> $LOADER_VER_PATH
+	#else
 		echo $LOADER_VER > $LOADER_VER_PATH
-	fi
+	#fi
 fi
 if [ -f $SYNAPSE_LOADER_SRC ] && [ $SYNAPSE_LOADER_ACT -eq 1 ]; then
 	$BB sh $SYNAPSE_LOADER_EXE

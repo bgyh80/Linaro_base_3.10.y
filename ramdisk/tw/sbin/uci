@@ -20,8 +20,10 @@ function initial_prof() {
 	fi
 }
 
+$BB mkdir -p /data/PRIME-Kernel/synapse/settings
 initial_prof /res/synapse/settings/dvfs_disabler 1
 initial_prof /res/synapse/settings/loader_unroot 1
+initial_prof /data/PRIME-Kernel/synapse/settings/loader_unroot 1
 initial_prof /res/synapse/settings/extsd_patch_00 1
 initial_prof /res/synapse/settings/viper_patch_00 0
 initial_prof /res/synapse/settings/gms_drain 0
@@ -32,11 +34,9 @@ initial_prof /res/synapse/settings/tweak_net 0
 initial_prof /res/synapse/settings/tweak_touch 0
 initial_prof /res/synapse/settings/profile none
 initial_prof /res/synapse/settings/vnswap0 1
-initial_prof /res/synapse/settings/bbins_xbin 0
+initial_prof /data/PRIME-Kernel/synapse/settings/bbins_xbin 0
+initial_prof /data/PRIME-Kernel/synapse/settings/bbins_last 0
 initial_prof /res/synapse/settings/synapse_do_not_clear 0
-
-chmod -R 0755 /res/synapse
-#chmod -R 0755 /sbin
 
 if [ ! -f $CONFIG_JSON ]; then
 	source $PRIME/config.json.generate > $CONFIG_JSON
