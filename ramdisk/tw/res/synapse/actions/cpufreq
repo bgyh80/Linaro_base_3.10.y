@@ -3,17 +3,25 @@
 BB=/res/bin/busybox;
 SQLITE="/res/bin/sqlite3";
 DB_SYNAPSE="/data/data/com.af.synapse/databases/actionValueStore";
+path=$1
+
+if [ "$path" == "/res/synapse/settings/cpu4_max" ]; then
+	sysfs="/sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq"
+elif [ "$path" == "/res/synapse/settings/cpu0_max" ]; then
+	sysfs="/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
+else
+	sysfs="$1"
+fi
 
 if [ -f $1 ]; then
 	if [[ ! -z "$2" ]] && [[ -e $1 ]]; then
 		echo "$2" > $1 2> /dev/null;
+		echo "$2" > $sysfs 2> /dev/null;
 	fi;
-
+	sync
 	echo "`cat $1`";
 else
-
 	GET_VALUE=`$SQLITE $DB_SYNAPSE "SELECT value FROM action_value WHERE key = 'cpufreq $1';"`;
 	echo $GET_VALUE;
-
 fi;
 

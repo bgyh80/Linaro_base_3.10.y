@@ -37,6 +37,8 @@ initial_prof /res/synapse/settings/vnswap0 1
 initial_prof /data/PRIME-Kernel/synapse/settings/bbins_xbin 0
 initial_prof /data/PRIME-Kernel/synapse/settings/bbins_last 0
 initial_prof /res/synapse/settings/synapse_do_not_clear 0
+initial_prof /res/synapse/settings/cpu0_max 1300000
+initial_prof /res/synapse/settings/cpu4_max 1800000
 
 if [ ! -f $CONFIG_JSON ]; then
 	source $PRIME/config.json.generate > $CONFIG_JSON
