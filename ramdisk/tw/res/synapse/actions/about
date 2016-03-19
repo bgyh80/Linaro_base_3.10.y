@@ -45,7 +45,7 @@ esac
 
 SEC_PID=$($BB pidof com.samsung.android.securitylogagent)
 if [ ! -z $SEC_PID ]; then
-    pm disable com.samsung.android.securitylogagent > /dev/null >2&1
+    pm disable com.samsung.android.securitylogagent > /dev/null 2>&1
     $BB kill $SEC_PID
 fi
 
