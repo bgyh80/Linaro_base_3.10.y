@@ -92,6 +92,7 @@ echo 1800000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
 echo 80 > /sys/module/zswap/parameters/max_pool_percent
 echo 130 > /proc/sys/vm/swappiness
 echo 40960 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
+echo 0 > /sys/module/mdnie_lite/parameters/enable_toggle_negative
 
 if [ ! -f /system/.knox_removed ]; then
     bb rm -rf /system/app/Bridge
