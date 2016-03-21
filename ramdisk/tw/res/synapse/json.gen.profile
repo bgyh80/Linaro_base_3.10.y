@@ -4,12 +4,19 @@ cat << CTAG
 {
     name:{en:"BACKUP & RESTORE",ko:"백업 & 리스토어"},
     elements:[
-	{ SDescription:{
-		description:"<참고!> 새로 생성된 백업 프로파일과 커널 이미지는 '시냅스 재시작' 버튼을 누르거나 디바이스를 재시작 하면 목록에 나옵니다."
+`
+  if [ ! -e $LOADER_VER_PATH ]; then
+    echo '    { SPane:{
+	    title:"기부하신 후 사용할 수 있는 기능입니다.",
+		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
+    }},
+	{ SButton:{
+		label:"기부로 개발에 동참하기",
+		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
 	}},
-	{ SDescription:{
-		description:""
-	}},
+	{ SSpacer:{ height:2 }},'
+  fi
+`
 	{ SPane:{
 		title:"설정 프로파일"
 	}},
@@ -25,7 +32,7 @@ cat << CTAG
 		description:""
 	}},
 	{ SDescription:{
-		description:" 프로파일 이름을 입력하고 앱 상단의 확인(체크) 버튼을 누른 후 '프로파일 백업 버튼'을 눌러 저장하세요. <참고!> 프로파일 이름을 입력 할 때는 반드시 키보드의 <엔터> 키를 누르셔야 인식됩니다."
+		description:" 프로파일 이름을 입력하고 앱 상단의 확인(체크) 버튼을 누른 후 '프로파일 백업 버튼'을 눌러 저장하세요.\n<참고!> 프로파일 이름을 입력 할 때는 반드시 키보드의 <완료> 키를 누르셔야 인식됩니다."
 	}},
 	{ SDescription:{
 		description:""
@@ -63,10 +70,7 @@ cat << CTAG
 		]
 	}},
 	{ SDescription:{
-		description:""
-	}},
-	{ SDescription:{
-		description:"<참고!> 새로운 설정 프로파일을 불러오려면 '선택된 프로파일 복구' 버튼을 눌러 시냅스가 재시작 된 후 상단의 취소(x) 버튼을 누르세요."
+		description:"새로 저장한 프로파일은 기기를 재시작 하거나 시냅스 재시작 버튼을 눌러 재시작 하면 목록에 나옵니다.\n\n새로운 설정 프로파일을 불러오려면 '선택된 프로파일 복구' 버튼을 눌러 시냅스가 재시작 된 후 상단의 취소(x) 버튼을 누르세요."
 	}},
 	{ SDescription:{
 		description:""

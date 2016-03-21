@@ -4,21 +4,7 @@ cat << CTAG
 {
     name:{en:"Advanced",ko:"고급 설정"},
     elements:[
-`
-  if [ ! -e $LOADER_VER_PATH ]; then
-    echo '    { SPane:{
-	    title:"기부하신 후 사용할 수 있는 기능입니다.",
-		description:"기부하신 분들께 제공되는 혜택입니다.\n기부는 간접적인 개발 참여 방법입니다.\n이 커널이 꾸준히 업데이트 되길 원한다면 기부에 동참해보세요.\n",
-    }},
-	{ SButton:{
-		label:"기부로 개발에 동참하기",
-		action:"am start -a android.intent.action.VIEW -d http://enfree.com/prime/?page=donate > /dev/null 2>&1 & echo '     웹브라우저를 실행합니다.     '"
-	}},
-	{ SSpacer:{ height:2 }},'
-  fi
-`
-
-   { SPane:{
+    { SPane:{
     title:{en:"Kernel Entropy", ko:"커널 엔트로피"}
     }},
 	{ SDescription:{
@@ -41,14 +27,14 @@ cat << CTAG
 		max:1024,
         min:16, step:16,
 		default:`cat /proc/sys/kernel/random/read_wakeup_threshold`,
-		action:"hmp /proc/sys/kernel/random/read_wakeup_threshold"
+		action:"generic /proc/sys/kernel/random/read_wakeup_threshold"
 	}},
 	{ SSeekBar:{
 		title:{en:"Write Wakeup Threshold", ko:"쓰기 시 제한점"},
 		max:2048,
 		min:128, step:16,
 		default:`cat /proc/sys/kernel/random/write_wakeup_threshold`,
-		action:"hmp /proc/sys/kernel/random/write_wakeup_threshold"
+		action:"generic /proc/sys/kernel/random/write_wakeup_threshold"
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -58,7 +44,7 @@ cat << CTAG
     }}
     { SOptionList:{
         default:`cat /sys/module/workqueue/parameters/power_efficient`,
-		action:"hmp /sys/module/workqueue/parameters/power_efficient",
+		action:"generic /sys/module/workqueue/parameters/power_efficient",
         values:{
             N:"Disabled",
             Y:"Enabled",
@@ -74,7 +60,7 @@ cat << CTAG
 
 		{ SOptionList:{
 			default:`cat proc/sys/net/ipv4/tcp_congestion_control`,
-			action:"hmp proc/sys/net/ipv4/tcp_congestion_control",
+			action:"generic proc/sys/net/ipv4/tcp_congestion_control",
 			values:[`while read values; do /res/bin/busybox printf "%s, \n" $values; done < proc/sys/net/ipv4/tcp_available_congestion_control`]
 		}},
 		{ SSpacer:{ height:1 }},
@@ -85,7 +71,7 @@ cat << CTAG
     { SOptionList:{
 		description:" 인풋 부스터는 터치, 키보드, 펜 등의 사용자 입력이 있을 때 CPU 클럭을 올려 UI 반응을 향상시킵니다. 레벨0(OFF) 선택 시 UI 성능을 댓가로 약간의 배터리 향상이 있습니다. 기본값(2)을 권장합니다.",
         default:`cat /sys/class/input_booster/level`,
-		action:"hmp /sys/class/input_booster/level",
+		action:"generic /sys/class/input_booster/level",
         values:{
             0:"0. OFF",
             1:"1. SIP (default SIP)",
@@ -105,7 +91,7 @@ cat << CTAG
         description:"화면이 켜진 상태에서 활성화 될 CPU 코어 최대 갯수. 5 미만으로 설정 시 시냅스 앱의 CPU 관련 일부 항목이 표시되지 않거나 오류메세지를 출력할 수 있지만 사용에는 문제가 없습니다.",
         unit:" Core",
         default:`cat /sys/power/cpucore_max_num_limit`,
-        action:"hmp /sys/power/cpucore_max_num_limit",
+        action:"generic /sys/power/cpucore_max_num_limit",
         min:1,
         max:8,
         step:1,
@@ -121,7 +107,7 @@ cat << CTAG
 	{ SCheckBox:{
 		label:"Enable Dynamic Dirty Page Writeback",
        	 	default:'\`cat /proc/sys/vm/dynamic_dirty_writeback\`',
-		action:"hmp /proc/sys/vm/dynamic_dirty_writeback"
+		action:"generic /proc/sys/vm/dynamic_dirty_writeback"
 	}},
 	{ SSpacer:{ height:1 }},
 
@@ -132,7 +118,7 @@ cat << CTAG
 		min:500,
 		step:500,
 		default:'\`cat /proc/sys/vm/dirty_writeback_active_centisecs\`',
-		action:"hmp /proc/sys/vm/dirty_writeback_active_centisecs",
+		action:"generic /proc/sys/vm/dirty_writeback_active_centisecs",
 	}},
 	{ SDescription:{
 		description:" "
@@ -144,7 +130,7 @@ cat << CTAG
 		min:100,
 		step:100,
 		default:'\`cat /proc/sys/vm/dirty_writeback_suspend_centisecs\`',
-		action:"hmp /proc/sys/vm/dirty_writeback_suspend_centisecs",
+		action:"generic /proc/sys/vm/dirty_writeback_suspend_centisecs",
 	}},
     { SDescription:{ description:"" }},'
  fi;`
@@ -162,7 +148,7 @@ cat << CTAG
 		min:0,
 		step:1,
 		default:`cat /proc/sys/kernel/randomize_va_space`,
-		action:"hmp /proc/sys/kernel/randomize_va_space"
+		action:"generic /proc/sys/kernel/randomize_va_space"
 	}},
 
 	{ SSpacer:{ height:2 }},
